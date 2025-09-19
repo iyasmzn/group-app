@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react"
-import { useAuth } from "@/lib/supabaseAuth"
+import { useAuth } from "@/lib/supabase/auth"
 import { useRouter } from "next/navigation"
 
 export default function SignupPage() {
@@ -14,8 +14,8 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      await signUp(email, password, name)
-      router.push("/") // redirect after signup
+      await signUp(email, password)
+      router.push("/app/home") // redirect after signup
     } catch (err: any) {
       setError(err.message)
     }

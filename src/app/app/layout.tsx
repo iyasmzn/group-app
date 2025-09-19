@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
-import { NavbarApp } from "@/components/navbar-app"
-import { AuthProvider } from "@/lib/supabaseAuth"
 import { MotionProvider } from "@/components/providers"
 
 const geistSans = Geist({
@@ -28,7 +26,6 @@ export default function AppLayout({
   
   return (
     <>
-        <NavbarApp />
         <MotionProvider>{children}</MotionProvider>
     </>
   );

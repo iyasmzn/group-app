@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
-import { supabase } from "@/lib/supabaseClient"
+import { supabase } from "@/lib/supabase/client"
 import { uploadToCloudinary } from "@/lib/cloudinary"
 
 export default function ChatPage({ groupId, userId }: { groupId: string; userId: string }) {

@@ -1,9 +1,12 @@
 "use client"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { supabase } from "@/lib/supabaseClient"
+import { supabase } from "@/lib/supabase/client"
 import { UserAvatarGroup } from "@/components/user-avatar-group"
 import PageWrapper from "@/components/page-wrapper"
+import { NavbarApp } from "@/components/navbar-app"
+import { MobileTopbar } from "@/components/mobile-topbar"
+import { Home } from "lucide-react"
 
 export default function GroupsPage({ userId }: { userId: string }) {
   const [groups, setGroups] = useState<any[]>([])
@@ -54,38 +57,42 @@ export default function GroupsPage({ userId }: { userId: string }) {
   }
 
   return (
-    <PageWrapper>
-      <div className="max-w-4xl mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Your Groups</h1>
+    <>
+      <NavbarApp />
+      <MobileTopbar title="Groups" titleIcon={<Home className="h-6 w-6" />} />
+      <PageWrapper>
+        <div className="max-w-4xl mx-auto p-4">
+          <h1 className="text-2xl font-bold mb-4">Your Groups</h1>
 
-        <div className="flex gap-2 mb-6">
-          <input
-            type="text"
-            placeholder="New group name"
-            className="border rounded p-2 flex-1"
-            value={newGroupName}
-            onChange={e => setNewGroupName(e.target.value)}
-          />
-          <button onClick={createGroup} className="bg-blue-600 text-white px-4 rounded hover:bg-blue-700">
-            Create
-          </button>
-        </div>
+          <div className="flex gap-2 mb-6">
+            <input
+              type="text"
+              placeholder="New group name"
+              className="border rounded p-2 flex-1"
+              value={newGroupName}
+              onChange={e => setNewGroupName(e.target.value)}
+            />
+            <button onClick={createGroup} className="bg-blue-600 text-white px-4 rounded hover:bg-blue-700">
+              Create
+            </button>
+          </div>
 
-        <ul className="space-y-2">
-          {groups.map(group => (
-            <li key={group.id} className="flex justify-between items-center p-2 border rounded hover:bg-gray-50">
-              <Link href={`/groups/${group.id}/chat`} className="font-medium">{group.name}</Link>
-              <Link href={`/groups/${group.id}/manage`} className="text-sm text-gray-500 hover:underline">
-                Manage
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <div className="p-6">
-          <h2 className="font-bold text-xl mb-4">Group Members</h2>
-          <UserAvatarGroup users={members} max={3} size={40} />
+          <ul className="space-y-2">
+            {groups.map(group => (
+              <li key={group.id} className="flex justify-between items-center p-2 border rounded hover:bg-gray-50">
+                <Link href={`/groups/${group.id}/chat`} className="font-medium">{group.name}</Link>
+                <Link href={`/groups/${group.id}/manage`} className="text-sm text-gray-500 hover:underline">
+                  Manage
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="p-6">
+            <h2 className="font-bold text-xl mb-4">Group Members</h2>
+            <UserAvatarGroup users={members} max={3} size={40} />
+          </div>
         </div>
-      </div>
-    </PageWrapper>
+      </PageWrapper>
+    </>
   )
 }

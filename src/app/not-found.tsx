@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useAuth } from "@/lib/supabaseAuth"
+import { useAuth } from "@/lib/supabase/auth"
 
 export default function NotFound() {
   const { user } = useAuth()

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider"
-import { AuthProvider } from "@/lib/supabaseAuth"
+import { AuthProvider } from "@/lib/supabase/auth"
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <AuthProvider>
             <main className="px-4 py-6">{children}</main>
+            <Toaster position="top-center" />
           </AuthProvider>
         </ThemeProvider>
       </body>

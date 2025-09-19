@@ -2,13 +2,12 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/supabase/auth"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
 
 export default function LoginPage() {
   const { signIn, signInWithGoogle, user } = useAuth()
   const router = useRouter()
-  const [email, setEmail] = useState("iyasmzn07@gmail.com")
-  const [password, setPassword] = useState("iyas123")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
   const [error, setError] = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,10 +46,7 @@ export default function LoginPage() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-2">
         <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="border rounded p-2"/>
         <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} className="border rounded p-2"/>
-        <div className="grid grid-cols-2 gap-2">
-          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Login</button>
-          <Link href="/signup" className="text-center bg-red-600 text-white px-4 py-2 rounded">Sign Up</Link>
-        </div>
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Login</button>
       </form>
 
       <div className="flex items-center gap-2 my-2">
@@ -59,7 +55,7 @@ export default function LoginPage() {
         <span className="flex-1 border-t"></span>
       </div>
 
-      <button onClick={handleGoogleLogin} className="bg-yellow-600 text-white px-4 py-2 rounded">
+      <button onClick={handleGoogleLogin} className="bg-red-600 text-white px-4 py-2 rounded">
         Login with Google
       </button>
     </div>

@@ -1,8 +1,8 @@
 "use client"
 import Link from "next/link"
-import { useAuth } from "@/lib/supabaseAuth"
+import { useAuth } from "@/lib/supabase/auth"
 import { ModeToggle } from "./mode-toggle"
-import { Home, Users, MessageCircle, User, Settings } from "lucide-react"
+import { Home, Users, MessageCircle, Settings } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
 import { UserAvatar } from "./user-avatar"
@@ -16,7 +16,7 @@ export function NavbarApp() {
     { href: "/app/home", icon: <Home className="h-6 w-6" />, label: "Home" },
     { href: "/app/groups", icon: <Users className="h-6 w-6" />, label: "Groups" },
     { href: "/app/chat", icon: <MessageCircle className="h-6 w-6" />, label: "Chat" },
-    { href: "/app/settings", icon: <Settings className="h-6 w-6" />, label: "Setting" },
+    { href: "/app/settings", icon: <Settings className="h-6 w-6" />, label: "Settings" },
   ]
 
   const userAvatarNav = () => {
@@ -24,9 +24,8 @@ export function NavbarApp() {
       return (
         <div className="relative">
           <UserAvatar user={user} size={32} onClick={() => setMenuOpen(!menuOpen)} status="online" />
-
           {menuOpen && (
-            <div className="absolute right-0 mt-2 w-40 border rounded-lg shadow-lg overflow-hidden">
+            <div className="absolute right-0 mt-2 w-40 border rounded-lg shadow-lg overflow-hidden bg-background">
               <Link
                 href="/app/profile"
                 onClick={() => setMenuOpen(false)}
@@ -51,7 +50,7 @@ export function NavbarApp() {
       </Link>
     )
   }
-  
+
   return (
     <>
       {/* Desktop Navbar */}
@@ -59,39 +58,41 @@ export function NavbarApp() {
         <header className="hidden md:flex bg-background p-4 items-center justify-between max-w-6xl mx-auto">
           <Link href="/" className="font-bold text-xl">Group App</Link>
           <div className="flex items-center gap-6">
-            <Link href="/app/home">Home</Link>
-            <Link href="/app/groups">Groups</Link>
-            <Link href="/app/chat">Chat</Link>
+            {tabs.map(tab => {
+              const active = pathname === tab.href
+              return (
+                <Link
+                  key={tab.href}
+                  href={tab.href}
+                  className={`flex flex-col items-center justify-center ${active ? "text-blue-600" : "text-gray-500"}`}
+                >
+                  {tab.icon}
+                  <span className="text-xs">{tab.label}</span>
+                </Link>
+              )
+            })}
             <ModeToggle />
             {userAvatarNav()}
           </div>
         </header>
       </div>
 
-      {/* Mobile Topbar */}
-      <header className="md:hidden fixed top-0 left-0 right-0 z-50 border-b bg-background flex items-center justify-between px-4 py-3">
-        <Link href="/app/home" className="font-bold text-lg">Group App</Link>
-        <div className="flex items-center gap-3 relative">
-          <ModeToggle />
-          {userAvatarNav()}
-        </div>
-      </header>
-
       {/* Mobile Bottom Tabs */}
       <nav className="fixed bottom-0 left-0 right-0 md:hidden border-t bg-background flex justify-around items-center h-16">
         {tabs.map(tab => {
           const active = pathname === tab.href
           return (
-            <Link key={tab.href} href={tab.href} className={`flex flex-col items-center justify-center ${active ? "text-blue-600" : "text-gray-500"}`}>
+            <Link
+              key={tab.href}
+              href={tab.href}
+              className={`flex flex-col items-center justify-center ${active ? "text-blue-600" : "text-gray-500"}`}
+            >
               {tab.icon}
               <span className="text-xs">{tab.label}</span>
             </Link>
           )
         })}
       </nav>
-
-      {/* Spacer supaya konten tidak ketiban navbar */}
-      <div className="h-14 md:hidden" /> {/* untuk topbar */}
     </>
   )
 }

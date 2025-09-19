@@ -2,7 +2,7 @@
 import LandingLayout from "./landing-layout";
 import "./globals.css";
 import Link from "next/link";
-import { useAuth } from "@/lib/supabaseAuth";
+import { useAuth } from "@/lib/supabase/auth";
 import Reveal from "@/components/animations/Reveal";
 
 export default function LandingPage() {

@@ -5,6 +5,7 @@ import { useState } from "react"
 type UserAvatarProps = {
   user: any
   size?: number // ukuran avatar, default 40px
+  textSize?: number // ukuran teks inisial, default 14px
   onClick?: () => void
   status?: "online" | "offline" | "away" // indicator status
 }
@@ -18,7 +19,7 @@ const colors = [
   "bg-rose-500", "bg-gray-500"
 ]
 
-export function UserAvatar({ user, size = 40, onClick, status }: UserAvatarProps) {
+export function UserAvatar({ user, size = 40, onClick, status, textSize = 14 }: UserAvatarProps) {
   const [imgError, setImgError] = useState(false)
 
   const getInitials = () => {
@@ -58,7 +59,7 @@ export function UserAvatar({ user, size = 40, onClick, status }: UserAvatarProps
             onError={() => setImgError(true)}
           />
         ) : (
-          <span>{initials}</span>
+          <span style={{ fontSize: textSize}}>{initials}</span>
         )}
       </div>
 

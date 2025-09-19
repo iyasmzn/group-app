@@ -8,7 +8,7 @@ export function MotionProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname()
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence mode="wait" initial={true}>
       {/* key = pathname, jadi setiap halaman beda → bisa di-animate */}
       <div key={pathname} className="min-h-screen">
         {children}
