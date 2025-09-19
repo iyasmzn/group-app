@@ -30,7 +30,7 @@ export function MobileTopbar({ title, backHref, hideAvatarUser = false, titleIco
     if (user) {
       return (
         <div className="relative">
-          <UserAvatar user={user} size={28} onClick={signOut} status="online" />
+          <UserAvatar user={user} size={28} status="online" />
         </div>
       )
     }

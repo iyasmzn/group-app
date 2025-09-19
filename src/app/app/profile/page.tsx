@@ -103,7 +103,7 @@ export default function ProfilePage() {
 
   return (
     <>
-      <MobileTopbar title="Profile" backHref="/app/settings" />
+      <MobileTopbar title="Profile" backHref="/app/settings" hideAvatarUser />
       <PageWrapper>
         <div className="p-6 max-w-lg mx-auto space-y-8 relative">
           {/* Loading Overlay */}
