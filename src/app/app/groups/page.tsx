@@ -2,31 +2,40 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase/client"
-import { UserAvatarGroup } from "@/components/user-avatar-group"
 import PageWrapper from "@/components/page-wrapper"
-import { NavbarApp } from "@/components/navbar-app"
 import { AppTopbar } from "@/components/app/topbar"
 import { Home } from "lucide-react"
 import { AppBottombar } from "@/components/app/bottombar"
+import { GroupAvatar } from "@/components/group-avatar"
+import { useAuth } from "@/lib/supabase/auth"
 
-export default function GroupsPage({ userId }: { userId: string }) {
+export default function GroupsPageWrapper() {
+  const { user } = useAuth()
+
+  if (!user) {
+    return (
+      <PageWrapper>
+        <div className="max-w-4xl mx-auto p-4">
+          <p className="text-center">Please <Link href="/login" className="text-blue-600 hover:underline">login</Link> to view your groups.</p>
+        </div>
+      </PageWrapper>
+    )
+  }
+
+  return <GroupsPage userId={user.id} />
+}
+
+function GroupsPage({ userId }: { userId: string }) {
   const [groups, setGroups] = useState<any[]>([])
   const [newGroupName, setNewGroupName] = useState("")
-  const members = [
-  { id: 1, user_metadata: { full_name: "Iyas Muzani" } },
-  { id: 2, user_metadata: { full_name: "John Doe" } },
-  { id: 3, user_metadata: { full_name: "Jane Smith" } },
-  { id: 4, user_metadata: { full_name: "Michael Lee" } },
-  { id: 5, user_metadata: { full_name: "Sarah Connor" } },
-]
 
   useEffect(() => {
     const fetchGroups = async () => {
       const { data } = await supabase
         .from("group_members")
-        .select("groupId(id, name)")
-        .eq("userId", userId)
-      setGroups(data?.map(d => d.groupId) || [])
+        .select("group_id(id, name)")
+        .eq("user_id", userId)
+      setGroups(data?.map(d => d.group_id) || [])
     }
     fetchGroups()
   }, [userId])
@@ -36,23 +45,34 @@ export default function GroupsPage({ userId }: { userId: string }) {
 
     const { data: group } = await supabase
       .from("groups")
-      .insert([{ name: newGroupName }])
+      .insert([{ name: newGroupName, owner_id: userId }])
       .select()
       .single()
+
+    console.log("Created group:", group)
 
     if (!group) return
 
     // buat role owner default
     const { data: ownerRole } = await supabase
-      .from("roles")
-      .insert([{ groupId: group.id, name: "Owner", permissions: ["manage_members","manage_roles","send_message","delete_message"] }])
+      .from("group_roles")
+      .insert([{ 
+        group_id: group.id, 
+        name: "Owner", 
+        permissions: ["manage_members","manage_roles","send_message","delete_message"] 
+      }])
       .select()
       .single()
 
     if (!ownerRole) return
 
     // tambahkan creator sebagai member
-    await supabase.from("group_members").insert([{ groupId: group.id, userId, roleId: ownerRole.id }])
+    await supabase.from("group_members").insert([{ 
+      group_id: group.id, 
+      user_id: userId, 
+      role_id: ownerRole.id 
+    }])
+
     setGroups(prev => [...prev, group])
     setNewGroupName("")
   }
@@ -65,6 +85,7 @@ export default function GroupsPage({ userId }: { userId: string }) {
         <div className="max-w-4xl mx-auto p-4">
           <h1 className="text-2xl font-bold mb-4">Your Groups</h1>
 
+          {/* Form create group */}
           <div className="flex gap-2 mb-6">
             <input
               type="text"
@@ -73,25 +94,39 @@ export default function GroupsPage({ userId }: { userId: string }) {
               value={newGroupName}
               onChange={e => setNewGroupName(e.target.value)}
             />
-            <button onClick={createGroup} className="bg-blue-600 text-white px-4 rounded hover:bg-blue-700">
+            <button 
+              onClick={createGroup} 
+              className="bg-blue-600 text-white px-4 rounded hover:bg-blue-700"
+            >
               Create
             </button>
           </div>
 
+          {/* List groups */}
           <ul className="space-y-2">
             {groups.map(group => (
-              <li key={group.id} className="flex justify-between items-center p-2 border rounded hover:bg-gray-50">
-                <Link href={`/groups/${group.id}/chat`} className="font-medium">{group.name}</Link>
-                <Link href={`/groups/${group.id}/manage`} className="text-sm text-gray-500 hover:underline">
+              <li 
+                key={group.id} 
+                className="flex items-center justify-between p-2 border rounded hover:bg-muted"
+              >
+                <Link href={`/groups/${group.id}/chat`} className="flex items-center gap-3">
+                  {/* Avatar inisial */}                
+                  <GroupAvatar 
+                    name={group.name} 
+                    image={group.avatar_url} // kalau ada, tampil gambar
+                    size="md" 
+                  />
+                  <span className="font-medium">{group.name}</span>
+                </Link>
+                <Link 
+                  href={`/groups/${group.id}/manage`} 
+                  className="text-sm text-muted-foreground hover:underline"
+                >
                   Manage
                 </Link>
               </li>
             ))}
           </ul>
-          <div className="p-6">
-            <h2 className="font-bold text-xl mb-4">Group Members</h2>
-            <UserAvatarGroup users={members} max={3} size={40} />
-          </div>
         </div>
       </PageWrapper>
     </>

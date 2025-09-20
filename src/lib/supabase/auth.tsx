@@ -9,11 +9,13 @@ interface AuthContextType {
   session: Session | null
   loading: boolean
   supabase: SupabaseClient
-  signUp: (email: string, password: string) => Promise<void>
+  signUp: (email: string, password: string, name: string) => Promise<void>
   signIn: (email: string, password: string) => Promise<void>
   signInWithGoogle: () => Promise<void>
   signOut: () => Promise<void>
   updateUserMeta: (data: Record<string, any>) => Promise<void>
+  updateProfile: (data: Record<string, any>) => Promise<void>
+  getProfile: () => Promise<any | null>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -37,13 +39,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null)
     })
 
-    return () => {
-      listener.subscription.unsubscribe()
-    }
+    listener?.subscription.unsubscribe()
   }, [])
 
-  const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({ email, password })
+  const signUp = async (email: string, password: string, name: string) => {
+    const { error } = await supabase.auth.signUp({ 
+      email, 
+      password, 
+      options: 
+        { 
+          data: { full_name: name }, 
+          emailRedirectTo: `${window.location.origin}/login`
+        } 
+      })
     if (error) throw error
   }
 
@@ -65,7 +73,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error
     setUser(null)
     setSession(null)
-    setLoading(false)
     window.location.href = "/"
   }
 
@@ -77,6 +84,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(sessionData.session)
     setUser(sessionData.session?.user ?? null)
   }
+
+  const getProfile = async () => {
+    if (!user) return null
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single()
+
+    if (error) throw error
+    return data
+  }
+
+  const updateProfile = async (data: Record<string, any>) => {
+    if (!user) throw new Error("Not logged in")
+    const { error } = await supabase
+      .from("profiles")
+      .update(data)
+      .eq("id", user.id)
+
+    if (error) throw error
+
+    // refresh user session juga
+    const { data: sessionData } = await supabase.auth.getSession()
+    setSession(sessionData.session)
+    setUser(sessionData.session?.user ?? null)
+  }
+
 
   return (
     <AuthContext.Provider
@@ -90,6 +125,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signInWithGoogle,
         signOut,
         updateUserMeta,
+        updateProfile,
+        getProfile
       }}
     >
       {children}

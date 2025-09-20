@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/supabase/auth"
 import { UserAvatar } from "@/components/user-avatar"
 import { Input } from "@/components/ui/input"
@@ -12,17 +12,30 @@ import PageWrapper from "@/components/page-wrapper"
 import { AppTopbar } from "@/components/app/topbar"
 
 export default function ProfilePage() {
-  const { user, updateUserMeta } = useAuth()
-  const [fullName, setFullName] = useState(user?.user_metadata?.full_name || "")
+  const { user, updateUserMeta, updateProfile, getProfile } = useAuth()
+  const [fullName, setFullName] = useState("")
+  const [avatarUrl, setAvatarUrl] = useState("")
   const [loading, setLoading] = useState(false)
   const [overlayPreview, setOverlayPreview] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
 
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (user) {
+        const profile = await getProfile()
+        setFullName(profile?.display_name || "")
+        setAvatarUrl(profile?.avatar_url || "")
+      }
+    }
+    fetchProfile()
+  }, [user, getProfile])
+
   // ✅ Update nama
   const handleUpdate = async () => {
     setLoading(true)
     try {
+      await updateProfile({ display_name: fullName })
       await updateUserMeta({ full_name: fullName })
       toast.success("Profile updated")
     } catch (err: any) {
@@ -59,10 +72,14 @@ export default function ProfilePage() {
           })
         }
 
-        await updateUserMeta({
+        await updateProfile({
           avatar_url: result.secure_url,
           avatar_public_id: result.public_id,
         })
+        await updateUserMeta({
+          avatar_url: result.secure_url,
+          avatar_public_id: result.public_id,
+        })  
 
         toast.success("Avatar updated")
         setSelectedFile(null)
@@ -89,6 +106,10 @@ export default function ProfilePage() {
         })
       }
 
+      await updateProfile({
+        avatar_url: null,
+        avatar_public_id: null,
+      })
       await updateUserMeta({
         avatar_url: null,
         avatar_public_id: null,
@@ -135,7 +156,7 @@ export default function ProfilePage() {
 
           {/* Profile header */}
           <div className="flex flex-col items-center space-y-3">
-            <UserAvatar user={user} size={120} />
+            <UserAvatar user={user} size={120} textSize={40} />
 
             <div className="flex items-center gap-4">
               <label className="text-sm text-primary p-2 rounded-lg cursor-pointer flex items-center ">

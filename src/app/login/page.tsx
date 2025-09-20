@@ -3,21 +3,27 @@ import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/supabase/auth"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import LoadingOverlay from "@/components/loading-overlay"
+import { toast } from "sonner"
 
 export default function LoginPage() {
   const { signIn, signInWithGoogle, user } = useAuth()
   const router = useRouter()
   const [email, setEmail] = useState("iyasmzn07@gmail.com")
-  const [password, setPassword] = useState("iyas123")
+  const [password, setPassword] = useState("asdasd")
   const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
+    setLoading(true)
     e.preventDefault()
     try {
       await signIn(email, password)
       router.push("/app/home") // redirect after login
     } catch (err: any) {
-      setError(err.message)
+      toast.error(err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -25,7 +31,7 @@ export default function LoginPage() {
     try {
       await signInWithGoogle()
     } catch (err: any) {
-      setError(err.message)
+      toast.error(err.message)
     }
   }
   
@@ -41,8 +47,8 @@ export default function LoginPage() {
   
   return (
     <div className="max-w-md mx-auto p-4 flex flex-col gap-2">
+      {loading && <LoadingOverlay />}
       <h1 className="text-xl font-bold mb-2">Login</h1>
-      {error && <p className="text-red-600">{error}</p>}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-2">
         <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="border rounded p-2"/>
