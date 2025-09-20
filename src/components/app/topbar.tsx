@@ -40,13 +40,13 @@ export function AppTopbar({ title, backHref, hideAvatarUser = false, titleIcon }
               <Link
                 href="/app/profile"
                 onClick={() => setMenuOpen(false)}
-                className="block px-4 py-2 text-sm hover:bg-gray-100"
+                className="block px-4 py-2 text-sm hover:bg-secondary"
               >
                 Profile
               </Link>
               <button
                 onClick={() => { setMenuOpen(false); signOut() }}
-                className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                className="w-full text-left px-4 py-2 text-sm hover:bg-secondary"
               >
                 Logout
               </button>
