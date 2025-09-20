@@ -141,7 +141,7 @@ function GroupsPage({ userId }: { userId: string }) {
                 transition={{ delay: gIndex * 0.15, duration: 0.4, ease: "easeOut" }}
                 className="flex items-center justify-between p-2 border rounded-lg hover:bg-muted"
               >
-                <Link href={`/groups/${group.id}/dashboard`} className="flex-1 flex items-center gap-3">
+                <Link href={`groups/${group.id}/dashboard`} className="flex-1 flex items-center gap-3">
                   {/* Avatar inisial */}                
                   <GroupAvatar 
                     name={group.name} 
