@@ -5,8 +5,9 @@ import { supabase } from "@/lib/supabase/client"
 import { UserAvatarGroup } from "@/components/user-avatar-group"
 import PageWrapper from "@/components/page-wrapper"
 import { NavbarApp } from "@/components/navbar-app"
-import { MobileTopbar } from "@/components/mobile-topbar"
+import { AppTopbar } from "@/components/app/topbar"
 import { Home } from "lucide-react"
+import { AppBottombar } from "@/components/app/bottombar"
 
 export default function GroupsPage({ userId }: { userId: string }) {
   const [groups, setGroups] = useState<any[]>([])
@@ -58,8 +59,8 @@ export default function GroupsPage({ userId }: { userId: string }) {
 
   return (
     <>
-      <NavbarApp />
-      <MobileTopbar title="Groups" titleIcon={<Home className="h-6 w-6" />} />
+      <AppBottombar />
+      <AppTopbar title="Groups" titleIcon={<Home className="h-6 w-6" />} />
       <PageWrapper>
         <div className="max-w-4xl mx-auto p-4">
           <h1 className="text-2xl font-bold mb-4">Your Groups</h1>

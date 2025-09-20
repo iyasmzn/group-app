@@ -1,11 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { ModeToggle } from "./mode-toggle"
-import { UserAvatar } from "./user-avatar"
+import { ModeToggle } from "../mode-toggle"
+import { UserAvatar } from "../user-avatar"
 import { useAuth } from "@/lib/supabase/auth"
 import { usePathname } from "next/navigation"
 import { ChevronLeftCircle } from "lucide-react"
+import { useState } from "react"
 
 type MobileTopbarProps = {
   title?: string
@@ -14,9 +15,10 @@ type MobileTopbarProps = {
   hideAvatarUser?: boolean // data user/group untuk avatar kecil
 }
 
-export function MobileTopbar({ title, backHref, hideAvatarUser = false, titleIcon }: MobileTopbarProps) {
+export function AppTopbar({ title, backHref, hideAvatarUser = false, titleIcon }: MobileTopbarProps) {
   const { user, signOut } = useAuth()
   const pathname = usePathname()
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const getDefaultTitle = () => {
     if (pathname.startsWith("/app/home")) return "Home"
@@ -26,11 +28,30 @@ export function MobileTopbar({ title, backHref, hideAvatarUser = false, titleIco
     return "Group App"
   }
 
+  
+
   const userAvatarNav = () => {
     if (user) {
       return (
         <div className="relative">
-          <UserAvatar user={user} size={28} status="online" />
+          <UserAvatar user={user} size={32} onClick={() => setMenuOpen(!menuOpen)} status="online" />
+          {menuOpen && (
+            <div className="absolute right-0 mt-2 w-40 border rounded-lg shadow-lg overflow-hidden bg-background">
+              <Link
+                href="/app/profile"
+                onClick={() => setMenuOpen(false)}
+                className="block px-4 py-2 text-sm hover:bg-gray-100"
+              >
+                Profile
+              </Link>
+              <button
+                onClick={() => { setMenuOpen(false); signOut() }}
+                className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+              >
+                Logout
+              </button>
+            </div>
+          )}
         </div>
       )
     }
@@ -43,7 +64,7 @@ export function MobileTopbar({ title, backHref, hideAvatarUser = false, titleIco
 
   return (
     <>
-      <header className="md:hidden fixed top-0 left-0 right-0 z-50 border-b bg-background flex items-center justify-between px-4 py-3">
+      <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background flex items-center justify-between px-4 py-3">
         {/* Left section: back button */}
           {backHref && (
             <div className="flex items-center gap-2 mr-2">
@@ -69,7 +90,7 @@ export function MobileTopbar({ title, backHref, hideAvatarUser = false, titleIco
       </header>
       
       {/* Spacer supaya konten tidak ketiban topbar */}
-      <div className="h-14 md:hidden" /> {/* untuk topbar */}
+      <div className="h-14" /> {/* untuk topbar */}
     </>
   )
 }

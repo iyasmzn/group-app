@@ -3,8 +3,8 @@ import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/supabase/auth"
 import PageWrapper from "@/components/page-wrapper"
-import { NavbarApp } from "@/components/navbar-app"
 import Reveal from "@/components/animations/Reveal"
+import { AppBottombar } from "@/components/app/bottombar"
 
 export default function UserHomePage() {
   const { user } = useAuth()
@@ -22,7 +22,7 @@ export default function UserHomePage() {
 
   return (
     <>
-      <NavbarApp />
+      <AppBottombar />
       <PageWrapper>
         <div className="p-4 max-w-4xl mx-auto">
           <Reveal>

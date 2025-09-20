@@ -9,7 +9,7 @@ import { uploadToCloudinary } from "@/lib/cloudinary"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import PageWrapper from "@/components/page-wrapper"
-import { MobileTopbar } from "@/components/mobile-topbar"
+import { AppTopbar } from "@/components/app/topbar"
 
 export default function ProfilePage() {
   const { user, updateUserMeta } = useAuth()
@@ -103,7 +103,7 @@ export default function ProfilePage() {
 
   return (
     <>
-      <MobileTopbar title="Profile" backHref="/app/settings" hideAvatarUser />
+      <AppTopbar title="Profile" backHref="/app/settings" hideAvatarUser />
       <PageWrapper>
         <div className="p-6 max-w-lg mx-auto space-y-8 relative">
           {/* Loading Overlay */}

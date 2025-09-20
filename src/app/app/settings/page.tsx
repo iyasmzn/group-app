@@ -6,15 +6,14 @@ import Link from "next/link"
 import { LogOut, Bell, Shield, Info, Palette, User } from "lucide-react"
 import { motion } from "framer-motion"
 import PageWrapper from "@/components/page-wrapper"
-import { NavbarApp } from "@/components/navbar-app"
+import { AppBottombar } from "@/components/app/bottombar"
 
 export default function SettingsPage() {
   const { user, signOut } = useAuth()
 
   return (
     <>
-      <NavbarApp />
-      <div className="h-14 md:hidden" /> {/* Spacer supaya konten tidak ketiban navbar */}
+      <AppBottombar />
       <PageWrapper>
         <motion.div
           className="p-6 max-w-lg mx-auto space-y-8"
