@@ -59,6 +59,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw error
+    // tapi kalau mau langsung fetch juga bisa
+    const { data: sessionData } = await supabase.auth.getSession()
+    setSession(sessionData.session)
+    setUser(sessionData.session?.user ?? null)
   }
 
   const signInWithGoogle = async () => {
