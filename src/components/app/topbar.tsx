@@ -68,7 +68,7 @@ export function AppTopbar({ title, backHref, hideAvatarUser = false, titleIcon }
         {/* Left section: back button */}
           {backHref && (
             <div className="flex items-center gap-2 mr-2">
-              <Link href={backHref} className="text-sm text-blue-600 hover:underline">
+              <Link href={backHref} className="text-sm text-primary hover:underline">
                 <ChevronLeftCircle className="w-6 h-6" />
               </Link>
             </div>

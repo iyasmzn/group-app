@@ -23,7 +23,7 @@ export function AppBottombar() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex flex-col items-center justify-center ${active ? "text-blue-600" : "text-gray-500"}`}
+              className={`flex flex-col items-center justify-center ${active ? "text-primary" : "text-gray-500"}`}
             >
               {tab.icon}
               <span className="text-xs">{tab.label}</span>

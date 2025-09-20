@@ -13,6 +13,20 @@ const buttonVariants = cva(
           "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
         destructive:
           "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+        "destructive-outline":
+          "border border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
+        success:
+          "bg-success text-success-foreground shadow-xs hover:bg-success/90 focus-visible:ring-success/20 dark:focus-visible:ring-success/40",
+        "success-outline":
+          "border border-success text-success hover:bg-success hover:text-success-foreground focus-visible:ring-success/20 dark:focus-visible:ring-success/40",
+        info:
+          "bg-info text-info-foreground shadow-xs hover:bg-info/90 focus-visible:ring-info/20 dark:focus-visible:ring-info/40",
+        "info-outline":
+          "border border-info text-info hover:bg-info hover:text-info-foreground focus-visible:ring-info/20 dark:focus-visible:ring-info/40",
+        warning:
+          "bg-warning text-warning-foreground shadow-xs hover:bg-warning/90 focus-visible:ring-warning/20 dark:focus-visible:ring-warning/40",
+        "warning-outline":
+          "border border-warning text-warning hover:bg-warning hover:text-warning-foreground focus-visible:ring-warning/20 dark:focus-visible:ring-warning/40",
         outline:
           "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
         secondary:

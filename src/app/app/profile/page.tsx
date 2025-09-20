@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { uploadToCloudinary } from "@/lib/cloudinary"
 import { toast } from "sonner"
-import { Loader2 } from "lucide-react"
+import { Loader2, Trash2, Upload } from "lucide-react"
 import PageWrapper from "@/components/page-wrapper"
 import { AppTopbar } from "@/components/app/topbar"
 
@@ -135,26 +135,41 @@ export default function ProfilePage() {
 
           {/* Profile header */}
           <div className="flex flex-col items-center space-y-3">
-            <UserAvatar user={user} size={80} />
+            <UserAvatar user={user} size={120} />
 
-            <label className="text-sm text-blue-600 cursor-pointer">
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileSelect}
-              />
-              Change Avatar
-            </label>
+            <div className="flex items-center gap-4">
+              <label className="text-sm text-primary p-2 rounded-lg cursor-pointer flex items-center ">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileSelect}
+                />
+                <Upload className="inline-block mr-1 w-5 h-5" />
+                Change
+              </label>
 
-            {user?.user_metadata?.avatar_url && (
-              <Button variant="outline" onClick={handleRemoveAvatar} disabled={isProcessing}>
-                Remove Avatar
-              </Button>
-            )}
+              {user?.user_metadata?.avatar_url && (
+                <Button variant="destructive-outline" onClick={handleRemoveAvatar} disabled={isProcessing}>
+                  <Trash2 className="inline-block mr-1 w-5 h-5" />
+                  Remove
+                </Button>
+              )}
+            </div>
+
 
             <h2 className="text-xl font-semibold">{fullName}</h2>
-            <p className="text-gray-500 text-sm">{user?.email}</p>
+            <p className="text-foreground text-sm">{user?.email}</p>
+            {/* since */}
+            {user?.created_at && (
+              <p className="text-secondary-foreground text-xs">
+                Joined{" "}
+                {new Date(user.created_at).toLocaleDateString(undefined, {
+                  year: "numeric",
+                  month: "long",
+                })}
+              </p>
+            )}
           </div>
 
           {/* Edit form */}
@@ -172,14 +187,6 @@ export default function ProfilePage() {
               {loading ? "Saving..." : "Save Changes"}
             </Button>
           </div>
-
-          {user?.app_metadata?.provider === "email" && (
-            <div className="mt-6">
-              <Button variant="outline" className="w-full">
-                Change Password
-              </Button>
-            </div>
-          )}
         </div>
       </PageWrapper>
     </>

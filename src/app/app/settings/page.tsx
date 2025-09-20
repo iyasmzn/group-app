@@ -11,6 +11,14 @@ import { AppBottombar } from "@/components/app/bottombar"
 export default function SettingsPage() {
   const { user, signOut } = useAuth()
 
+	const menuItems = [
+		{ href: "/app/profile", icon: <User className="h-5 w-5 text-gray-500" />, label: "Account", desc: "Profile, Email, Password" },
+		{ icon: <Bell className="h-5 w-5 text-gray-500" />, label: "Notifications" },
+		{ icon: <Palette className="h-5 w-5 text-gray-500" />, label: "Appearance" },
+		{ icon: <Shield className="h-5 w-5 text-gray-500" />, label: "Privacy & Security" },
+		{ icon: <Info className="h-5 w-5 text-gray-500" />, label: "About" }
+	]
+	
   return (
     <>
       <AppBottombar />
@@ -37,42 +45,41 @@ export default function SettingsPage() {
 
           {/* Settings List */}
           <div className="space-y-2">
-              <motion.div
-              initial="hidden"
-              animate="show"
-              variants={{
-                  hidden: {},
-                  show: {
-                  transition: { staggerChildren: 0.1 }
-                  }
-              }}
-              >
-              {[
-                  { href: "/app/profile", icon: <User className="h-5 w-5 text-gray-500" />, label: "Account" },
-                  { icon: <Bell className="h-5 w-5 text-gray-500" />, label: "Notifications" },
-                  { icon: <Palette className="h-5 w-5 text-gray-500" />, label: "Appearance" },
-                  { icon: <Shield className="h-5 w-5 text-gray-500" />, label: "Privacy & Security" },
-                  { icon: <Info className="h-5 w-5 text-gray-500" />, label: "About" },
-              ].map((item, idx) => (
+						<motion.div
+							initial="hidden"
+							animate="show"
+							variants={{
+								hidden: {},
+								show: {
+									transition: { staggerChildren: 0.1 }
+								}
+							}}
+						>
+              {menuItems.map((item, idx) => (
                   <motion.div
-                  key={idx}
-                  variants={{
-                      hidden: { opacity: 0, y: 20 },
-                      show: { opacity: 1, y: 0 }
-                  }}
+										key={idx}
+										variants={{
+											hidden: { opacity: 0, y: 20 },
+											show: { opacity: 1, y: 0 }
+										}}
                   >
                   {item.href ? (
-                      <Link
+										<Link
                       href={item.href}
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
-                      >
+                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-secondary"
+										>
                       <div className="flex items-center gap-3">
-                          {item.icon}
-                          <span>{item.label}</span>
+												{item.icon}
+												<div>
+													<p>
+														{item.label}
+													</p>
+													<span className="text-xs text-secondary-foreground">{item.desc}</span>
+												</div>
                       </div>
-                      </Link>
+										</Link>
                   ) : (
-                      <button className="w-full flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                      <button className="w-full flex items-center justify-between p-4 border rounded-lg hover:bg-secondary">
                       <div className="flex items-center gap-3">
                           {item.icon}
                           <span>{item.label}</span>
@@ -84,22 +91,22 @@ export default function SettingsPage() {
 
               {/* Logout */}
               <motion.div
-                  variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  show: { opacity: 1, y: 0 }
-                  }}
+								variants={{
+									hidden: { opacity: 0, y: 20 },
+									show: { opacity: 1, y: 0 }
+								}}
               >
-                  <button
-                  onClick={signOut}
-                  className="w-full flex items-center justify-between p-4 border rounded-lg text-red-600 hover:bg-red-50"
-                  >
+								<button
+									onClick={signOut}
+									className="w-full flex items-center justify-between p-4 border rounded-lg text-destructive hover:text-destructive-foreground hover:bg-destructive transition"
+								>
                   <div className="flex items-center gap-3">
-                      <LogOut className="h-5 w-5" />
-                      <span>Logout</span>
+										<LogOut className="h-5 w-5" />
+										<span>Logout</span>
                   </div>
-                  </button>
+								</button>
               </motion.div>
-              </motion.div>
+						</motion.div>
           </div>
         </motion.div>
       </PageWrapper>
