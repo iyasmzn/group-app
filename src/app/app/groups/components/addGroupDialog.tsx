@@ -76,7 +76,7 @@ export function AddGroupDialog({ setGroups, setLoading }: AddGroupDialogProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">
-          <PlusCircle /> Add Group
+          <PlusCircle /> Add
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
