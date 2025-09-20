@@ -31,7 +31,7 @@ export default function RootLayout({
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <AuthProvider>
-            <main className="px-4 py-6">{children}</main>
+            <main className="px-4">{children}</main>
             <Toaster position="top-center" />
           </AuthProvider>
         </ThemeProvider>

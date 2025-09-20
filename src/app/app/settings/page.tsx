@@ -21,7 +21,6 @@ export default function SettingsPage() {
 	
   return (
     <>
-      <AppBottombar />
       <PageWrapper>
         <motion.div
           className="p-6 max-w-lg mx-auto space-y-8"
@@ -110,6 +109,7 @@ export default function SettingsPage() {
           </div>
         </motion.div>
       </PageWrapper>
+      <AppBottombar />
     </>
   )
 }

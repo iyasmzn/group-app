@@ -31,6 +31,7 @@ export function AppBottombar() {
           )
         })}
       </nav>
+      <div className="h-16" /> {/* spacer for bottom bar */}
     </>
   )
 }

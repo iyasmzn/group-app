@@ -10,6 +10,7 @@ import { toast } from "sonner"
 import { Loader2, Trash2, Upload } from "lucide-react"
 import PageWrapper from "@/components/page-wrapper"
 import { AppTopbar } from "@/components/app/topbar"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function ProfilePage() {
   const { user, updateUserMeta, updateProfile, getProfile } = useAuth()
@@ -178,8 +179,10 @@ export default function ProfilePage() {
               )}
             </div>
 
-
-            <h2 className="text-xl font-semibold">{fullName}</h2>
+            {fullName ? 
+              <h2 className="text-xl font-semibold">{fullName}</h2>
+              : <Skeleton className="h-6 w-32" />
+            }
             <p className="text-foreground text-sm">{user?.email}</p>
             {/* since */}
             {user?.created_at && (
