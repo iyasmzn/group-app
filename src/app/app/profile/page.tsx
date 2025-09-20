@@ -24,7 +24,7 @@ export default function ProfilePage() {
     const fetchProfile = async () => {
       if (user) {
         const profile = await getProfile()
-        setFullName(profile?.display_name || "")
+        setFullName(profile?.full_name || "")
         setAvatarUrl(profile?.avatar_url || "")
       }
     }
@@ -35,7 +35,7 @@ export default function ProfilePage() {
   const handleUpdate = async () => {
     setLoading(true)
     try {
-      await updateProfile({ display_name: fullName })
+      await updateProfile({ full_name: fullName })
       await updateUserMeta({ full_name: fullName })
       toast.success("Profile updated")
     } catch (err: any) {

@@ -15,6 +15,7 @@ interface AuthContextType {
   signOut: () => Promise<void>
   updateUserMeta: (data: Record<string, any>) => Promise<void>
   updateProfile: (data: Record<string, any>) => Promise<void>
+  updateProfileHybrid?: (data: { full_name?: string; avatar_url?: string }) => Promise<void>
   getProfile: () => Promise<any | null>
 }
 
@@ -112,6 +113,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(sessionData.session?.user ?? null)
   }
 
+  const updateProfileHybrid = async (data: { full_name?: string; avatar_url?: string }) => {
+    if (!user) throw new Error("Not logged in")
+
+    const updates: any = {}
+    if (data.full_name !== undefined) updates.full_name = data.full_name
+    if (data.avatar_url !== undefined) updates.avatar_url = data.avatar_url
+
+    // 1. Update ke profiles
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update(updates)
+      .eq("id", user.id)
+
+    if (profileError) throw profileError
+
+    // 2. Update ke auth.user.user_metadata
+    const { error: metaError } = await supabase.auth.updateUser({
+      data: {
+        ...(data.full_name ? { full_name: data.full_name } : {}),
+        ...(data.avatar_url !== undefined ? { avatar_url: data.avatar_url } : {}),
+      },
+    })
+
+    if (metaError) throw metaError
+
+    // refresh session biar data auth.user langsung terupdate
+    const { data: sessionData } = await supabase.auth.getSession()
+    setSession(sessionData.session)
+    setUser(sessionData.session?.user ?? null)
+  }
+
+
 
   return (
     <AuthContext.Provider
@@ -126,7 +159,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signOut,
         updateUserMeta,
         updateProfile,
-        getProfile
+        getProfile,
+        updateProfileHybrid,
       }}
     >
       {children}
