@@ -61,6 +61,9 @@ export default function GroupTobar() {
     );
   }
   return (
-    <AppTopbar backHref="/app/groups" titleSlot={TitleWithGroupAvatar()} />
+    <>
+      <AppTopbar backHref="/app/groups" titleSlot={TitleWithGroupAvatar()} />
+      <div className="h-10" /> {/* spacer untuk topbar */}
+    </>
   )
 }

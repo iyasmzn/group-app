@@ -26,7 +26,11 @@ export default function GroupLayout({
   
   return (
     <>
-        <MotionProvider>{children}</MotionProvider>
+        <MotionProvider>
+            <div className="max-w-4xl mx-auto">
+                {children}
+            </div>
+        </MotionProvider>
     </>
   );
 }
