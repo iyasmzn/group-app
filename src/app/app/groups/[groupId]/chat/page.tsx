@@ -17,7 +17,7 @@ type Message = {
   content: string
   createdat: string
   sender_id: string
-  sender: {
+  sender?: {
     id: string
     full_name: string
     avatar_url?: string | null
@@ -50,7 +50,7 @@ export default function GroupChatPage() {
         .eq("group_id", groupId)
         .order("createdat", { ascending: true })
 
-      if (!error && data) setMessages(data as Message[])
+      if (!error && Array.isArray(data)) setMessages(data as unknown as Message[])
     }
 
     fetchMessages()
@@ -129,7 +129,7 @@ export default function GroupChatPage() {
     } else if (data) {
       // replace pesan sementara dengan pesan asli dari supabase
       setMessages((prev) =>
-        prev.map((m) => (m.id === tempId ? (data as Message) : m))
+        prev.map((m) => (m.id === tempId ? (data as unknown as Message) : m))
       )
     }
   }
