@@ -18,7 +18,7 @@ import CreatedCard from "./components/created-card"
 import DescriptionCard from "./components/description-card"
 import { toast } from "sonner"
 import { Input } from "@/components/ui/input"
-import { groupService } from "@/services/groupService"
+import { groupService } from "@/services/groupService/groupService"
 import { Skeleton } from "@/components/ui/skeleton"
 import { GroupAvatar } from "@/components/group-avatar"
 

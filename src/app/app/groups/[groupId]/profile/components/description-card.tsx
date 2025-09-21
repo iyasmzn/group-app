@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/lib/supabase/auth";
 import { longDateTime } from "@/lib/utils/format";
-import { groupService } from "@/services/groupService";
+import { groupService } from "@/services/groupService/groupService";
 import { Edit } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";

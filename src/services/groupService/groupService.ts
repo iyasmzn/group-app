@@ -1,4 +1,4 @@
-import { crudService } from "./crudService"
+import { crudService } from "../crudService"
 
 // definisi type untuk tabel groups
 export type Group = {
