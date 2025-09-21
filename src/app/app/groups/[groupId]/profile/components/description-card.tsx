@@ -99,7 +99,7 @@ export default function DescriptionCard({group} : DescriptionCardProps) {
             <Textarea id="name-1" value={description} onChange={e => setDescription(e.target.value)} />
           </div>
         </div>
-        <DialogFooter className="flex grid grid-cols-2 gap-2">
+        <DialogFooter className="grid grid-cols-2 gap-2">
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
