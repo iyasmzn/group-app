@@ -9,6 +9,7 @@ import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Reveal from "@/components/animations/Reveal";
 import GroupTopbar from "../components/group-topbar";
+import { GroupBottombar } from "../components/group-bottombar";
 
 export default function GroupDashboardPage() {
   const {supabase} = useAuth()
@@ -74,6 +75,7 @@ export default function GroupDashboardPage() {
           </Card>
         </Reveal>
       </ScrollArea>
+      <GroupBottombar />
     </>
   )
 }

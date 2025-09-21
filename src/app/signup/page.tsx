@@ -3,6 +3,7 @@ import { useState } from "react"
 import { useAuth } from "@/lib/supabase/auth"
 import { useRouter } from "next/navigation"
 import LoadingOverlay from "@/components/loading-overlay"
+import { toast } from "sonner"
 
 export default function SignupPage() {
   const { signUp } = useAuth()
@@ -16,17 +17,22 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
+      setLoading(true)
       await signUp(email, password, name)
       // toast
+      toast.success("Signup Successfully.")
       router.push("/email-confirm") // redirect after signup
     } catch (err: any) {
-      setError(err.message)
+      toast.error(err?.message || "Signup Failed")
+      console.log(err?.message)
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
     <>
-      {loading && <LoadingOverlay />}
+      <LoadingOverlay isLoading={loading} />
       <form onSubmit={handleSubmit} className="max-w-md mx-auto p-4 flex flex-col gap-2">
         <h1 className="text-xl font-bold mb-2">Sign Up</h1>
         {error && <p className="text-red-600">{error}</p>}
