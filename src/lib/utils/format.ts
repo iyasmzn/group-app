@@ -41,6 +41,20 @@ export function longDateTime(
   }).format(d)
 }
 
+export function longDate(
+  date: string | Date,
+  locale: string = "id-ID"
+) {
+  const d = typeof date === "string" ? new Date(date) : date
+
+  return new Intl.DateTimeFormat(locale, {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(d)
+}
+
 /**
  * Format angka dengan ribuan (1.000, 10.000, dll)
  */

@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input"
 import { groupService } from "@/services/groupService/groupService"
 import { Skeleton } from "@/components/ui/skeleton"
 import { GroupAvatar } from "@/components/group-avatar"
+import InviteLink from "./components/invite-link"
 
 export default function GroupProfilePage() {
   const {supabase} = useAuth()
@@ -136,10 +137,7 @@ export default function GroupProfilePage() {
             <UserPlus2 className="w-7 h-7 text-primary" />
             <span className="text-xs mt-1 text-foreground">Add Member</span>
           </button>
-          <button className="flex flex-col py-2 px-3 rounded-xl items-center border border-primary hover:bg-secondary transition-all">
-            <Link2 className="w-7 h-7 text-primary" />
-            <span className="text-xs mt-1 text-foreground">Invite Link</span>
-          </button>
+          <InviteLink />
           <button className="flex flex-col py-2 px-3 rounded-xl items-center border border-primary hover:bg-secondary transition-all">
             <BellRing className="w-7 h-7 text-primary" />
             <span className="text-xs mt-1 text-foreground">Notifications</span>

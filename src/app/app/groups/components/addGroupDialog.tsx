@@ -52,12 +52,23 @@ export function AddGroupDialog({ setGroups, setLoading }: AddGroupDialogProps) {
       .insert([{ 
         group_id: group.id, 
         name: "Owner", 
+        code: "owner",
         permissions: ["manage_members","manage_roles","send_message","delete_message"] 
       }])
       .select()
       .single()
 
     if (!ownerRole) return
+
+    // buat role member
+    await supabase
+      .from("group_roles")
+      .insert([{ 
+        group_id: group.id, 
+        name: "Member", 
+        code: "member",
+        permissions: ["send_message"] 
+      }])
 
     // tambahkan creator sebagai member
     await supabase.from("group_members").insert([{ 
@@ -67,7 +78,7 @@ export function AddGroupDialog({ setGroups, setLoading }: AddGroupDialogProps) {
     }])
 
     // update groups state in parent component
-    setGroups(prev => [...prev, group])
+    setGroups(prev => [group, ...prev])
     setNewGroupName("")
     setLoading(false)
   }
