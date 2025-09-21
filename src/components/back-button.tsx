@@ -19,8 +19,11 @@ export default function BackButton({ label }: { label?: string }) {
     
     <div className="flex items-center gap-2 mr-2">
       <Reveal animation="fadeIn">
-        <button onClick={handleBack} className="text-sm text-primary hover:underline">
+        <button onClick={handleBack} className="text-sm text-primary flex items-center gap-1">
           <ChevronLeft className="w-6 h-6" />
+          {
+            label && <label>{label}</label>
+          }
         </button>
       </Reveal>
     </div>
