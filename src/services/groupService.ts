@@ -1,12 +1,22 @@
 import { crudService } from "./crudService"
 
-export const groupService = {
-  create: (name: string, ownerId: string) =>
-    crudService.create("groups", { name, owner_id: ownerId }),
-  getByUser: (userId: string) =>
-    crudService.read("groups", { owner_id: userId }),
-  update: (id: string, payload: { name?: string }) =>
-    crudService.update("groups", id, payload),
-  delete: (id: string) =>
-    crudService.remove("groups", id),
+// definisi type untuk tabel groups
+export type Group = {
+  id: string
+  name: string
+  owner_id: string
+  image_url?: string | null
+  created_at?: string
+  description?: string
+  description_updatedat?: string | Date
+  description_updatedby?: string
+}
+
+// buat service khusus untuk groups
+export const groupService = crudService<Group>("groups")
+
+// contoh: tambahan method spesifik groups
+export const groupCustomService = {
+  ...groupService,
+  getByUser: (userId: string) => groupService.read({ owner_id: userId }),
 }

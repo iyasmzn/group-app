@@ -6,21 +6,24 @@ import { UserAvatar } from "../user-avatar"
 import { useAuth } from "@/lib/supabase/auth"
 import { usePathname } from "next/navigation"
 import { ChevronLeft } from "lucide-react"
-import { useState } from "react"
+import React, { useState } from "react"
 import Reveal from "../animations/Reveal"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu"
+import BackButton from "../back-button"
 
 type MobileTopbarProps = {
   titleSlot?: React.ReactNode // slot untuk menerima component dari props
   title?: string
   titleIcon?: React.ReactNode // icon kecil di samping title
+  backButton?: boolean
   backHref?: string
   hideAvatarUser?: boolean // data user/group untuk avatar kecil
+  endSlot?: React.ReactNode
 }
 
-export function AppTopbar({ titleSlot, title, backHref, hideAvatarUser = false, titleIcon }: MobileTopbarProps) {
+export function AppTopbar({ titleSlot, title, backButton, backHref, hideAvatarUser = false, titleIcon, endSlot }: MobileTopbarProps) {
   const { user, signOut } = useAuth()
   const pathname = usePathname()
-  const [menuOpen, setMenuOpen] = useState(false)
 
   const getDefaultTitle = () => {
     if (pathname.startsWith("/app/home")) return "Home"
@@ -36,24 +39,31 @@ export function AppTopbar({ titleSlot, title, backHref, hideAvatarUser = false, 
     if (user) {
       return (
         <div className="relative">
-          <UserAvatar user={user} size={32} onClick={() => setMenuOpen(!menuOpen)} status="online" />
-          {menuOpen && (
-            <div className="absolute right-0 mt-2 w-40 border rounded-lg shadow-lg overflow-hidden bg-background">
-              <Link
-                href="/app/profile"
-                onClick={() => setMenuOpen(false)}
-                className="block px-4 py-2 text-sm hover:bg-secondary"
-              >
-                Profile
-              </Link>
-              <button
-                onClick={() => { setMenuOpen(false); signOut() }}
-                className="w-full text-left px-4 py-2 text-sm hover:bg-secondary"
-              >
-                Logout
-              </button>
-            </div>
-          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <UserAvatar user={user} size={32} status="online" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
+              {/* <DropdownMenuSeparator /> */}
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/app/profile"
+                  className="block px-4 py-2 text-sm hover:bg-secondary"
+                >
+                  Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <button
+                  onClick={() => { signOut() }}
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-destructive transition-all"
+                >
+                  Logout
+                </button>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       )
     }
@@ -70,6 +80,11 @@ export function AppTopbar({ titleSlot, title, backHref, hideAvatarUser = false, 
         <div className="flex items-center justify-between max-w-4xl mx-auto">
           <div className="flex items-center flex-1">
             {/* Left section: back button */}
+              {
+                backButton && !backHref ? (
+                  <BackButton />
+                ) : null
+              }
               {backHref && (
                 <div className="flex items-center gap-2 mr-2">
                   <Reveal animation="fadeIn">
@@ -92,9 +107,10 @@ export function AppTopbar({ titleSlot, title, backHref, hideAvatarUser = false, 
           </div>
 
           {/* Right section: mode toggle + user menu */}
-          <div className="flex items-center gap-3 w-20 justify-end">
+          <div className="flex items-center gap-3 justify-end">
             <ModeToggle />
             {!hideAvatarUser && userAvatarNav()}
+            {endSlot && endSlot}
           </div>
         </div>
       </header>

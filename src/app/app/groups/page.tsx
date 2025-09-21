@@ -29,8 +29,8 @@ const motionUl = {
 }
 
 const motionLi = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0 },
+  hidden: { opacity: 0, x: -40 },
+  show: { opacity: 1, x: 0 },
 }
 
 export default function GroupsPageWrapper() {
@@ -105,7 +105,7 @@ function GroupsPage({ userId }: { userId: string }) {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-xl font-bold">Your Groups</h1>
-              <span className="text-sm text-muted-foreground">{groups.length} group{groups.length !== 1 ? 's' : ''}</span>
+              <span className="text-sm text-muted-foreground">{totalRow} group{totalRow !== 1 ? 's' : ''}</span>
             </div>
             {/* Button Create Group */}
             <AddGroupDialog setGroups={setGroups} setLoading={setLoading} />
@@ -160,7 +160,7 @@ function GroupsPage({ userId }: { userId: string }) {
               <motion.li 
                 key={group.id} 
                 variants={motionLi}
-                transition={{ delay: gIndex * 0.15, duration: 0.4, ease: "easeOut" }}
+                transition={{ delay: gIndex * 0.15, duration: 0.5, ease: "backOut" }}
                 className="flex items-center justify-between py-2 px-4 border rounded-lg hover:bg-muted"
               >
                 <Link href={`groups/${group.id}/dashboard`} className="flex-1 flex items-center gap-3">

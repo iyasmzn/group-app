@@ -76,9 +76,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     const { error } = await supabase.auth.signOut()
     if (error) throw error
+    window.location.href = "/"
     setUser(null)
     setSession(null)
-    window.location.href = "/"
   }
 
   const updateUserMeta = async (data: Record<string, any>) => {

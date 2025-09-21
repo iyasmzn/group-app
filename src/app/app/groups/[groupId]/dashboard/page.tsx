@@ -5,10 +5,10 @@ import { useAuth } from "@/lib/supabase/auth";
 import { redirect, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import GroupTobar from "../components/group-topbar";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Reveal from "@/components/animations/Reveal";
+import GroupTopbar from "../components/group-topbar";
 
 export default function GroupDashboardPage() {
   const {supabase} = useAuth()
@@ -52,7 +52,7 @@ export default function GroupDashboardPage() {
   return (
     <>
       <LoadingOverlay isLoading={loading} />
-      <GroupTobar />
+      <GroupTopbar />
       <ScrollArea>
         <Reveal>
           <Card>

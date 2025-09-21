@@ -125,7 +125,7 @@ export default function ProfilePage() {
 
   return (
     <>
-      <AppTopbar title="Profile" backHref="/app/settings" hideAvatarUser />
+      <AppTopbar title="Profile" backButton hideAvatarUser />
       <PageWrapper>
         <div className="p-6 max-w-lg mx-auto space-y-8 relative">
           {/* Loading Overlay */}

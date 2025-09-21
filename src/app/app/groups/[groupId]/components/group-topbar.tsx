@@ -2,15 +2,18 @@
 import Reveal from "@/components/animations/Reveal";
 import { AppTopbar } from "@/components/app/topbar";
 import { GroupAvatar } from "@/components/group-avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/lib/supabase/auth";
-import { useParams } from "next/navigation";
+import { EllipsisVertical } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function GroupTobar() {
+export default function GroupTopbar() {
   const {supabase} = useAuth()
   const params = useParams();
   const groupId = params?.groupId;
   const [groupData, setGroupData] = useState<any>(null);
+  const router = useRouter()
   console.log("Group ID:", groupId);
   
   useEffect(() => {
@@ -36,12 +39,16 @@ export default function GroupTobar() {
 
     fetchGroupDetails()
   }, [groupId, supabase]);
+
+  function goToProfile() {
+    router.push('profile')
+  }
   
   function TitleWithGroupAvatar() {
     if (!groupData) return <span></span>
     
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2" onClick={() => goToProfile()}>
         <div className="">
             <Reveal animation="fadeInRight" distance={10}>
                 <GroupAvatar name={groupData?.name} image={groupData?.image_url} size="md" />
@@ -60,9 +67,25 @@ export default function GroupTobar() {
       </div>
     );
   }
+
+  function GroupTopbarMenu() {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <EllipsisVertical className="text-foreground" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>Profile</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    )
+  }
+  
   return (
     <>
-      <AppTopbar backHref="/app/groups" titleSlot={TitleWithGroupAvatar()} />
+      <AppTopbar backHref="/app/groups" titleSlot={TitleWithGroupAvatar()} endSlot={GroupTopbarMenu()} />
       <div className="h-10" /> {/* spacer untuk topbar */}
     </>
   )
