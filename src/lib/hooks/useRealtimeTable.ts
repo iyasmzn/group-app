@@ -45,7 +45,7 @@ export function useRealtimeTable<T>({
       }
 
       channel.on(
-        { ...opts, event: "postgres_changes" },
+        { event: "postgres_changes", ...opts },
         (payload: RealtimePostgresChangesPayload<T>) => {
           if (event === "INSERT" && onInsert) onInsert(payload.new as T)
           if (event === "UPDATE" && onUpdate) onUpdate(payload.new as T)
