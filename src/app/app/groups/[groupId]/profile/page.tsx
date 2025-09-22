@@ -68,6 +68,7 @@ export default function GroupProfilePage() {
       }
     }
     fetchGroup()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupId, supabase])
 
   const updateGroupName = async () => {

@@ -16,13 +16,11 @@ export default function InvitePage() {
   const [error, setError] = useState("")
   const [groupLink, setGroupLink] = useState("")
   const router = useRouter()
-
   useEffect(() => {
+    if (!user) return
     setLoading(true)
-    
-    const joinGroup = async () => {
-      if (!user) return
 
+    const joinGroup = async () => {
       const { data: invite } = await supabase
         .from("group_invites")
         .select("group_id, expires_at, group_role_id")
@@ -48,14 +46,21 @@ export default function InvitePage() {
       setGroupLink(`/groups/${invite.group_id}/dashboard`)
     }
 
-    joinGroup().finally(() => {
-        setLoading(false)
-        if (error) toast.error(error)
-        else if (groupLink) setTimeout(() => {
-          router.push(groupLink)
-        }, 5000);
-    })
-  }, [code, user, router, error, groupLink, supabase])
+    joinGroup().finally(() => setLoading(false))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [code, user, supabase])
+
+  useEffect(() => {
+    if (error) toast.error(error)
+  }, [error])
+
+  useEffect(() => {
+    if (groupLink) {
+      const timer = setTimeout(() => router.push(groupLink), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [groupLink, router])
+
 
   return (
     <Card>

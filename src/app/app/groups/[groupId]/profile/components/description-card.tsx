@@ -30,12 +30,12 @@ export default function DescriptionCard({group} : DescriptionCardProps) {
   const { user } = useAuth()
 
   useEffect(() => {
-    if (group) {
-      setDescriptionFinal(group.description)
-      setDescriptionUpdatedat(group.description_updatedat)
-      if (group && group.desc_updatedby) setDescriptionUpdatedby(group?.desc_updatedby?.full_name)
-    }
-  }, []) // eslint-disable-next-line no-use-before-define
+    if (!group) return
+    setDescriptionFinal(group.description)
+    setDescriptionUpdatedat(group.description_updatedat)
+    if (group.desc_updatedby) setDescriptionUpdatedby(group.desc_updatedby.full_name)
+  }, [group])
+
   
   if (!group) {
     return (
