@@ -5,6 +5,7 @@ import {
   SupabaseClient,
   RealtimeChannel,
   RealtimePostgresChangesPayload,
+  RealtimePostgresChangesFilter,
 } from "@supabase/supabase-js"
 
 type Events = "INSERT" | "UPDATE" | "DELETE"
@@ -36,9 +37,15 @@ export function useRealtimeTable<T>({
     const channel: RealtimeChannel = supabase.channel(`${table}-changes`)
 
     events.forEach((event) => {
+      const opts: RealtimePostgresChangesFilter = {
+        event,
+        schema,
+        table,
+        filter,
+      }
+
       channel.on(
-        "postgres_changes",
-        { event, schema, table, filter },
+        { event: "postgres_changes", ...opts },
         (payload: RealtimePostgresChangesPayload<T>) => {
           if (event === "INSERT" && onInsert) onInsert(payload.new as T)
           if (event === "UPDATE" && onUpdate) onUpdate(payload.new as T)
