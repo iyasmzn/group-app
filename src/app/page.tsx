@@ -17,16 +17,16 @@ export default function LandingPage() {
           className="relative flex flex-col items-center justify-center text-center px-6 py-32"
         >
           <Reveal>
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
+            <h1 className="text-3xl md:text-6xl font-bold mb-6">
               Manage Your Groups Effortlessly
             </h1>
           </Reveal>
           <Reveal delay={0.3}>
-            <p className="text-lg md:text-xl max-w-2xl mb-8">
+            <p className="md:text-xl max-w-2xl mb-8">
               Create groups, chat in real-time, assign dynamic roles, and customize permissions with ease.
             </p>
           </Reveal>
-          <div className="flex gap-4 flex-wrap justify-center">
+          <div className="flex gap-8 md:gap-4 flex-wrap justify-center">
             <Reveal delay={0.6}>
               <Link
                 href="/login"
