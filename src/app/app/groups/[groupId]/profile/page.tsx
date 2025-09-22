@@ -20,7 +20,7 @@ import { groupService } from "@/services/groupService/groupService"
 import { Skeleton } from "@/components/ui/skeleton"
 import { GroupAvatar } from "@/components/group-avatar"
 import InviteLink from "./components/invite-link"
-import { GroupData } from "@/types/group"
+import { GroupData, GroupMember } from "@/types/group"
 
 export default function GroupProfilePage() {
   const {supabase} = useAuth()
@@ -188,21 +188,21 @@ export default function GroupProfilePage() {
             </p>
           </div>
           <ul className="divide-y">
-            {group?.group_members?.map((m: any) => (
+            {group?.group_members?.map((m: GroupMember) => (
               <li
-                key={m.profiles.id}
+                key={m?.profiles?.id}
                 className="flex items-center justify-between p-4 hover:bg-accent"
               >
                 <div className="flex items-center gap-3">
                   <Avatar className="h-10 w-10">
-                    {m.profiles.avatar_url ? (
+                    {m?.profiles?.avatar_url ? (
                       <AvatarImage
                         src={m.profiles.avatar_url}
                         alt={m.profiles.full_name}
                       />
                     ) : (
                       <AvatarFallback>
-                        {m.profiles.full_name
+                        {m?.profiles?.full_name
                           .split(" ")
                           .slice(0, 2)
                           .map((n: string) => n[0])
@@ -212,7 +212,7 @@ export default function GroupProfilePage() {
                   </Avatar>
                   <div>
                     <p className="font-medium">{m.profiles?.full_name}</p>
-                    <p className="text-xs text-muted-foreground">{m.group_roles?.name}</p>
+                    <p className="text-xs text-muted-foreground">{m?.group_roles?.name}</p>
                   </div>
                 </div>
                 <span className="text-xs font-semibold text-blue-600">

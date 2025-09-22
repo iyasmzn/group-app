@@ -1,3 +1,5 @@
+import { Profile } from "./profile"
+
 export interface GroupData {
   id: string
   name: string
@@ -15,6 +17,8 @@ export interface GroupMember {
   id: string
   full_name: string
   user_id: string
+  profiles?: Profile
+  group_roles?: GroupRole
 }
 
 export interface GroupInvite {
@@ -22,4 +26,9 @@ export interface GroupInvite {
   code: string
   expires_at: Date
   group_id: string
+}
+
+export interface GroupRole {
+  id: string
+  name: string
 }

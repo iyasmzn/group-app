@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 export interface SupabaseIdentity {
   id: string;
   user_id: string;
