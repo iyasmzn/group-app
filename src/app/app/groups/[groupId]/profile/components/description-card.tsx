@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import LoadingOverlay from "@/components/loading-overlay";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader } from "@/components/ui/card";

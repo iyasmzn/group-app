@@ -40,7 +40,6 @@ export default function GroupProfilePage() {
     }
   }
 
-  // eslint-disable-next-line no-use-before-define
   useEffect(() => {
     const fetchGroup = async () => {
       const { data, error } = await supabase
