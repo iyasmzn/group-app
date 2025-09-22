@@ -4,6 +4,7 @@ import { AppTopbar } from "@/components/app/topbar";
 import { GroupAvatar } from "@/components/group-avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/lib/supabase/auth";
+import { GroupData } from "@/types/group";
 import { EllipsisVertical } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -12,7 +13,7 @@ export default function GroupTopbar() {
   const {supabase} = useAuth()
   const params = useParams();
   const groupId = params?.groupId;
-  const [groupData, setGroupData] = useState<any>(null);
+  const [groupData, setGroupData] = useState<GroupData | null>(null);
   const router = useRouter()
   console.log("Group ID:", groupId);
   

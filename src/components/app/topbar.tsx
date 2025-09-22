@@ -6,9 +6,9 @@ import { UserAvatar } from "../user-avatar"
 import { useAuth } from "@/lib/supabase/auth"
 import { usePathname } from "next/navigation"
 import { ChevronLeft } from "lucide-react"
-import React, { useState } from "react"
+import React from "react"
 import Reveal from "../animations/Reveal"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import BackButton from "../back-button"
 
 type MobileTopbarProps = {

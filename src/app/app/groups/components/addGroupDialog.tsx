@@ -16,9 +16,10 @@ import { PlusCircle } from "lucide-react"
 import { useState } from "react"
 import { supabase } from "@/lib/supabase/client"
 import { toast } from "sonner"
+import { GroupData } from "@/types/group"
 
 type AddGroupDialogProps = {
-  setGroups: React.Dispatch<React.SetStateAction<any[]>>
+  setGroups: React.Dispatch<React.SetStateAction<GroupData[]>>
   setLoading: React.Dispatch<React.SetStateAction<boolean>>
 }
 

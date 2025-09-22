@@ -1,9 +1,10 @@
 "use client"
 
+import { User } from "@supabase/supabase-js"
 import { useState } from "react"
 
 type UserAvatarProps = {
-  user: any
+  user: User
   size?: number // ukuran avatar, default 40px
   textSize?: number // ukuran teks inisial, default 14px
   onClick?: () => void

@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react"
 import { supabase } from "@/lib/supabase/client"
 import type { User, Session, SupabaseClient } from "@supabase/supabase-js"
+import { Profile } from "@/types/profile"
 
 interface AuthContextType {
   user: User | null
@@ -13,10 +14,10 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>
   signInWithGoogle: () => Promise<void>
   signOut: () => Promise<void>
-  updateUserMeta: (data: Record<string, any>) => Promise<void>
-  updateProfile: (data: Record<string, any>) => Promise<void>
+  updateUserMeta: (data: Partial<User["user_metadata"]>) => Promise<void>
+  updateProfile: (data: Partial<Omit<Profile, "id">>) => Promise<void>
   updateProfileHybrid?: (data: { full_name?: string; avatar_url?: string }) => Promise<void>
-  getProfile: () => Promise<any | null>
+  getProfile: () => Promise<Profile | null>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -40,7 +41,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null)
     })
 
-    listener?.subscription.unsubscribe()
+    return () => {
+      listener?.subscription.unsubscribe()
+    }
   }, [])
 
   const signUp = async (email: string, password: string, name: string) => {
@@ -53,16 +56,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           emailRedirectTo: `${window.location.origin}/login`
         } 
       })
-    if (error) throw error
+    if (error) throw new Error(error.message)
   }
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) throw error
+    if (error) throw new Error(error.message)
     // tapi kalau mau langsung fetch juga bisa
-    const { data: sessionData } = await supabase.auth.getSession()
-    setSession(sessionData.session)
-    setUser(sessionData.session?.user ?? null)
+    refreshSession()
   }
 
   const signInWithGoogle = async () => {
@@ -70,24 +71,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       provider: "google",
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     })
-    if (error) throw error
+    if (error) throw new Error(error.message)
   }
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut()
-    if (error) throw error
+    if (error) throw new Error(error.message)
     window.location.href = "/"
     setUser(null)
     setSession(null)
   }
 
-  const updateUserMeta = async (data: Record<string, any>) => {
+  const updateUserMeta = async (data: Record<string, Partial<User["user_metadata"]>>) => {
     const { error } = await supabase.auth.updateUser({ data })
-    if (error) throw error
-
-    const { data: sessionData } = await supabase.auth.getSession()
-    setSession(sessionData.session)
-    setUser(sessionData.session?.user ?? null)
+    if (error) throw new Error(error.message)
+    
+    refreshSession()
   }
 
   const getProfile = async () => {
@@ -98,29 +97,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .eq("id", user.id)
       .single()
 
-    if (error) throw error
+    if (error) throw new Error(error.message)
     return data
   }
 
-  const updateProfile = async (data: Record<string, any>) => {
+  const updateProfile = async (data: Partial<Omit<Profile, "id">>) => {
     if (!user) throw new Error("Not logged in")
     const { error } = await supabase
       .from("profiles")
       .update(data)
       .eq("id", user.id)
 
-    if (error) throw error
+    if (error) throw new Error(error.message)
 
     // refresh user session juga
-    const { data: sessionData } = await supabase.auth.getSession()
-    setSession(sessionData.session)
-    setUser(sessionData.session?.user ?? null)
+    refreshSession()
   }
 
   const updateProfileHybrid = async (data: { full_name?: string; avatar_url?: string }) => {
     if (!user) throw new Error("Not logged in")
 
-    const updates: any = {}
+    const updates: Partial<Pick<Profile, "full_name" | "avatar_url">> = {}
     if (data.full_name !== undefined) updates.full_name = data.full_name
     if (data.avatar_url !== undefined) updates.avatar_url = data.avatar_url
 
@@ -130,7 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .update(updates)
       .eq("id", user.id)
 
-    if (profileError) throw profileError
+    if (profileError) throw new Error(profileError.message)
 
     // 2. Update ke auth.user.user_metadata
     const { error: metaError } = await supabase.auth.updateUser({
@@ -140,15 +137,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     })
 
-    if (metaError) throw metaError
+    if (metaError) throw new Error(metaError.message)
 
     // refresh session biar data auth.user langsung terupdate
-    const { data: sessionData } = await supabase.auth.getSession()
-    setSession(sessionData.session)
-    setUser(sessionData.session?.user ?? null)
+    refreshSession()
   }
 
-
+  const refreshSession = async () => {
+    const { data, error } = await supabase.auth.getSession()
+    if (error) throw new Error(error.message)
+    setSession(data.session)
+    setUser(data.session?.user ?? null)
+  }
 
   return (
     <AuthContext.Provider

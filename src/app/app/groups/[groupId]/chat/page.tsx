@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
+import { redirect, useParams } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/supabase/auth"
@@ -11,6 +11,7 @@ import { Paperclip, Send, Smile } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useRealtimeTable } from "@/lib/hooks/useRealtimeTable"
+import { toast } from "sonner"
 
 type Message = {
   id: string
@@ -29,6 +30,11 @@ export default function GroupChatPage() {
   const { groupId } = useParams()
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState("")
+
+  if (!user) {
+    toast.error('User invalid. Please re-Login.')
+    redirect('/')
+  }
 
   // fetch messages awal
   useEffect(() => {
@@ -87,9 +93,9 @@ export default function GroupChatPage() {
       id: tempId,
       content: newMessage,
       createdat: new Date().toISOString(),
-      sender_id: user?.id!,
+      sender_id: user.id,
       sender: {
-        id: user?.id!,
+        id: user.id,
         full_name: user?.user_metadata?.full_name || "You",
         avatar_url: user?.user_metadata?.avatar_url || null,
       },

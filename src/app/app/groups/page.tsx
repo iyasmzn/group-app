@@ -14,8 +14,9 @@ import LoadingOverlay from "@/components/loading-overlay"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge"
+import { GroupData } from "@/types/group"
 
 const motionUl = {
   hidden: { opacity: 0 },
@@ -50,7 +51,7 @@ export default function GroupsPageWrapper() {
 }
 
 function GroupsPage({ userId }: { userId: string }) {
-  const [groups, setGroups] = useState<any[]>([])
+  const [groups, setGroups] = useState<GroupData[]>([])
   const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState<"name" | "createdat">("createdat")
   const [ascending, setAscending] = useState(false)

@@ -1,22 +1,22 @@
 "use client"
-import { GroupAvatar } from "@/components/group-avatar";
 import LoadingOverlay from "@/components/loading-overlay";
 import { useAuth } from "@/lib/supabase/auth";
 import { redirect, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Reveal from "@/components/animations/Reveal";
 import GroupTopbar from "../components/group-topbar";
 import { GroupBottombar } from "../components/group-bottombar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { GroupData } from "@/types/group";
 
 export default function GroupDashboardPage() {
   const {supabase} = useAuth()
   const params = useParams();
   const groupId = params?.groupId;
   const [loading, setLoading] = useState(true);
-  const [groupData, setGroupData] = useState<any>(null);
+  const [groupData, setGroupData] = useState<GroupData | null>(null);
   console.log("Group ID:", groupId);
   
   useEffect(() => {

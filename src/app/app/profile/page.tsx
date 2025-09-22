@@ -15,7 +15,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 export default function ProfilePage() {
   const { user, updateUserMeta, updateProfile, getProfile } = useAuth()
   const [fullName, setFullName] = useState("")
-  const [avatarUrl, setAvatarUrl] = useState("")
   const [loading, setLoading] = useState(false)
   const [overlayPreview, setOverlayPreview] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -26,7 +25,6 @@ export default function ProfilePage() {
       if (user) {
         const profile = await getProfile()
         setFullName(profile?.full_name || "")
-        setAvatarUrl(profile?.avatar_url || "")
       }
     }
     fetchProfile()
@@ -39,8 +37,9 @@ export default function ProfilePage() {
       await updateProfile({ full_name: fullName })
       await updateUserMeta({ full_name: fullName })
       toast.success("Profile updated")
-    } catch (err: any) {
-      toast.error(err.message || "Failed to update profile")
+    } catch (err) {
+      toast.error("Failed to update profile")
+      console.log(err)
     }
     setLoading(false)
   }
@@ -87,8 +86,9 @@ export default function ProfilePage() {
       } else {
         toast.error("Upload failed ❌")
       }
-    } catch (err: any) {
-      toast.error(err.message || "Failed to upload avatar")
+    } catch (err) {
+      toast.error("Failed to upload avatar")
+      console.log(err)
     }
 
     setIsProcessing(false)
@@ -117,8 +117,9 @@ export default function ProfilePage() {
       })
 
       toast.success("Avatar removed")
-    } catch (err: any) {
-      toast.error(err.message || "Failed to remove avatar")
+    } catch (err) {
+      toast.error("Failed to remove avatar")
+      console.log(err)
     }
     setIsProcessing(false)
   }

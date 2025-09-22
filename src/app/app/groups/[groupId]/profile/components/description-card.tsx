@@ -2,20 +2,19 @@ import LoadingOverlay from "@/components/loading-overlay";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/lib/supabase/auth";
 import { longDateTime } from "@/lib/utils/format";
 import { groupService } from "@/services/groupService/groupService";
+import { GroupData } from "@/types/group";
 import { Edit } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 type DescriptionCardProps = {
-  group?: any
+  group?: GroupData
 }
 
 export default function DescriptionCard({group} : DescriptionCardProps) {

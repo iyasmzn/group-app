@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase/client"
 import { v4 as uuidv4 } from "uuid"
 
-export async function createInvite(groupId: string, groupRoleId: String) {
+export async function createInvite(groupId: string, groupRoleId: string) {
   const code = uuidv4()
   const { data, error } = await supabase.from("group_invites").insert({
     group_id: groupId,

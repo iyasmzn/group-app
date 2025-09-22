@@ -1,17 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
 import { MotionProvider } from "@/components/providers"
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Group App",
@@ -26,11 +15,11 @@ export default function GroupLayout({
   
   return (
     <>
-        <MotionProvider>
-            <div className="max-w-4xl mx-auto">
-                {children}
-            </div>
-        </MotionProvider>
+      <MotionProvider>
+          <div className="max-w-4xl mx-auto">
+              {children}
+          </div>
+      </MotionProvider>
     </>
   );
 }

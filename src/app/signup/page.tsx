@@ -11,7 +11,6 @@ export default function SignupPage() {
   const [email, setEmail] = useState("iyasmzn07@gmail.com")
   const [password, setPassword] = useState("asdasd")
   const [name, setName] = useState("Asd Asd")
-  const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,9 +21,13 @@ export default function SignupPage() {
       // toast
       toast.success("Signup Successfully.")
       router.push("/email-confirm") // redirect after signup
-    } catch (err: any) {
-      toast.error(err?.message || "Signup Failed")
-      console.log(err?.message)
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error(err?.message);
+        console.log(err?.message)
+      } else {
+        toast.error("Signup Failed");
+      }
     } finally {
       setLoading(false)
     }
@@ -35,7 +38,6 @@ export default function SignupPage() {
       <LoadingOverlay isLoading={loading} />
       <form onSubmit={handleSubmit} className="max-w-md mx-auto p-4 flex flex-col gap-2">
         <h1 className="text-xl font-bold mb-2">Sign Up</h1>
-        {error && <p className="text-red-600">{error}</p>}
         <input type="text" placeholder="Name" value={name} onChange={e => setName(e.target.value)} className="border rounded p-2"/>
         <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="border rounded p-2"/>
         <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} className="border rounded p-2"/>

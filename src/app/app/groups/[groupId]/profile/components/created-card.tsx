@@ -1,9 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { longDateTime } from "@/lib/utils/format";
+import { GroupData } from "@/types/group";
 
 type CreatedCardProps = {
-  group?: any
+  group?: GroupData
 }
 
 export default function CreatedCard({group} : CreatedCardProps) {

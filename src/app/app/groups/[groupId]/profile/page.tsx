@@ -8,10 +8,8 @@ import {
   AvatarImage,
   AvatarFallback,
 } from "@/components/ui/avatar"
-import { Users, Link as LinkIcon, Bell, Settings, UserPlus2, Link2, BellRing, ChevronLeft, UndoDot, Undo2, Edit3, Save, X } from "lucide-react"
+import { Users, Link as LinkIcon, Bell, Settings, UserPlus2, BellRing, Undo2, Edit3, Save, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { formatDate, longDateTime } from "@/lib/utils/format"
 import Reveal from "@/components/animations/Reveal"
 import LoadingOverlay from "@/components/loading-overlay"
 import CreatedCard from "./components/created-card"
@@ -22,12 +20,13 @@ import { groupService } from "@/services/groupService/groupService"
 import { Skeleton } from "@/components/ui/skeleton"
 import { GroupAvatar } from "@/components/group-avatar"
 import InviteLink from "./components/invite-link"
+import { GroupData } from "@/types/group"
 
 export default function GroupProfilePage() {
   const {supabase} = useAuth()
   const {update} = groupService
   const { groupId } = useParams()
-  const [group, setGroup] = useState<any>(null)
+  const [group, setGroup] = useState<GroupData | null>(null)
   const [groupName, setGroupName] = useState("")
   const [groupNameEdit, setGroupNameEdit] = useState(false)
   const [groupNameLoading, setGroupNameLoading] = useState(false)
@@ -72,6 +71,8 @@ export default function GroupProfilePage() {
   }, [groupId])
 
   const updateGroupName = async () => {
+    if (!group) return
+    
     setGroupNameEdit(false)
     setGroupNameLoading(true)
     await update(group.id, {
@@ -182,12 +183,12 @@ export default function GroupProfilePage() {
               Members
             </h2>
             <p className="text-sm text-muted-foreground">
-              {group.group_members.length} member
-              {group.group_members.length !== 1 ? "s" : ""}
+              {group?.group_members?.length} member
+              {group?.group_members?.length !== 1 ? "s" : ""}
             </p>
           </div>
           <ul className="divide-y">
-            {group.group_members.map((m: any) => (
+            {group?.group_members?.map((m: any) => (
               <li
                 key={m.profiles.id}
                 className="flex items-center justify-between p-4 hover:bg-accent"

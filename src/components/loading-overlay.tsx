@@ -1,4 +1,3 @@
-import { DotsSpinner } from "./animations/dots-spinner";
 import { Loader } from "./animations/loader";
 
 export default function LoadingOverlay({isLoading = true, absolute = false}: {isLoading?: boolean, absolute?: boolean}) {

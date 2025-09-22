@@ -7,9 +7,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { User } from "@supabase/supabase-js"
 
 type UserAvatarGroupProps = {
-  users: any[]
+  users: User[]
   max?: number // jumlah avatar yang ditampilkan
   size?: number
 }
@@ -32,7 +33,7 @@ export function UserAvatarGroup({ users, max = 3, size = 40 }: UserAvatarGroupPr
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div>
-                    <UserAvatar user={user} size={size} status={user.status} />
+                    <UserAvatar user={user} size={size} />
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>

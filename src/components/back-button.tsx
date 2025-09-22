@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { ArrowLeft, ChevronLeft } from "lucide-react"
+import { ChevronLeft } from "lucide-react"
 import Reveal from "./animations/Reveal"
 
 export default function BackButton({ label }: { label?: string }) {

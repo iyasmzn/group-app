@@ -2,12 +2,13 @@ import { GlobalQRCode } from "@/components/global-qr-code";
 import LoadingOverlay from "@/components/loading-overlay";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/lib/supabase/auth";
 import { longDate } from "@/lib/utils/format";
 import { copyToClipboard } from "@/lib/utils/helper";
 import { createInvite } from "@/services/groupService/createInvite";
-import { Copy, Link2, QrCode, XCircle } from "lucide-react";
+import { GroupInvite } from "@/types/group";
+import { Copy, Link2, QrCode } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -18,7 +19,7 @@ export default function InviteLink() {
   const { groupId } = useParams()
   const { supabase } = useAuth()
   const [ roleId, setRoleId ] = useState<string>("")
-  const [ invite, setInvite ] = useState<any>(null)
+  const [ invite, setInvite ] = useState<GroupInvite | null>(null)
   const [ inviteLink, setInviteLink ] = useState<string>("")
 
   useEffect(() => {

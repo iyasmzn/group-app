@@ -11,7 +11,6 @@ export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState("iyasmzn07@gmail.com")
   const [password, setPassword] = useState("asdasd")
-  const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -20,8 +19,12 @@ export default function LoginPage() {
     try {
       await signIn(email, password)
       router.push("/app/home") // redirect after login
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error("Something went wrong");
+      }
     } finally {
       setLoading(false)
     }
@@ -30,8 +33,12 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     try {
       await signInWithGoogle()
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error("Something went wrong");
+      }
     }
   }
   

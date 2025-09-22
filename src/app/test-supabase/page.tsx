@@ -1,10 +1,12 @@
 "use client"
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase/client"
+import { GroupData } from "@/types/group"
+import { Profile } from "@/types/profile"
 
 export default function TestSupabase() {
-  const [groupData, setGroupData] = useState<any[]>([])
-  const [userData, setUserData] = useState<any[]>([])
+  const [groupData, setGroupData] = useState<GroupData[]>([])
+  const [userData, setUserData] = useState<Profile[]>([])
 
   useEffect(() => {
     const fetchGroupData = async () => {
@@ -12,7 +14,7 @@ export default function TestSupabase() {
       setGroupData(data || [])
     }
     const fetchUserData = async () => {
-      const { data } = await supabase.from("users").select("*")
+      const { data } = await supabase.from("profiles").select("*")
       setUserData(data || [])
     }
 

@@ -1,6 +1,6 @@
 "use client"
 import Link from "next/link"
-import { Home, Users, MessageCircle, Settings, LayoutDashboard, CalendarDays, DollarSign } from "lucide-react"
+import { MessageCircle, LayoutDashboard, CalendarDays, DollarSign } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useLastSegment } from "@/lib/hooks/useLastSegment"
 

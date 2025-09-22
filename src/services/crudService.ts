@@ -1,6 +1,8 @@
 import { supabase } from "@/lib/supabase/client"
 
-type Where<T> = Partial<Record<keyof T, any>>
+type Where<T> = {
+  [K in keyof T]?: T[K]
+}
 
 export function crudService<T extends { id: string }>(table: string) {
   return {
