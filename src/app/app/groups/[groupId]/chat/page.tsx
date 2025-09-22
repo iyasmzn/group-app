@@ -67,7 +67,6 @@ export default function GroupChatPage() {
     supabase,
     table: "group_messages",
     filter: `group_id=eq.${groupId}`,
-    events: ["INSERT", "UPDATE", "DELETE"],
 
     onInsert: (msg) => {
       setMessages((prev) =>
