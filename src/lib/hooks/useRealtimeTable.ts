@@ -1,7 +1,10 @@
 "use client"
 
 import { useEffect } from "react"
-import { SupabaseClient, RealtimePostgresChangesPayload } from "@supabase/supabase-js"
+import {
+  SupabaseClient,
+  RealtimePostgresChangesPayload,
+} from "@supabase/supabase-js"
 
 type Events = "INSERT" | "UPDATE" | "DELETE"
 
@@ -31,20 +34,16 @@ export function useRealtimeTable<T>({
 
     const channel = supabase.channel(`${table}-changes`)
 
+    const POSTGRES_CHANGES = "postgres_changes" as const
+
     events.forEach((event) => {
       channel.on(
-        "postgres_changes" as "postgres_changes", // ✅ pastikan TS paham ini literal
+        POSTGRES_CHANGES,
         { event, schema, table, filter },
         (payload: RealtimePostgresChangesPayload<T>) => {
-          if (event === "INSERT" && onInsert) {
-            onInsert(payload.new as T)
-          }
-          if (event === "UPDATE" && onUpdate) {
-            onUpdate(payload.new as T)
-          }
-          if (event === "DELETE" && onDelete) {
-            onDelete(payload.old as T)
-          }
+          if (event === "INSERT" && onInsert) onInsert(payload.new as T)
+          if (event === "UPDATE" && onUpdate) onUpdate(payload.new as T)
+          if (event === "DELETE" && onDelete) onDelete(payload.old as T)
         }
       )
     })
