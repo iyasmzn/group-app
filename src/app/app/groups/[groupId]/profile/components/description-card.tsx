@@ -99,7 +99,7 @@ export default function DescriptionCard({group} : DescriptionCardProps) {
         <div className="grid gap-4">
           <div className="grid gap-3">
             <Label htmlFor="name-1"></Label>
-            <Textarea id="name-1" value={description} onChange={e => setDescription(e.target.value)} />
+            <Textarea id="name-1" value={description || ""} onChange={e => setDescription(e.target.value)} />
           </div>
         </div>
         <DialogFooter className="grid grid-cols-2 gap-2">
@@ -115,14 +115,11 @@ export default function DescriptionCard({group} : DescriptionCardProps) {
           <CardDescription>
             Description
           </CardDescription>
-          {
-            group?.description && 
-            <CardAction>
-              <Button variant={"outline"} onClick={() => {setOpen(true);setDescription(group?.description)}}>
-                <Edit />
-              </Button> 
-            </CardAction>
-          }
+          <CardAction>
+            <Button variant={"outline"} onClick={() => {setOpen(true);setDescription(group?.description)}}>
+              <Edit />
+            </Button> 
+          </CardAction>
         </CardHeader>
         <CardContent>
           <LoadingOverlay isLoading={loading} absolute />

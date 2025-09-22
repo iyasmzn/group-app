@@ -11,5 +11,5 @@ export async function createInvite(groupId: string, groupRoleId: string) {
   }).select().single()
 
   if (error) throw error
-  return `${data}`
+  return data
 }

@@ -65,13 +65,13 @@ export default function InviteLink() {
       }
 
       // create group_invites data
-      await createInvite(groupId, roleId).then(res => {
+      setRoleId(role.id)
+
+      await createInvite(groupId as string, roleId).then(res => {
         console.log('res', res)
         setInvite(res)
       })
 
-      setRoleId(role.id)
-            
       setOpen(true)
     } finally {
       setLoading(false)
@@ -110,12 +110,12 @@ export default function InviteLink() {
               <Button className="flex-1" onClick={() => handleCopy(inviteLink)}>
                 <Copy /> Copy Link
               </Button>
-              <Button variant={"primary-outline"} className="flex-1"  onClick={() => handleCopy(invite.code)}>
+              <Button variant={"primary-outline"} className="flex-1"  onClick={() => invite && handleCopy(invite.code)}>
                 <Copy /> Copy Code
               </Button>
             </CardContent>
           </Card>
-          <p className="text-center text-secondary-foreground text-sm">Expires at: {longDate(invite?.expires_at)}</p>
+          <p className="text-center text-secondary-foreground text-sm">Expires at: {invite && longDate(invite.expires_at)}</p>
           <DialogFooter className="sm:justify-center">
             <DialogClose asChild>
               <Button variant={'outline'}>
