@@ -16,7 +16,8 @@ export default function InvitePage() {
   const [error, setError] = useState("")
   const [groupLink, setGroupLink] = useState("")
   const router = useRouter()
-
+  
+  // eslint-disable-next-line no-use-before-define
   useEffect(() => {
     setLoading(true)
     
@@ -55,7 +56,7 @@ export default function InvitePage() {
           router.push(groupLink)
         }, 5000);
     })
-  }, [code, user, router]) // eslint-disable-next-line no-use-before-define
+  }, [code, user, router])
 
   return (
     <Card>
