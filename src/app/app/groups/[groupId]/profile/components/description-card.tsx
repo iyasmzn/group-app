@@ -49,7 +49,7 @@ export default function DescriptionCard({group} : DescriptionCardProps) {
     setDescriptionFinal(group.description)
     setDescriptionUpdatedat(group.description_updatedat)
     if (group && group.desc_updatedby) setDescriptionUpdatedby(group?.desc_updatedby?.full_name)
-  })
+  }, [group])
   
   const updateDescription = async () => {
     setOpen(false)
