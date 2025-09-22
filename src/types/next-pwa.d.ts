@@ -7,8 +7,10 @@ declare module "next-pwa" {
     register?: boolean;
     skipWaiting?: boolean;
     buildExcludes?: string[];
-    [key: string]: any;
+    [key: string]: unknown; // ✅ ganti any → unknown
   };
 
-  export default function withPWA(options?: PWAOptions): (nextConfig: NextConfig) => NextConfig;
+  export default function withPWA(
+    options?: PWAOptions
+  ): (nextConfig: NextConfig) => NextConfig;
 }
