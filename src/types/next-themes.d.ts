@@ -12,4 +12,11 @@ declare module "next-themes" {
   }
 
   export const ThemeProvider: React.FC<ThemeProviderProps>
+
+  export function useTheme(): {
+    theme: string | undefined
+    setTheme: (theme: string) => void
+    resolvedTheme: string | undefined
+    systemTheme: "dark" | "light" | undefined
+  }
 }
