@@ -36,7 +36,7 @@ export function useRealtimeTable<T>({
     const channel: RealtimeChannel = supabase.channel(`${table}-changes`)
 
     events.forEach((event) => {
-      channel.on<'postgres_changes'>(
+      channel.on(
         "postgres_changes",
         { event, schema, table, filter },
         (payload: RealtimePostgresChangesPayload<T>) => {
