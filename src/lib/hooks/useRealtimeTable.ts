@@ -5,8 +5,6 @@ import {
   SupabaseClient,
 } from "@supabase/supabase-js"
 
-type Events = "INSERT" | "UPDATE" | "DELETE"
-
 type Options<T> = {
   supabase: SupabaseClient
   table: string
