@@ -195,12 +195,12 @@ export default function GroupProfilePage() {
               >
                 <div className="flex items-center gap-3">
                   <Avatar className="h-10 w-10">
-                    {m?.profiles?.avatar_url ? (
+                    {m?.profiles?.avatar_url && m.profiles?.full_name  ? (
                       <AvatarImage
                         src={m.profiles.avatar_url}
                         alt={m.profiles.full_name}
                       />
-                    ) : (
+                    ) : m.profiles?.full_name && (
                       <AvatarFallback>
                         {m?.profiles?.full_name
                           .split(" ")
