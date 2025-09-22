@@ -55,7 +55,7 @@ export default function InvitePage() {
           router.push(groupLink)
         }, 5000);
     })
-  }, [code, user, router])
+  }, [code, user, router, error, groupLink, supabase])
 
   return (
     <Card>
