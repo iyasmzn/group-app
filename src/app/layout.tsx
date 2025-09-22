@@ -8,7 +8,6 @@ export const metadata: Metadata = {
   title: "Group App",
   description: "Aplikasi manajemen group",
   manifest: "/manifest.json",
-  themeColor: "#0d9488",
   icons: {
     icon: "/vercel.svg",
     apple: "/vercel.svg"
