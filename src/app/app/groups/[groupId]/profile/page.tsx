@@ -68,7 +68,7 @@ export default function GroupProfilePage() {
       }
     }
     fetchGroup()
-  }, [groupId])
+  }, [groupId]) // eslint-disable-next-line no-use-before-define
 
   const updateGroupName = async () => {
     if (!group) return

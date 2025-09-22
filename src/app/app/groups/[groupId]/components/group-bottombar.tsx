@@ -1,11 +1,9 @@
 "use client"
 import Link from "next/link"
 import { MessageCircle, LayoutDashboard, CalendarDays, DollarSign } from "lucide-react"
-import { usePathname } from "next/navigation"
 import { useLastSegment } from "@/lib/hooks/useLastSegment"
 
 export function GroupBottombar() {
-  const pathname = usePathname()
   const active = useLastSegment()
 
   const tabs = [
