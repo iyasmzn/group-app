@@ -47,7 +47,6 @@ export default function InvitePage() {
     }
 
     joinGroup().finally(() => setLoading(false))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code, user, supabase])
 
   useEffect(() => {
