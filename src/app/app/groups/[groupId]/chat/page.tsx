@@ -70,7 +70,11 @@ export default function GroupChatPage() {
     events: ["INSERT", "UPDATE", "DELETE"],
 
     onInsert: (msg) => {
-      setMessages((prev) => [...prev, msg])
+      setMessages((prev) =>
+        [...prev, msg].sort(
+          (a, b) => new Date(a.createdat).getTime() - new Date(b.createdat).getTime()
+        )
+      )
     },
     onUpdate: (msg) => {
       setMessages((prev) =>
