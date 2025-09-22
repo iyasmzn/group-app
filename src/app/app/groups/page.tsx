@@ -168,7 +168,7 @@ function GroupsPage({ userId }: { userId: string }) {
                   {/* Avatar inisial */}                
                   <GroupAvatar 
                     name={group.name} 
-                    image={group.avatar_url} // kalau ada, tampil gambar
+                    image={group.image_url} // kalau ada, tampil gambar
                     size="md" 
                   />
                   <div className="flex flex-col">
