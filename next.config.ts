@@ -11,5 +11,8 @@ export default withPWA({
   skipWaiting: true,
   fallbacks: {
     document: "/offline.html"
-  }
+  },
+  buildExcludes: [
+    "app-build-manifest.json", // ⛔ exclude file ini
+  ]
 })(nextConfig);
