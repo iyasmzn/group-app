@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useRealtimeTable } from "@/lib/hooks/useRealtimeTable"
 import { toast } from "sonner"
+import ChatInput from "@/components/app/chat-input"
 
 type Message = {
   id: string
@@ -146,9 +147,9 @@ export default function GroupChatPage() {
   return (
     <>
       <GroupTopbar />
-      <div className="flex flex-col h-[calc(100vh-6rem)]">
+      <div className="flex flex-col">
         {/* Chat messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 space-y-4">
           {messages.map((msg) => {
             const isOwn = msg.sender_id === user?.id
             const initials =
@@ -193,27 +194,15 @@ export default function GroupChatPage() {
               </Reveal>
             )
           })}
+          <div className="h-20" /> {/* spacer for bottom bar */}
         </div>
 
         {/* Input */}
-        <div className="p-4 border-t flex items-center gap-2">
-          <button className="p-2 text-muted-foreground hover:text-foreground transition-colors">
-            <Smile size={22} />
-          </button>
-          <button className="p-2 text-muted-foreground hover:text-foreground transition-colors">
-            <Paperclip size={22} />
-          </button>
-          <Input
-            placeholder="Tulis pesan..."
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            className="flex-1"
-          />
-          <Button size="icon" onClick={handleSend}>
-            <Send size={20} />
-          </Button>
-        </div>
+        <ChatInput
+          value={newMessage}
+          onChange={setNewMessage}
+          onSend={handleSend}
+        />
       </div>
     </>
   )

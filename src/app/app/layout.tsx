@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "../globals.css";
+import "@/styles/global.css";
 import { MotionProvider } from "@/components/providers"
 
 export const metadata: Metadata = {
@@ -15,7 +15,11 @@ export default function AppLayout({
   
   return (
     <>
-        <MotionProvider>{children}</MotionProvider>
+      <MotionProvider>
+        <div className="px-4">
+          {children}
+        </div>
+      </MotionProvider>
     </>
   );
 }

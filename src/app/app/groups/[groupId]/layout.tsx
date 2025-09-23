@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "@/app/globals.css";
+import "@/styles/global.css";
 import { MotionProvider } from "@/components/providers"
 
 export const metadata: Metadata = {
