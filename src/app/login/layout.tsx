@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "../globals.css";
+import { MotionProvider } from "@/components/providers";
 
 export const metadata: Metadata = {
   title: "Group App",
@@ -14,7 +15,7 @@ export default function LoginLayout({
   
   return (
     <>
-      <main className="px-4 py-6">{children}</main>
+      <MotionProvider>{children}</MotionProvider>
     </>
   );
 }

@@ -8,7 +8,8 @@ type RevealProps = {
   children: React.ReactNode
   delay?: number
   distance?: number
-  animation?: "fadeIn" | "fadeInUp" | "fadeInDown" | "fadeInLeft" | "fadeInRight"
+  animation?: "fadeIn" | "fadeInUp" | "fadeInDown" | "fadeInLeft" | "fadeInRight",
+  className?: string
 }
 
 export default function Reveal({
@@ -16,6 +17,7 @@ export default function Reveal({
   delay = 0.2,
   distance = 50,
   animation = "fadeInUp",
+  className = ""
 }: RevealProps) {
   const controls = useAnimation()
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.2 })
@@ -65,6 +67,7 @@ export default function Reveal({
       animate={controls}
       variants={getVariants()}
       transition={{ duration: 0.6, delay }}
+      className={className}
     >
       {children}
     </motion.div>

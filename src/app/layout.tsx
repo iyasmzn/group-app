@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/lib/supabase/auth"
 import { Toaster } from "@/components/ui/sonner";
 import RegisterSW from "@/components/register-sw";
+import SplashScreen from "@/components/ui/splash-screen";
 
 export const metadata: Metadata = {
   title: "Group App",
@@ -24,12 +25,14 @@ export default function RootLayout({
   
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
+      <body suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
-            <main className="px-4">{children}</main>
-            <Toaster position="top-center" />
-            <RegisterSW />
+            <SplashScreen duration={1500}>
+              <main>{children}</main>
+              <Toaster position="top-center" />
+              <RegisterSW />
+            </SplashScreen>
           </AuthProvider>
         </ThemeProvider>
       </body>

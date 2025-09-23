@@ -1,80 +1,148 @@
-"use client"
-import { useEffect, useState } from "react"
-import { useAuth } from "@/lib/supabase/auth"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import LoadingOverlay from "@/components/loading-overlay"
-import { toast } from "sonner"
+"use client";
+
+import { useEffect, useState } from "react";
+import { useAuth } from "@/lib/supabase/auth";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import LoadingOverlay from "@/components/loading-overlay";
+import { toast } from "sonner";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Mail, Lock, Chrome, Home } from "lucide-react";
+import Image from "next/image";
+import Reveal from "@/components/animations/Reveal";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export default function LoginPage() {
-  const { signIn, signInWithGoogle, user } = useAuth()
-  const router = useRouter()
-  const [email, setEmail] = useState("iyasmzn07@gmail.com")
-  const [password, setPassword] = useState("asdasd")
-  const [loading, setLoading] = useState(false)
+  const { signIn, signInWithGoogle, user } = useAuth();
+  const router = useRouter();
+  const [email, setEmail] = useState("iyasmzn07@gmail.com");
+  const [password, setPassword] = useState("asdasd");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    setLoading(true)
-    e.preventDefault()
+    setLoading(true);
+    e.preventDefault();
     try {
-      await signIn(email, password)
-      router.push("/app/home") // redirect after login
+      await signIn(email, password);
+      router.push("/app/home");
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        toast.error(err.message);
-      } else {
-        toast.error("Something went wrong");
-      }
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleGoogleLogin = async () => {
     try {
-      await signInWithGoogle()
+      await signInWithGoogle();
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        toast.error(err.message);
-      } else {
-        toast.error("Something went wrong");
-      }
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
     }
-  }
-  
+  };
+
   useEffect(() => {
     if (user) {
-      console.log("User already logged in, redirecting to home")
-      console.log(user)
-      router.push("/app/home") // redirect langsung jika sudah login
+      router.push("/app/home");
     }
-  }, [user, router])
-  
-  if (user) return null
-  
+  }, [user, router]);
+
+  if (user) return null;
+
   return (
-    <div className="max-w-md mx-auto p-4 flex flex-col gap-2">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-cyan-400 dark:from-gray-900 dark:to-gray-800 p-4 transition-colors">
       {loading && <LoadingOverlay />}
-      <h1 className="text-xl font-bold mb-2">Login</h1>
+      <Reveal animation="fadeInUp" delay={0.1} className="flex justify-center w-full">
+        <Card className="w-full max-w-md shadow-lg border border-border bg-card text-card-foreground backdrop-blur-md">
+          <CardHeader className="flex flex-col items-center gap-4">
+            {/* Logo */}
+            <Reveal animation="fadeIn" delay={0.15}>
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                width={64}
+                height={64}
+                className="rounded-lg"
+              />
+            </Reveal>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-        <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="border rounded p-2"/>
-        <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} className="border rounded p-2"/>
-        <div className="grid grid-cols-2 gap-2">
-          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Login</button>
-          <Link href="/signup" className="text-center bg-red-600 text-white px-4 py-2 rounded">Sign Up</Link>
-        </div>
-      </form>
+            {/* Title + Actions */}
+            <div className="flex w-full items-center justify-between">
+              <CardTitle className="text-xl font-bold">Login</CardTitle>
+              <div className="flex items-center gap-2">
+                <Link href="/" title="Back to Home">
+                  <Button variant="outline" size="icon">
+                    <Home className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <ModeToggle />
+              </div>
+            </div>
+          </CardHeader>
 
-      <div className="flex items-center gap-2 my-2">
-        <span className="flex-1 border-t"></span>
-        <span className="text-gray-500">or</span>
-        <span className="flex-1 border-t"></span>
-      </div>
+          <CardContent className="space-y-4">
+            <Reveal animation="fadeInUp" delay={0.3}>
+              <form onSubmit={handleSubmit} className="space-y-3">
+                <div className="relative">
+                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button type="submit" className="bg-primary text-primary-foreground hover:bg-primary/90">
+                    Login
+                  </Button>
+                  <Link href="/signup" className="w-full">
+                    <Button variant="destructive" className="w-full">
+                      Sign Up
+                    </Button>
+                  </Link>
+                </div>
+              </form>
+            </Reveal>
 
-      <button onClick={handleGoogleLogin} className="bg-yellow-600 text-white px-4 py-2 rounded">
-        Login with Google
-      </button>
+            <Reveal animation="fadeIn" delay={0.4}>
+              <div className="flex items-center gap-2">
+                <span className="flex-1 border-t border-border" />
+                <span className="text-muted-foreground text-sm">atau</span>
+                <span className="flex-1 border-t border-border" />
+              </div>
+            </Reveal>
+
+            <Reveal animation="fadeInUp" delay={0.5}>
+              <Button
+                onClick={handleGoogleLogin}
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2"
+              >
+                <Chrome className="h-5 w-5 text-red-500" /> Login dengan Google
+              </Button>
+            </Reveal>
+          </CardContent>
+
+          <CardFooter className="text-center text-sm text-muted-foreground">
+            <Reveal animation="fadeIn" delay={0.6}>
+              © {new Date().getFullYear()} Group App
+            </Reveal>
+          </CardFooter>
+        </Card>
+      </Reveal>
     </div>
-  )
+  );
 }
