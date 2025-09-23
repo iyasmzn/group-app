@@ -8,7 +8,7 @@ import {
   AvatarImage,
   AvatarFallback,
 } from "@/components/ui/avatar"
-import { Users, Link as LinkIcon, Bell, Settings, UserPlus2, BellRing, Undo2, Edit3, Save, X } from "lucide-react"
+import { Users, Link as LinkIcon, Bell, Settings, UserPlus2, BellRing, Undo2, Edit3, Save, X, UserCog, Link2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Reveal from "@/components/animations/Reveal"
 import LoadingOverlay from "@/components/loading-overlay"
@@ -155,20 +155,8 @@ export default function GroupProfilePage() {
         </Reveal>
         <div className="divide-y">
           <div className="flex items-center gap-3 p-4 hover:bg-accent cursor-pointer">
-            <Users className="h-5 w-5" />
-            <span>Add Members</span>
-          </div>
-          <div className="flex items-center gap-3 p-4 hover:bg-accent cursor-pointer">
-            <Users className="h-5 w-5" />
-            <span>Add Members</span>
-          </div>
-          <div className="flex items-center gap-3 p-4 hover:bg-accent cursor-pointer">
-            <LinkIcon className="h-5 w-5" />
-            <span>Group Invite Link</span>
-          </div>
-          <div className="flex items-center gap-3 p-4 hover:bg-accent cursor-pointer">
-            <Bell className="h-5 w-5" />
-            <span>Mute Notifications</span>
+            <UserCog className="h-5 w-5" />
+            <span>Manage Roles</span>
           </div>
           <div className="flex items-center gap-3 p-4 hover:bg-accent cursor-pointer">
             <Settings className="h-5 w-5" />
@@ -188,28 +176,51 @@ export default function GroupProfilePage() {
             </p>
           </div>
           <ul className="divide-y">
+            <li
+              className="flex items-center justify-between p-4 hover:bg-accent"
+            >
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                    <AvatarFallback>
+                      <UserPlus2 />
+                    </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-medium">Add Member</p>
+                </div>
+              </div>
+              <span className="text-xs font-semibold text-blue-600">
+              </span>
+            </li>
+            <li
+              className="flex items-center justify-between p-4 hover:bg-accent"
+            >
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                    <AvatarFallback>
+                      <Link2 />
+                    </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-medium">Invite Link</p>
+                </div>
+              </div>
+              <span className="text-xs font-semibold text-blue-600">
+              </span>
+            </li>
             {group?.group_members?.map((m: GroupMember) => (
               <li
                 key={m?.profiles?.id}
                 className="flex items-center justify-between p-4 hover:bg-accent"
               >
                 <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10">
-                    {m?.profiles?.avatar_url && m.profiles?.full_name  ? (
-                      <AvatarImage
-                        src={m.profiles.avatar_url}
-                        alt={m.profiles.full_name}
-                      />
-                    ) : m.profiles?.full_name && (
-                      <AvatarFallback>
-                        {m?.profiles?.full_name
-                          .split(" ")
-                          .slice(0, 2)
-                          .map((n: string) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    )}
-                  </Avatar>
+                  {m?.profiles?.full_name && (
+                  <GroupAvatar 
+                    name={m?.profiles?.full_name}
+                    image={m?.profiles?.avatar_url}
+                    size="md"
+                  />
+                  )}
                   <div>
                     <p className="font-medium">{m.profiles?.full_name}</p>
                     <p className="text-xs text-muted-foreground">{m?.group_roles?.name}</p>
