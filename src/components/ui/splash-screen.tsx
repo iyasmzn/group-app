@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
+import { useTheme } from "next-themes";
 
 interface SplashScreenProps {
   duration?: number;
@@ -11,61 +12,66 @@ interface SplashScreenProps {
 }
 
 export default function SplashScreen({ duration = 2000, children }: SplashScreenProps) {
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
-  const [durationDone, setDurationDone] = useState(false);
-  const [swRegistered, setSwRegistered] = useState(false);
 
+  // Pastikan komponen sudah mount
   useEffect(() => {
-    const timer = setTimeout(() => setDurationDone(true), duration);
+    setMounted(true);
+  }, []);
 
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register("/sw.js")
-        .then(() => {
-          console.log("✅ Service Worker registered");
-          setSwRegistered(true);
-        })
-        .catch(() => setSwRegistered(true));
-    } else {
-      setSwRegistered(true);
-    }
-
-    return () => clearTimeout(timer);
-  }, [duration]);
-
+  // Trigger splash setiap kali theme berubah
   useEffect(() => {
-    if (durationDone && swRegistered) {
-      setShowSplash(false);
+    if (mounted) {
+      setShowSplash(true);
+      const timer = setTimeout(() => setShowSplash(false), duration);
+      return () => clearTimeout(timer);
     }
-  }, [durationDone, swRegistered]);
+  }, [theme, mounted, duration]);
+
+  // Render versi netral saat SSR
+  if (!mounted) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-background text-foreground z-[9999]">
+        <Card className="bg-card text-card-foreground border border-border shadow-lg p-6 backdrop-blur-md">
+          <CardContent className="flex flex-col items-center space-y-4">
+            <Image src="/assets/logo.png" alt="Logo" width={100} height={100} className="rounded-full" />
+            <h1 className="text-2xl font-bold">Group App</h1>
+            <p className="text-muted-foreground text-sm">Memuat aplikasi...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <>
       <AnimatePresence>
         {showSplash && (
           <motion.div
-            className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-blue-600 to-cyan-400 z-[9999]"
-            initial={{ opacity: 1 }}
+            key={theme}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.6 }}
+            className={`fixed inset-0 flex items-center justify-center z-[9999] transition-colors
+              ${theme === "dark"
+                ? "bg-gradient-to-br from-gray-900 to-gray-800"
+                : "bg-gradient-to-br from-blue-600 to-cyan-400"}
+            `}
           >
-            <Card className="bg-white/10 backdrop-blur-md border-none shadow-lg p-6">
+            <Card className="bg-card text-card-foreground border border-border shadow-lg p-6 backdrop-blur-md transition-colors">
               <CardContent className="flex flex-col items-center space-y-4">
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ duration: 0.6 }}
                 >
-                  <Image
-                    src="/logo.png"
-                    alt="Logo"
-                    width={100}
-                    height={100}
-                    className="rounded-full"
-                  />
+                  <Image src="/assets/logo.png" alt="Logo" width={100} height={100} className="rounded-full" />
                 </motion.div>
                 <motion.h1
-                  className="text-white text-2xl font-bold"
+                  className="text-2xl font-bold"
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.3, duration: 0.6 }}
@@ -73,7 +79,7 @@ export default function SplashScreen({ duration = 2000, children }: SplashScreen
                   Group App
                 </motion.h1>
                 <motion.p
-                  className="text-white/80 text-sm"
+                  className="text-muted-foreground text-sm"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.5, duration: 0.6 }}
@@ -86,7 +92,6 @@ export default function SplashScreen({ duration = 2000, children }: SplashScreen
         )}
       </AnimatePresence>
 
-      {/* Render children hanya setelah splash hilang */}
       {!showSplash && children}
     </>
   );

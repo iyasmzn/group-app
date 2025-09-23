@@ -59,7 +59,7 @@ export default function LoginPage() {
             {/* Logo */}
             <Reveal animation="fadeIn" delay={0.15}>
               <Image
-                src="/logo.png"
+                src="/assets/logo.png"
                 alt="Logo"
                 width={64}
                 height={64}

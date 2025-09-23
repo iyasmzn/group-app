@@ -4,7 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/lib/supabase/auth"
 import { Toaster } from "@/components/ui/sonner";
 import RegisterSW from "@/components/register-sw";
-import SplashScreen from "@/components/ui/splash-screen";
+import SplashScreen from "@/components/client-splash-wrapper";
 
 export const metadata: Metadata = {
   title: "Group App",
