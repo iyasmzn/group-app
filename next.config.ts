@@ -8,5 +8,8 @@ const nextConfig: NextConfig = {
 export default withPWA({
   dest: "public",
   register: true,
-  skipWaiting: true
+  skipWaiting: true,
+  fallbacks: {
+    document: "/offline.html"
+  }
 })(nextConfig);

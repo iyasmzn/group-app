@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/host.js && next dev --turbopack --hostname 0.0.0.0",
-    "build": "next build --turbopack",
-    "start": "next start",
+    "build": "NEXT_DISABLE_TURBOPACK=1 next build",
+    "start": "NEXT_DISABLE_TURBOPACK=1 next start -p 4000",
     "lint": "eslint"
   },
   "dependencies": {

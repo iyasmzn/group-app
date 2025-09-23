@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/lib/supabase/auth"
 import { Toaster } from "@/components/ui/sonner";
+import RegisterSW from "@/components/register-sw";
 
 export const metadata: Metadata = {
   title: "Group App",
@@ -28,6 +29,7 @@ export default function RootLayout({
           <AuthProvider>
             <main className="px-4">{children}</main>
             <Toaster position="top-center" />
+            <RegisterSW />
           </AuthProvider>
         </ThemeProvider>
       </body>
