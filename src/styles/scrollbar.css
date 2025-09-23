@@ -27,11 +27,11 @@
 
 /* Variabel warna adaptif tema */
 :root {
-  --scroll-thumb: rgba(0, 0, 0, 0.3);
-  --scroll-thumb-hover: rgba(0, 0, 0, 0.5);
+  --scroll-thumb: hsl(var(--foreground) / 0.3);
+  --scroll-thumb-hover: hsl(var(--foreground) / 0.5);
 }
 
 .dark {
-  --scroll-thumb: rgba(255, 255, 255, 0.3);
-  --scroll-thumb-hover: rgba(255, 255, 255, 0.5);
+  --scroll-thumb: hsl(var(--foreground) / 0.3);
+  --scroll-thumb-hover: hsl(var(--foreground) / 0.5);
 }

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { useTheme } from "next-themes";
+import { usePathname } from "next/navigation";
 
 interface SplashScreenProps {
   duration?: number;
@@ -13,22 +14,29 @@ interface SplashScreenProps {
 
 export default function SplashScreen({ duration = 2000, children }: SplashScreenProps) {
   const { theme } = useTheme();
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
+
+  // Deteksi halaman not-found / 404
+  const isNotFoundPage =
+    pathname?.includes("not-found") || pathname?.includes("404");
 
   // Pastikan komponen sudah mount
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Trigger splash setiap kali theme berubah
+  // Trigger splash setiap kali theme berubah, skip jika not-found
   useEffect(() => {
-    if (mounted) {
-      setShowSplash(true);
-      const timer = setTimeout(() => setShowSplash(false), duration);
-      return () => clearTimeout(timer);
+    if (!mounted || isNotFoundPage) {
+      setShowSplash(false);
+      return;
     }
-  }, [theme, mounted, duration]);
+    setShowSplash(true);
+    const timer = setTimeout(() => setShowSplash(false), duration);
+    return () => clearTimeout(timer);
+  }, [theme, mounted, duration, isNotFoundPage]);
 
   // Render versi netral saat SSR
   if (!mounted) {
@@ -48,7 +56,7 @@ export default function SplashScreen({ duration = 2000, children }: SplashScreen
   return (
     <>
       <AnimatePresence>
-        {showSplash && (
+        {showSplash && !isNotFoundPage && (
           <motion.div
             key={theme}
             initial={{ opacity: 0 }}
