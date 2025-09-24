@@ -15,10 +15,10 @@ export interface GroupData {
 
 export interface GroupMember {
   id: string
-  full_name: string
-  user_id: string
-  profiles?: Profile
-  group_roles?: GroupRole
+  user_id?: string
+  role_id?: string
+  profiles?: Partial<Profile> | null
+  group_roles?: Partial<GroupRole> | null
 }
 
 export interface GroupInvite {
@@ -30,5 +30,8 @@ export interface GroupInvite {
 
 export interface GroupRole {
   id: string
+  code: string
   name: string
+  permissions?: string[]
+  group_id?: string
 }

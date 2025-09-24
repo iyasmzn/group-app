@@ -8,7 +8,7 @@ import {
   AvatarImage,
   AvatarFallback,
 } from "@/components/ui/avatar"
-import { Users, Link as LinkIcon, Bell, Settings, UserPlus2, BellRing, Undo2, Edit3, Save, X, UserCog, Link2 } from "lucide-react"
+import { Users, Link as LinkIcon, Bell, Settings, UserPlus2, BellRing, Undo2, Edit3, Save, X, UserCog, Link2, ShieldUser } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Reveal from "@/components/animations/Reveal"
 import LoadingOverlay from "@/components/loading-overlay"
@@ -154,9 +154,13 @@ export default function GroupProfilePage() {
           <DescriptionCard group={group} />
         </Reveal>
         <div className="divide-y">
-          <div className="flex items-center gap-3 p-4 hover:bg-accent cursor-pointer">
-            <UserCog className="h-5 w-5" />
+          <div className="flex items-center gap-3 p-4 hover:bg-accent cursor-pointer" onClick={() => router.push('roles')}>
+            <ShieldUser className="h-5 w-5" />
             <span>Manage Roles</span>
+          </div>
+          <div className="flex items-center gap-3 p-4 hover:bg-accent cursor-pointer" onClick={() => router.push('members')}>
+            <UserCog className="h-5 w-5" />
+            <span>Manage Members</span>
           </div>
           <div className="flex items-center gap-3 p-4 hover:bg-accent cursor-pointer">
             <Settings className="h-5 w-5" />

@@ -102,22 +102,17 @@ function GroupsPage({ userId }: { userId: string }) {
       <LoadingOverlay isLoading={loading} />
       <AppTopbar title="Groups" titleIcon={<Home className="h-6 w-6" />} />
       <PageWrapper>
-        <div className="max-w-4xl mx-auto p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-xl font-bold">Your Groups</h1>
-              <span className="text-sm text-muted-foreground">{totalRow} group{totalRow !== 1 ? 's' : ''}</span>
+        <div className="max-w-4xl mx-auto py-4">
+          <div className="flex items-center justify-between mb-4 gap-2">
+            <div className="flex-1">
+              <Input type="text" placeholder="🔍 Search by Group Name" value={searchGroupName} onChange={e => setSearchGroupName(e.target.value)} />
             </div>
             {/* Button Create Group */}
             <AddGroupDialog setGroups={setGroups} setLoading={setLoading} />
           </div>
 
           {/* filter */}
-          <div className="flex gap-4 items-center justify-between mb-4 flex-wrap">
-            {/* search */}
-            <div className="flex-1 min-w-50">
-              <Input type="text" placeholder="Search by Group Name" value={searchGroupName} onChange={e => setSearchGroupName(e.target.value)} />
-            </div>
+          <div className="flex gap-4 items-center justify-center md:justify-end mb-4 flex-wrap">
             {/* filter */}
             <div className="flex items-center gap-2">
               <label htmlFor="sortBy" className="text-sm font-medium">Sort by:</label>
@@ -135,7 +130,7 @@ function GroupsPage({ userId }: { userId: string }) {
               </Select>
               <Button
                 onClick={() => setAscending(!ascending)}
-                className="border rounded px-2 py-1 text-sm"
+                className="border px-2 py-1 text-sm"
                 variant={"outline"}
               >
                 {
@@ -205,7 +200,7 @@ function GroupsPage({ userId }: { userId: string }) {
                   </div>
                 </Link>
                 <Link 
-                  href={`/groups/${group.id}/manage`} 
+                  href={`groups/${group.id}/profile`} 
                   className="text-sm text-muted-foreground hover:text-warning border rounded-lg p-2"
                 >
                   <Settings2 />
@@ -219,34 +214,41 @@ function GroupsPage({ userId }: { userId: string }) {
             }
           </motion.ul>
 
-          {/* Pagination */}
-          {totalRow > limit && (
-            <Pagination className="mt-5">              
-              <PaginationContent>
-                {
-                  currentPage > 1 && 
-                  <PaginationItem>
-                    <PaginationPrevious onClick={() => setOffset((currentPage - 2) * limit)} />
-                  </PaginationItem>
-                }
-                {
-                  Array.from({length: totalPages}).map((_,i) => (
-                  <PaginationItem
-                    key={i + 'pagination'}
-                  >
-                    <PaginationLink onClick={() => setOffset(i * limit)} isActive={currentPage == i + 1}>{i+1}</PaginationLink>
-                  </PaginationItem>
-                  ))
-                }
-                {
-                  currentPage < totalPages &&
-                  <PaginationItem>
-                    <PaginationNext onClick={() => setOffset(currentPage * limit)} />
-                  </PaginationItem>
-                }
-              </PaginationContent>
-            </Pagination>
-          )}
+          <div className="flex items-center justify-between flex-wrap mt-4">
+            {/* total group */}
+            {
+              totalRow > 0 &&
+              <span className="text-sm text-muted-foreground">{totalRow} group{totalRow !== 1 ? 's' : ''}</span>
+            }
+            {/* Pagination */}
+            {totalRow > limit && (
+              <Pagination className="flex-1 justify-end">              
+                <PaginationContent>
+                  {
+                    currentPage > 1 && 
+                    <PaginationItem>
+                      <PaginationPrevious onClick={() => setOffset((currentPage - 2) * limit)} />
+                    </PaginationItem>
+                  }
+                  {
+                    Array.from({length: totalPages}).map((_,i) => (
+                    <PaginationItem
+                      key={i + 'pagination'}
+                    >
+                      <PaginationLink onClick={() => setOffset(i * limit)} isActive={currentPage == i + 1}>{i+1}</PaginationLink>
+                    </PaginationItem>
+                    ))
+                  }
+                  {
+                    currentPage < totalPages &&
+                    <PaginationItem>
+                      <PaginationNext onClick={() => setOffset(currentPage * limit)} />
+                    </PaginationItem>
+                  }
+                </PaginationContent>
+              </Pagination>
+            )}
+          </div>
         </div>
       </PageWrapper>
       <AppBottombar />
