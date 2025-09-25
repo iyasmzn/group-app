@@ -9,7 +9,7 @@ export interface GroupData {
   description_updatedat: Date
   description_updatedby: Date
   group_members?: GroupMember[]
-  owner?:GroupMember
+  owner?:Partial<Profile> | null
   desc_updatedby?:GroupMember
   unreadCount?: number | null
 }
