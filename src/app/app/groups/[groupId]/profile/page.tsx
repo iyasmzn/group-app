@@ -23,7 +23,7 @@ import InviteLink from "./components/invite-link"
 import { GroupData, GroupMember } from "@/types/group"
 
 export default function GroupProfilePage() {
-  const {supabase} = useAuth()
+  const {user, supabase} = useAuth()
   const {update} = groupService
   const { groupId } = useParams()
   const [group, setGroup] = useState<GroupData | null>(null)
@@ -31,6 +31,7 @@ export default function GroupProfilePage() {
   const [groupNameEdit, setGroupNameEdit] = useState(false)
   const [groupNameLoading, setGroupNameLoading] = useState(false)
   const router = useRouter()
+  const [deleting, setDeleting] = useState(false)
 
   const handleBack = () => {
     if (window.history.length > 1) {
@@ -50,10 +51,10 @@ export default function GroupProfilePage() {
           desc_updatedby:profiles!groups_description_updatedby_fkey (*),
           group_members (
             group_roles (
-              id, name, permissions
+              id, name, permissions, code
             ),
             profiles (
-              id, full_name, avatar_url
+              id, email, full_name, avatar_url
             )
           )
         `)
@@ -92,11 +93,26 @@ export default function GroupProfilePage() {
     })
   }
 
+  const handleDeleteGroup = async () => {
+    if (!group) return
+    setDeleting(true)
+    const { error } = await supabase.from("groups").delete().eq("id", group.id)
+    if (error) {
+      toast.error("Gagal menghapus group.")
+      console.error(error)
+    } else {
+      toast.success("Group berhasil dihapus.")
+      router.push("/app/groups")
+    }
+    setDeleting(false)
+  }
+
+
   if (!group) return <LoadingOverlay />
 
   return (
     <>
-      <div className="flex flex-col">
+      <div className="flex flex-col pb-10">
         {/* Header */}
         <div className="flex flex-col items-center py-8">
           <GroupAvatar image={group.image_url} name={group.name} size="xxl" />
@@ -219,24 +235,44 @@ export default function GroupProfilePage() {
               >
                 <div className="flex items-center gap-3">
                   {m?.profiles?.full_name && (
-                  <GroupAvatar 
-                    name={m?.profiles?.full_name}
-                    image={m?.profiles?.avatar_url}
-                    size="md"
-                  />
+                    <GroupAvatar 
+                      name={m?.profiles?.full_name}
+                      image={m?.profiles?.avatar_url}
+                      size="md"
+                    />
                   )}
                   <div>
-                    <p className="font-medium">{m.profiles?.full_name}</p>
-                    <p className="text-xs text-muted-foreground">{m?.group_roles?.name}</p>
+                    <p className="font-medium">{m.profiles?.full_name == user?.user_metadata?.full_name ? 'You' : m.profiles?.full_name}</p>
+                    <p className="text-xs font-medium text-muted-foreground">{m.profiles?.email}</p>
                   </div>
                 </div>
                 <span className="text-xs font-semibold text-blue-600">
-                  Last Online
+                  <p className="text-xs text-muted-foreground">{m?.group_roles?.name}</p>
                 </span>
               </li>
             ))}
           </ul>
         </div>
+
+        {/* delete group */}
+        {group?.group_members?.some(m => m.group_roles?.code === "owner" && m.profiles?.id === user?.id) && (
+          <Reveal animation="fadeInUp">
+            <div className="mt-8 px-4">
+              <Button
+                variant="destructive"
+                className="w-full"
+                onClick={() => {
+                  if (confirm("Apakah kamu yakin ingin menghapus group ini? Tindakan ini tidak bisa dibatalkan.")) {
+                    handleDeleteGroup()
+                  }
+                }}
+                disabled={deleting}
+              >
+                {deleting ? "Menghapus..." : "Delete Group"}
+              </Button>
+            </div>
+          </Reveal>
+        )}
       </div>
     </>
   )

@@ -44,7 +44,7 @@ export default function InviteLink() {
 
       if (errInvite) {
         toast.error(errInvite?.message || "Error getting invite link.")
-        return;
+        return
       } else if (inviteData) {
         setInvite(inviteData)
         setOpen(true)
@@ -64,15 +64,14 @@ export default function InviteLink() {
         return;
       }
 
-      // create group_invites data
       setRoleId(role.id)
 
-      await createInvite(groupId as string, roleId).then(res => {
-        console.log('res', res)
+      await createInvite(groupId as string, role.id).then(res => {
         setInvite(res)
+        setOpen(true)
+      }).catch(err => {
+        toast.error(err?.message || 'Failed to create new invite link.')
       })
-
-      setOpen(true)
     } finally {
       setLoading(false)
     }
@@ -88,7 +87,7 @@ export default function InviteLink() {
     <>
       <LoadingOverlay isLoading={loading} />
       <button className="flex flex-col py-2 px-3 rounded-xl items-center border border-primary hover:bg-secondary transition-all"
-        onClick={() => handleOpen()}
+        onClick={handleOpen}
       >
         <Link2 className="w-7 h-7 text-primary" />
         <span className="text-xs mt-1 text-foreground">Invite Link</span>
