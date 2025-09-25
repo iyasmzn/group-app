@@ -8,7 +8,7 @@ import {
   AvatarImage,
   AvatarFallback,
 } from "@/components/ui/avatar"
-import { Users, Link as LinkIcon, Bell, Settings, UserPlus2, BellRing, Undo2, Edit3, Save, X, UserCog, Link2, ShieldUser } from "lucide-react"
+import { Users, Link as LinkIcon, Bell, Settings, UserPlus2, BellRing, Undo2, Edit3, Save, X, UserCog, Link2, ShieldUser, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Reveal from "@/components/animations/Reveal"
 import LoadingOverlay from "@/components/loading-overlay"
@@ -21,6 +21,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { GroupAvatar } from "@/components/group-avatar"
 import InviteLink from "./components/invite-link"
 import { GroupData, GroupMember } from "@/types/group"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+
 
 export default function GroupProfilePage() {
   const {user, supabase} = useAuth()
@@ -30,6 +32,7 @@ export default function GroupProfilePage() {
   const [groupName, setGroupName] = useState("")
   const [groupNameEdit, setGroupNameEdit] = useState(false)
   const [groupNameLoading, setGroupNameLoading] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const router = useRouter()
   const [deleting, setDeleting] = useState(false)
 
@@ -106,8 +109,7 @@ export default function GroupProfilePage() {
     }
     setDeleting(false)
   }
-
-
+  
   if (!group) return <LoadingOverlay />
 
   return (
@@ -261,18 +263,53 @@ export default function GroupProfilePage() {
               <Button
                 variant="destructive"
                 className="w-full"
-                onClick={() => {
-                  if (confirm("Apakah kamu yakin ingin menghapus group ini? Tindakan ini tidak bisa dibatalkan.")) {
-                    handleDeleteGroup()
-                  }
-                }}
+                onClick={() => setShowDeleteDialog(true)}
                 disabled={deleting}
               >
-                {deleting ? "Menghapus..." : "Delete Group"}
+                {deleting ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="animate-spin w-4 h-4" />
+                    Menghapus...
+                  </span>
+                ) : (
+                  "Delete Group"
+                )}
               </Button>
             </div>
           </Reveal>
         )}
+        <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Hapus Group</DialogTitle>
+              <DialogDescription>
+                Tindakan ini tidak bisa dibatalkan. Group akan dihapus secara permanen.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setShowDeleteDialog(false)}>
+                Batal
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  handleDeleteGroup()
+                  setShowDeleteDialog(false)
+                }}
+                disabled={deleting}
+              >
+                {deleting ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="animate-spin w-4 h-4" />
+                    Menghapus...
+                  </span>
+                ) : (
+                  "Hapus Group"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </>
   )

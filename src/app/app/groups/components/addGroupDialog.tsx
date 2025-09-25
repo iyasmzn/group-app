@@ -17,6 +17,7 @@ import { useState } from "react"
 import { supabase } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { GroupData } from "@/types/group"
+import { useRouter } from "next/navigation"
 
 type AddGroupDialogProps = {
   setGroups: React.Dispatch<React.SetStateAction<GroupData[]>>
@@ -28,6 +29,7 @@ export function AddGroupDialog({ setGroups, setLoading }: AddGroupDialogProps) {
   const {user} = useAuth()
   const [newGroupName, setNewGroupName] = useState("")
   const [open, setOpen] = useState(false)
+  const router = useRouter()
   
   const createGroup = async () => {
     if (!newGroupName.trim()) return
@@ -79,8 +81,10 @@ export function AddGroupDialog({ setGroups, setLoading }: AddGroupDialogProps) {
     }])
 
     // update groups state in parent component
-    setGroups(prev => [group, ...prev])
     setNewGroupName("")
+    toast.success("Success adding new group!")
+    router.push(`groups/${group.id}`)
+    // setGroups(prev => [group, ...prev])
     setLoading(false)
   }
   
