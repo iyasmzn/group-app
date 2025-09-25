@@ -10,7 +10,7 @@ import GroupTopbar from "../components/group-topbar";
 import { GroupBottombar } from "../components/group-bottombar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { GroupData } from "@/types/group";
-import { Clock, Mail, MessageCircleWarning } from "lucide-react";
+import { Clock, LucideUsers, Mail, MessageCircleWarning } from "lucide-react";
 
 export default function GroupDashboardPage() {
   const {supabase} = useAuth()
@@ -33,7 +33,7 @@ export default function GroupDashboardPage() {
       if (groupId) {
         const { data, error } = await supabase
           .from("groups")
-          .select("*")
+          .select("*, group_members(*)")
           .eq("id", groupId)
           .single();
         
@@ -52,14 +52,18 @@ export default function GroupDashboardPage() {
             .eq("group_id", groupId)
             .single()
 
-          const lastSeenAt = lastSeen?.last_seen_at || "1970-01-01"
+          const lastSeenAt = lastSeen?.last_seen_at || null
 
           // hitung pesan belum terbaca
-          const { count } = await supabase
+          const unreadQuery = supabase
             .from("group_messages")
             .select("id", { count: "exact", head: true })
             .eq("group_id", groupId)
-            .gt("createdat", lastSeenAt)
+            
+          if (lastSeenAt) 
+            unreadQuery.gt("createdat", lastSeenAt)
+
+          const { count } = await unreadQuery 
 
           setUnreadCount(count || 0)
         }
@@ -81,7 +85,7 @@ export default function GroupDashboardPage() {
               <CardDescription>Group Dashboard</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid md:grid-cols-3 gap-4">
                 {/* Waktu sekarang */}
                 <div className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted">
                   <Clock className="w-6 h-6 mb-2 text-primary" />
@@ -96,6 +100,13 @@ export default function GroupDashboardPage() {
                       year: "numeric",
                     })}
                   </span>
+                </div>
+
+                {/* Total Member */}
+                <div className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted">
+                  <LucideUsers className="w-6 h-6 mb-2 text-primary" />
+                  <span className="text-3xl font-bold text-primary">{groupData?.group_members?.length}</span>
+                  <span className="text-xs text-muted-foreground">Total Member</span>
                 </div>
 
                 {/* Unread Messages */}

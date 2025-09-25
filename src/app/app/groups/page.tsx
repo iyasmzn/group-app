@@ -18,6 +18,7 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import { Badge } from "@/components/ui/badge"
 import { GroupData } from "@/types/group"
 import Reveal from "@/components/animations/Reveal"
+import { useRouter } from "next/navigation"
 
 const motionUl = {
   hidden: { opacity: 0 },
@@ -62,6 +63,7 @@ function GroupsPage({ userId }: { userId: string }) {
   const limit = 3
   const totalPages = Math.ceil(totalRow / limit)
   const currentPage = Math.floor(offset / limit) +  1
+  const router = useRouter()
 
   useEffect(() => {    
     setLoading(true)
@@ -178,16 +180,18 @@ function GroupsPage({ userId }: { userId: string }) {
                 transition={{ delay: gIndex * 0.15, duration: 0.5, ease: "backOut" }}
                 className="flex items-center justify-between py-2 px-4 border rounded-lg hover:bg-muted"
               >
-                <Link href={`groups/${group.id}`} className="flex-1 flex items-center gap-3">
-                  {/* Avatar inisial */}                
-                  <GroupAvatar 
-                    name={group.name} 
-                    image={group.image_url} // kalau ada, tampil gambar
-                    size="md" 
-                  />
+                <div className="flex-1 flex items-center gap-3">
+                  {/* Avatar inisial */} 
+                  <Link href={`groups/${group.id}`}>
+                    <GroupAvatar 
+                      name={group.name} 
+                      image={group.image_url} // kalau ada, tampil gambar
+                      size="md" 
+                    />
+                  </Link>               
                   <div className="flex flex-col">
                     {/* group name */}
-                    <span className="font-medium">{group.name}</span>
+                    <Link href={`groups/${group.id}`} className="font-medium">{group.name}</Link>
                     <span className="text-xs text-secondary-foreground">
                       {/* group createdat */}
                       Since{" "}
@@ -203,7 +207,7 @@ function GroupsPage({ userId }: { userId: string }) {
                     <div className="flex items-center gap-4">
                       {/* message */}
                       <Reveal animation="fadeInDown" distance={5}>
-                        <span className="pt-2 flex items-center gap-2">
+                        <Link href={`groups/${group.id}/chat`} className="pt-2 flex items-center gap-2">
                           {
                             group.unreadCount ?
                             <MessageCircleWarning className="text-warning w-5 h-5" />
@@ -213,7 +217,7 @@ function GroupsPage({ userId }: { userId: string }) {
                           <Badge variant={group.unreadCount ? 'warning' : 'secondary'} className="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums text-gray-500">
                             {group.unreadCount}
                           </Badge>
-                        </span>
+                        </Link>
                       </Reveal>
                       {/* info */}
                       <Reveal animation="fadeInDown" distance={5} delay={0.3}>
@@ -226,7 +230,7 @@ function GroupsPage({ userId }: { userId: string }) {
                       </Reveal>
                     </div>
                   </div>
-                </Link>
+                </div>
                 <Link 
                   href={`groups/${group.id}/profile`} 
                   className="text-sm text-muted-foreground hover:text-warning border rounded-lg p-2"
