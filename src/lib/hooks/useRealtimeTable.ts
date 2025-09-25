@@ -33,6 +33,17 @@ export function useRealtimeTable<T>({
         { event: '*', schema: schema, table: table, filter: filter },
         (payload) => {
           console.log('Change received!', payload)
+
+          if (payload.eventType === "INSERT" && onInsert) {
+            onInsert(payload.new as T)
+          }
+          if (payload.eventType === "UPDATE" && onUpdate) {
+            onUpdate(payload.new as T)
+          }
+          if (payload.eventType === "DELETE" && onDelete) {
+            onDelete(payload.old as T)
+          }
+
         }
       )
       .subscribe()

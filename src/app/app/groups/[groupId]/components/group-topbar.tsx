@@ -9,7 +9,11 @@ import { EllipsisVertical } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function GroupTopbar() {
+type GroupTopbarProps = {
+  backHref?: string
+}
+
+export default function GroupTopbar({backHref = '/app/groups'}: GroupTopbarProps) {
   const {supabase} = useAuth()
   const params = useParams();
   const groupId = params?.groupId;
@@ -86,7 +90,7 @@ export default function GroupTopbar() {
   
   return (
     <>
-      <AppTopbar backHref="/app/groups" titleSlot={TitleWithGroupAvatar()} endSlot={GroupTopbarMenu()} />
+      <AppTopbar backHref={backHref} titleSlot={TitleWithGroupAvatar()} endSlot={GroupTopbarMenu()} />
       <div className="h-10" /> {/* spacer untuk topbar */}
     </>
   )

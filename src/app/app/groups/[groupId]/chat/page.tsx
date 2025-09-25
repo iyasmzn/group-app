@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useRealtimeTable } from "@/lib/hooks/useRealtimeTable"
 import { toast } from "sonner"
 import ChatInput from "@/components/app/chat-input"
+import { GroupAvatar } from "@/components/group-avatar"
 
 type Message = {
   id: string
@@ -69,9 +70,24 @@ export default function GroupChatPage() {
     table: "group_messages",
     filter: `group_id=eq.${groupId}`,
 
-    onInsert: (msg) => {
+    onInsert: async (msg) => {
+      console.log('onInsert', msg)
+      // ambil profile pengirim
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("id, full_name, avatar_url")
+        .eq("id", msg.sender_id)
+        .single()
+
+      if (!profile) return;
+
+      const messageWithProfile = {
+        ...msg,
+        sender: profile,
+      }
+
       setMessages((prev) =>
-        [...prev, msg].sort(
+        [...prev, messageWithProfile].sort(
           (a, b) => new Date(a.createdat).getTime() - new Date(b.createdat).getTime()
         )
       )
@@ -146,7 +162,7 @@ export default function GroupChatPage() {
 
   return (
     <>
-      <GroupTopbar />
+      <GroupTopbar backHref="dashboard" />
       <div className="flex flex-col">
         {/* Chat messages */}
         <div className="flex-1 space-y-4">
@@ -167,11 +183,12 @@ export default function GroupChatPage() {
                     isOwn ? "justify-end" : "justify-start"
                   )}
                 >
-                  {!isOwn && (
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={msg.sender?.avatar_url || ""} />
-                      <AvatarFallback>{initials}</AvatarFallback>
-                    </Avatar>
+                  {!isOwn && msg.sender?.full_name && (
+                    <GroupAvatar 
+                      image={msg.sender?.avatar_url || ""}
+                      name={msg.sender?.full_name}
+                      size="sm"
+                    />
                   )}
 
                   <div
