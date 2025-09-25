@@ -43,6 +43,7 @@ export default function GroupChatPage() {
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
+      updateLastSeen()
     }
   }, [messages])
 
@@ -70,6 +71,7 @@ export default function GroupChatPage() {
     }
 
     fetchMessages()
+    updateLastSeen()
   }, [groupId, supabase])
 
   // subscribe realtime pakai hook
@@ -167,6 +169,19 @@ export default function GroupChatPage() {
       )
     }
   }
+
+  // update last_seen
+  const updateLastSeen = async () => {
+    if (!user || !groupId) return
+    await supabase
+      .from("group_last_seen")
+      .upsert({
+        user_id: user.id,
+        group_id: groupId,
+        last_seen_at: new Date().toISOString(),
+      })
+  }
+
 
   return (
     <>

@@ -10,6 +10,7 @@ import GroupTopbar from "../components/group-topbar";
 import { GroupBottombar } from "../components/group-bottombar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { GroupData } from "@/types/group";
+import { Clock, Mail, MessageCircleWarning } from "lucide-react";
 
 export default function GroupDashboardPage() {
   const {supabase} = useAuth()
@@ -17,8 +18,14 @@ export default function GroupDashboardPage() {
   const groupId = params?.groupId;
   const [loading, setLoading] = useState(true);
   const [groupData, setGroupData] = useState<GroupData | null>(null);
-  console.log("Group ID:", groupId);
-  
+  const [unreadCount, setUnreadCount] = useState<number>(0)
+  const [now, setNow] = useState(new Date())
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), 1000) // update tiap menit
+    return () => clearInterval(interval)
+  }, [])
+
   useEffect(() => {
     setLoading(true);
     // Fetch group details to verify access
@@ -34,15 +41,27 @@ export default function GroupDashboardPage() {
           toast.error("Failed to load group details");
           console.error("Error fetching group details:", error);
           redirect("/app/groups");
-          // Optionally, you can redirect the user if they don't have access
-          // For example: router.push('/groups');
-          // or set some state to show an error message
-          // Here, we just log the error
-          // Handle error (e.g., redirect or show message)
-        } else {
-          console.log("Group details:", data);
-          setGroupData(data);
-          // Optionally verify if the user has access to this group
+        } else if (data) {  
+          setGroupData(data)
+
+          // ambil last_seen_at user
+          const { data: lastSeen } = await supabase
+            .from("group_last_seen")
+            .select("last_seen_at")
+            .eq("user_id", (await supabase.auth.getUser()).data?.user?.id)
+            .eq("group_id", groupId)
+            .single()
+
+          const lastSeenAt = lastSeen?.last_seen_at || "1970-01-01"
+
+          // hitung pesan belum terbaca
+          const { count } = await supabase
+            .from("group_messages")
+            .select("id", { count: "exact", head: true })
+            .eq("group_id", groupId)
+            .gt("createdat", lastSeenAt)
+
+          setUnreadCount(count || 0)
         }
       }
     };
@@ -58,19 +77,34 @@ export default function GroupDashboardPage() {
         <Reveal>
           <Card>
             <CardHeader>
-              <CardTitle>Group Dashboard</CardTitle>
-              <CardDescription>asdasd</CardDescription>
+              <CardTitle className="text-lg font-bold">{groupData?.name}</CardTitle>
+              <CardDescription>Group Dashboard</CardDescription>
             </CardHeader>
             <CardContent>
-              {groupData ? (
-                <div>
-                  <p>Welcome to the dashboard of <strong>{groupData.name}</strong>!</p>
-                  <p>Group ID: {groupData.id}</p>
-                  {/* Add more group details and dashboard content here */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* Waktu sekarang */}
+                <div className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted">
+                  <Clock className="w-6 h-6 mb-2 text-primary" />
+                  <span className="text-lg font-semibold">
+                    {now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: '2-digit' })}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {now.toLocaleDateString("id-ID", {
+                      weekday: "long",
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </span>
                 </div>
-              ) : (
-                !loading && <p>Group not found or you do not have access.</p>
-              )}
+
+                {/* Unread Messages */}
+                <div className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted">
+                  <MessageCircleWarning className="w-6 h-6 mb-2 text-primary" />
+                  <span className="text-3xl font-bold text-primary">{unreadCount}</span>
+                  <span className="text-xs text-muted-foreground">Unread Messages</span>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </Reveal>
