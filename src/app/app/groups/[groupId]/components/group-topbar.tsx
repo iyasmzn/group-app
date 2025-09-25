@@ -19,7 +19,6 @@ export default function GroupTopbar({backHref = '/app/groups'}: GroupTopbarProps
   const groupId = params?.groupId;
   const [groupData, setGroupData] = useState<GroupData | null>(null);
   const router = useRouter()
-  console.log("Group ID:", groupId);
   
   useEffect(() => {
     // Fetch group details to verify access

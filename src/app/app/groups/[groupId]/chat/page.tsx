@@ -122,7 +122,7 @@ export default function GroupChatPage() {
     }
 
     // update state dulu
-    setMessages((prev) => [...prev, tempMessage])
+    // setMessages((prev) => [...prev, tempMessage])
     setNewMessage("")
 
     // kirim ke supabase
@@ -179,7 +179,7 @@ export default function GroupChatPage() {
               <Reveal key={msg.id} delay={0.1}>
                 <div
                   className={cn(
-                    "flex items-end gap-2",
+                    "flex items-start gap-2",
                     isOwn ? "justify-end" : "justify-start"
                   )}
                 >
@@ -193,12 +193,16 @@ export default function GroupChatPage() {
 
                   <div
                     className={cn(
-                      "max-w-[70%] px-4 py-2 rounded-lg text-sm shadow",
+                      "max-w-[70%] px-4 py-2 rounded-xl text-sm shadow",
                       isOwn
-                        ? "bg-primary text-primary-foreground rounded-br-none"
-                        : "bg-muted text-foreground rounded-bl-none"
+                        ? "bg-primary text-primary-foreground rounded-tr-none"
+                        : "bg-muted text-foreground rounded-tl-none"
                     )}
                   >
+                    {
+                      !isOwn &&
+                      <p className="text-xs text-secondary-foreground mb-2">{msg.sender?.full_name}</p>
+                    }
                     <p>{msg.content}</p>
                     <span className="block text-[10px] text-muted-foreground mt-1 text-right">
                       {new Date(msg.createdat).toLocaleTimeString([], {
