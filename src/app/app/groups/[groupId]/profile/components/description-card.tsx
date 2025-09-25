@@ -23,7 +23,7 @@ export default function DescriptionCard({group} : DescriptionCardProps) {
   const [descriptionFinal, setDescriptionFinal] = useState("")
   const [description, setDescription] = useState("")
   const [descriptionUpdatedat, setDescriptionUpdatedat] = useState<Date | null>(null)
-  const [descriptionUpdatedby, setDescriptionUpdatedby] = useState<string>("")
+  const [descriptionUpdatedby, setDescriptionUpdatedby] = useState<string | null>("")
   const { update } = groupService
   const { user } = useAuth()
 
@@ -31,7 +31,7 @@ export default function DescriptionCard({group} : DescriptionCardProps) {
     if (!group) return
     setDescriptionFinal(group.description)
     setDescriptionUpdatedat(group.description_updatedat)
-    if (group.desc_updatedby) setDescriptionUpdatedby(group.desc_updatedby.full_name)
+    if (group.desc_updatedby) setDescriptionUpdatedby(group.desc_updatedby.full_name || null)
   }, [group])
 
   
@@ -74,7 +74,7 @@ export default function DescriptionCard({group} : DescriptionCardProps) {
       toast.error(error?.message || "Update groups description error.")
       setDescription(group?.description)
       setDescriptionUpdatedat(group?.description_updatedat)
-      if (group && group.desc_updatedby) setDescriptionUpdatedby(group?.desc_updatedby?.full_name)
+      if (group && group.desc_updatedby) setDescriptionUpdatedby(group?.desc_updatedby?.full_name || null)
     }).finally(() => {
       setLoading(false)
     })
