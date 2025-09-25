@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { redirect, useParams } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -14,6 +14,7 @@ import { useRealtimeTable } from "@/lib/hooks/useRealtimeTable"
 import { toast } from "sonner"
 import ChatInput from "@/components/app/chat-input"
 import { GroupAvatar } from "@/components/group-avatar"
+import { formatDateDivider } from "@/lib/utils/helper"
 
 type Message = {
   id: string
@@ -32,11 +33,18 @@ export default function GroupChatPage() {
   const { groupId } = useParams()
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState("")
+  const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
   if (!user) {
     toast.error('User invalid. Please re-Login.')
     redirect('/')
   }
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
+    }
+  }, [messages])
 
   // fetch messages awal
   useEffect(() => {
@@ -166,56 +174,68 @@ export default function GroupChatPage() {
       <div className="flex flex-col">
         {/* Chat messages */}
         <div className="flex-1 space-y-4">
-          {messages.map((msg) => {
+          {messages.map((msg, idx) => {
             const isOwn = msg.sender_id === user?.id
-            const initials =
-              msg.sender?.full_name
-                ?.split(" ")
-                .slice(0, 2)
-                .map((w) => w[0])
-                .join("") || "U"
+            const prevMsg = messages[idx - 1]
+            const showDivider =
+              !prevMsg ||
+              new Date(prevMsg.createdat).toDateString() !==
+                new Date(msg.createdat).toDateString()
 
             return (
-              <Reveal key={msg.id} delay={0.1}>
-                <div
-                  className={cn(
-                    "flex items-start gap-2",
-                    isOwn ? "justify-end" : "justify-start"
-                  )}
-                >
-                  {!isOwn && msg.sender?.full_name && (
-                    <GroupAvatar 
-                      image={msg.sender?.avatar_url || ""}
-                      name={msg.sender?.full_name}
-                      size="sm"
-                    />
-                  )}
-
-                  <div
-                    className={cn(
-                      "max-w-[70%] px-4 py-2 rounded-xl text-sm shadow",
-                      isOwn
-                        ? "bg-primary text-primary-foreground rounded-tr-none"
-                        : "bg-muted text-foreground rounded-tl-none"
-                    )}
-                  >
-                    {
-                      !isOwn &&
-                      <p className="text-xs text-secondary-foreground mb-2">{msg.sender?.full_name}</p>
-                    }
-                    <p>{msg.content}</p>
-                    <span className="block text-[10px] text-muted-foreground mt-1 text-right">
-                      {new Date(msg.createdat).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+              <div key={msg.id}>
+                {showDivider && (
+                  <div className="flex justify-center my-4">
+                    <span className="px-3 py-1 text-xs rounded-full bg-muted text-muted-foreground">
+                      {formatDateDivider(msg.createdat)}
                     </span>
                   </div>
-                </div>
-              </Reveal>
+                )}
+
+                <Reveal delay={0.1}>
+                  <div
+                    className={cn(
+                      "flex items-start gap-2",
+                      isOwn ? "justify-end" : "justify-start"
+                    )}
+                  >
+                    {!isOwn && msg.sender?.full_name && (
+                      <GroupAvatar
+                        image={msg.sender?.avatar_url || ""}
+                        name={msg.sender?.full_name}
+                        size="sm"
+                      />
+                    )}
+
+                    <div
+                      className={cn(
+                        "max-w-[70%] px-4 py-2 rounded-xl text-sm shadow",
+                        isOwn
+                          ? "bg-primary text-primary-foreground rounded-tr-none"
+                          : "bg-muted text-foreground rounded-tl-none"
+                      )}
+                    >
+                      {!isOwn && (
+                        <p className="text-xs text-secondary-foreground mb-2">
+                          {msg.sender?.full_name}
+                        </p>
+                      )}
+                      <p>{msg.content}</p>
+                      <span className="block text-[10px] text-muted-foreground mt-1 text-right">
+                        {new Date(msg.createdat).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                </Reveal>
+              </div>
             )
           })}
-          <div className="h-20" /> {/* spacer for bottom bar */}
+
+          <div className="h-14"></div>
+          <div ref={messagesEndRef} /> {/* auto scroll anchor */}
         </div>
 
         {/* Input */}
