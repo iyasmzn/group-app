@@ -10,7 +10,7 @@ import GroupTopbar from "../components/group-topbar";
 import { GroupBottombar } from "../components/group-bottombar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { GroupData } from "@/types/group";
-import { Clock, LucideUsers, Mail, MessageCircleWarning } from "lucide-react";
+import { Clock, LucideUsers, MessageCircleWarning } from "lucide-react";
 
 export default function GroupDashboardPage() {
   const {supabase} = useAuth()

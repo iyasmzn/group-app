@@ -3,12 +3,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/supabase/auth"
-import {
-  Avatar,
-  AvatarImage,
-  AvatarFallback,
-} from "@/components/ui/avatar"
-import { Users, Link as LinkIcon, Bell, Settings, UserPlus2, BellRing, Undo2, Edit3, Save, X, UserCog, Link2, ShieldUser, Loader2 } from "lucide-react"
+import { Settings, UserPlus2, BellRing, Undo2, Edit3, Save, X, UserCog, ShieldUser, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Reveal from "@/components/animations/Reveal"
 import LoadingOverlay from "@/components/loading-overlay"

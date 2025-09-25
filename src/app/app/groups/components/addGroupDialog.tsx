@@ -16,16 +16,14 @@ import { PlusCircle } from "lucide-react"
 import { useState } from "react"
 import { supabase } from "@/lib/supabase/client"
 import { toast } from "sonner"
-import { GroupData } from "@/types/group"
 import { useRouter } from "next/navigation"
 
 type AddGroupDialogProps = {
-  setGroups: React.Dispatch<React.SetStateAction<GroupData[]>>
   setLoading: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 
-export function AddGroupDialog({ setGroups, setLoading }: AddGroupDialogProps) {
+export function AddGroupDialog({ setLoading }: AddGroupDialogProps) {
   const {user} = useAuth()
   const [newGroupName, setNewGroupName] = useState("")
   const [open, setOpen] = useState(false)

@@ -55,7 +55,7 @@ export function GroupAvatar({ name, image, size = "md", className }: GroupAvatar
       )}
     >
       {image ? (
-        <img
+        <Image
           src={image}
           alt={name}
           width={sizeMap[size].img}

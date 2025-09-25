@@ -18,7 +18,6 @@ export default function InviteLink() {
   const [ loading, setLoading ] = useState<boolean>(false)
   const { groupId } = useParams()
   const { supabase } = useAuth()
-  const [ roleId, setRoleId ] = useState<string>("")
   const [ invite, setInvite ] = useState<GroupInvite | null>(null)
   const [ inviteLink, setInviteLink ] = useState<string>("")
 
@@ -63,8 +62,6 @@ export default function InviteLink() {
         toast.error(errRole?.message || "There is no member role. Can't share group via share link.")
         return;
       }
-
-      setRoleId(role.id)
 
       await createInvite(groupId as string, role.id).then(res => {
         setInvite(res)

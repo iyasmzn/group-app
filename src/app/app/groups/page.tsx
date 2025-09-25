@@ -18,7 +18,6 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import { Badge } from "@/components/ui/badge"
 import { GroupData } from "@/types/group"
 import Reveal from "@/components/animations/Reveal"
-import { useRouter } from "next/navigation"
 
 const motionUl = {
   hidden: { opacity: 0 },
@@ -63,7 +62,6 @@ function GroupsPage({ userId }: { userId: string }) {
   const limit = 3
   const totalPages = Math.ceil(totalRow / limit)
   const currentPage = Math.floor(offset / limit) +  1
-  const router = useRouter()
 
   useEffect(() => {    
     setLoading(true)
@@ -129,7 +127,7 @@ function GroupsPage({ userId }: { userId: string }) {
               <Input type="text" placeholder="🔍 Search by Group Name" value={searchGroupName} onChange={e => setSearchGroupName(e.target.value)} />
             </div>
             {/* Button Create Group */}
-            <AddGroupDialog setGroups={setGroups} setLoading={setLoading} />
+            <AddGroupDialog setLoading={setLoading} />
           </div>
 
           {/* filter */}
