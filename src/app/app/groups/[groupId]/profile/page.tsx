@@ -57,11 +57,11 @@ export default function GroupProfilePage() {
           )
         `)
         .eq("id", groupId)
-        .single()
+        .maybeSingle()
 
       if (error) {
         toast.error(error?.message || 'Error getting group detail data.')
-      } else {
+      } else if (data) {
         setGroup(data)
         setGroupName(data.name)
       }

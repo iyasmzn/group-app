@@ -25,7 +25,7 @@ export function crudService<T extends { id: string }>(table: string) {
     },
 
     async update(id: string, payload: Partial<Omit<T, "id">>) {
-      const { data, error } = await supabase.from(table).update(payload).eq("id", id).select().single()
+      const { data, error } = await supabase.from(table).update(payload).eq("id", id).select().maybeSingle()
       if (error) throw error
       return data as T
     },
