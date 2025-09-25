@@ -198,38 +198,6 @@ export default function GroupProfilePage() {
             </p>
           </div>
           <ul className="divide-y">
-            <li
-              className="flex items-center justify-between p-4 hover:bg-accent"
-            >
-              <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10">
-                    <AvatarFallback>
-                      <UserPlus2 />
-                    </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-medium">Add Member</p>
-                </div>
-              </div>
-              <span className="text-xs font-semibold text-blue-600">
-              </span>
-            </li>
-            <li
-              className="flex items-center justify-between p-4 hover:bg-accent"
-            >
-              <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10">
-                    <AvatarFallback>
-                      <Link2 />
-                    </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-medium">Invite Link</p>
-                </div>
-              </div>
-              <span className="text-xs font-semibold text-blue-600">
-              </span>
-            </li>
             {group?.group_members?.map((m: GroupMember) => (
               <li
                 key={m?.profiles?.id}
