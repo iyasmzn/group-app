@@ -60,7 +60,7 @@ export default function GroupTopbar({backHref = '/app/groups'}: GroupTopbarProps
         </div>
         <Reveal animation="fadeInRight" delay={0.5} distance={10}>
             <div className="flex flex-col leading-tight">
-                <span className="font-semibold text-lg">{groupData?.name}</span>
+                <span className="font-semibold text-md">{groupData?.name}</span>
                 <span className="text-sm text-muted-foreground">
                       {/* groupData member total */}
                       {groupData?.group_members?.length}
