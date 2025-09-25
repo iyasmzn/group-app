@@ -63,7 +63,7 @@ export function AddGroupDialog({ setGroups, setLoading }: AddGroupDialogProps) {
 
     if (!ownerRole) return
 
-    // buat role member
+    // buat default role member
     await supabase
       .from("group_roles")
       .insert([{ 
@@ -71,6 +71,16 @@ export function AddGroupDialog({ setGroups, setLoading }: AddGroupDialogProps) {
         name: "Member", 
         code: "member",
         permissions: ["send_message"] 
+      }])
+
+    // buat default role admin
+    await supabase
+      .from("group_roles")
+      .insert([{ 
+        group_id: group.id, 
+        name: "Admin", 
+        code: "admin",
+        permissions: ["manage_members","send_message","delete_message"] 
       }])
 
     // tambahkan creator sebagai member
