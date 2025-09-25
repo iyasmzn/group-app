@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
-import { useTheme } from "next-themes";
+import { useTheme  } from "next-themes";
 import { usePathname } from "next/navigation";
 
 interface SplashScreenProps {
@@ -13,7 +13,7 @@ interface SplashScreenProps {
 }
 
 export default function SplashScreen({ duration = 2000, children }: SplashScreenProps) {
-  const { theme } = useTheme();
+  const { theme, resolvedTheme } = useTheme();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
@@ -64,7 +64,7 @@ export default function SplashScreen({ duration = 2000, children }: SplashScreen
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6 }}
             className={`fixed inset-0 flex items-center justify-center z-[9999] transition-colors
-              ${theme === "dark"
+              ${theme === "dark" || resolvedTheme == 'dark'
                 ? "bg-gradient-to-br from-gray-900 to-gray-800"
                 : "bg-gradient-to-br from-blue-600 to-cyan-400"}
             `}
