@@ -115,17 +115,17 @@ export default function GroupChatPage() {
     const tempId = crypto.randomUUID()
 
     // buat pesan sementara
-    const tempMessage: Message = {
-      id: tempId,
-      content: newMessage,
-      createdat: new Date().toISOString(),
-      sender_id: user.id,
-      sender: {
-        id: user.id,
-        full_name: user?.user_metadata?.full_name || "You",
-        avatar_url: user?.user_metadata?.avatar_url || null,
-      },
-    }
+    // const tempMessage: Message = {
+    //   id: tempId,
+    //   content: newMessage,
+    //   createdat: new Date().toISOString(),
+    //   sender_id: user.id,
+    //   sender: {
+    //     id: user.id,
+    //     full_name: user?.user_metadata?.full_name || "You",
+    //     avatar_url: user?.user_metadata?.avatar_url || null,
+    //   },
+    // }
 
     // update state dulu
     // setMessages((prev) => [...prev, tempMessage])

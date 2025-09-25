@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/supabase/auth"
 import PageWrapper from "@/components/page-wrapper"
 import Reveal from "@/components/animations/Reveal"
 import { AppBottombar } from "@/components/app/bottombar"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Clock, Mail } from "lucide-react"
 import { GroupAvatar } from "@/components/group-avatar"
 import Link from "next/link"
@@ -32,7 +32,7 @@ export default function UserHomePage() {
 
     const fetchLastGroup = async () => {
       // coba ambil group terakhir dibuka
-      const { data: groups, error } = await supabase
+      const { data: groups } = await supabase
         .from("groups")
         .select(`
           *,
