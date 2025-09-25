@@ -4,7 +4,7 @@ import Link from "next/link"
 import { supabase } from "@/lib/supabase/client"
 import PageWrapper from "@/components/page-wrapper"
 import { AppTopbar } from "@/components/app/topbar"
-import { ArrowDownZA, ArrowUpAZ, BellDot, CalendarArrowDown, CalendarArrowUp, Home, MessageCircleWarning, Settings2 } from "lucide-react"
+import { ArrowDownZA, ArrowUpAZ, BellDot, CalendarArrowDown, CalendarArrowUp, Home, MessageCircle, MessageCircleWarning, Settings2 } from "lucide-react"
 import { AppBottombar } from "@/components/app/bottombar"
 import { GroupAvatar } from "@/components/group-avatar"
 import { useAuth } from "@/lib/supabase/auth"
@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge"
 import { GroupData } from "@/types/group"
+import Reveal from "@/components/animations/Reveal"
 
 const motionUl = {
   hidden: { opacity: 0 },
@@ -70,7 +71,8 @@ function GroupsPage({ userId }: { userId: string }) {
         .from("groups")
         .select(`
           *,
-          group_members!inner(*)
+          group_members!inner(*),
+          group_last_seen(last_seen_at)
         `)
         .eq("group_members.user_id", userId)
         .ilike("name", `%${searchGroupName}%`)
@@ -87,12 +89,29 @@ function GroupsPage({ userId }: { userId: string }) {
         console.error("Error fetching groups:", error)
       } else {
         setGroups(data || [])
-        console.log("Fetched groups:", data)
+        const groupsWithUnread = await Promise.all(
+          (data || []).map(async (g) => {
+            const lastSeenAt = g.group_last_seen?.[0]?.last_seen_at || "1970-01-01"
+
+            const { count } = await supabase
+              .from("group_messages")
+              .select("id", { count: "exact", head: true })
+              .eq("group_id", g.id)
+              .gt("createdat", lastSeenAt)
+
+            return {
+              ...g,
+              unreadCount: count || 0,
+            }
+          })
+        )
+        setGroups(groupsWithUnread)
       }
     }
 
     fetchGroups()
       .finally(() => setLoading(false))
+      
   }, [userId , sortBy, ascending, searchGroupName, offset])
 
 
@@ -183,19 +202,28 @@ function GroupsPage({ userId }: { userId: string }) {
                     </span>
                     <div className="flex items-center gap-4">
                       {/* message */}
-                      <span className="pt-2 flex items-center gap-2">
-                        <MessageCircleWarning className="text-warning w-5 h-5" />
-                        <Badge className="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums bg-warning text-gray-500" variant="outline">
-                          5+
-                        </Badge>
-                      </span>
+                      <Reveal animation="fadeInDown" distance={5}>
+                        <span className="pt-2 flex items-center gap-2">
+                          {
+                            group.unreadCount ?
+                            <MessageCircleWarning className="text-warning w-5 h-5" />
+                            :
+                            <MessageCircle />
+                          }
+                          <Badge variant={group.unreadCount ? 'warning' : 'secondary'} className="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums text-gray-500">
+                            {group.unreadCount}
+                          </Badge>
+                        </span>
+                      </Reveal>
                       {/* info */}
-                      <span className="pt-2 flex items-center gap-2">
-                        <BellDot className="text-info w-5 h-5" />
-                        <Badge className="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums bg-info text-white" variant="outline">
-                          5+
-                        </Badge>
-                      </span>
+                      <Reveal animation="fadeInDown" distance={5} delay={0.3}>
+                        <span className="pt-2 flex items-center gap-2">
+                          <BellDot className="text-info w-5 h-5" />
+                          <Badge className="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums bg-info text-white" variant="outline">
+                            5+
+                          </Badge>
+                        </span>
+                      </Reveal>
                     </div>
                   </div>
                 </Link>

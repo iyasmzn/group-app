@@ -11,6 +11,7 @@ export interface GroupData {
   group_members?: GroupMember[]
   owner?:GroupMember
   desc_updatedby?:GroupMember
+  unreadCount?: number | null
 }
 
 export interface GroupMember {
