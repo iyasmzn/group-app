@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Save, X } from "lucide-react";
+import Reveal from "@/components/animations/Reveal";
 
 interface RoleFormProps {
   initialCode?: string;
@@ -37,35 +38,37 @@ export default function RoleForm({
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      {!isDefaultCode && (
+    <Reveal animation="fadeIn">
+      <div className="flex flex-col gap-2">
+        {!isDefaultCode && (
+          <Input
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="Code (lowercase, no spaces)"
+          />
+        )}
+        {isDefaultCode && (
+          <Input value={code} disabled className="opacity-70" />
+        )}
         <Input
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          placeholder="Code (lowercase, no spaces)"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Role name"
         />
-      )}
-      {isDefaultCode && (
-        <Input value={code} disabled className="opacity-70" />
-      )}
-      <Input
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Role name"
-      />
-      <Input
-        value={permissions}
-        onChange={(e) => setPermissions(e.target.value)}
-        placeholder="Permissions (comma separated)"
-      />
-      <div className="flex gap-2">
-        <Button variant="primary-outline" onClick={handleSave}>
-          <Save />
-        </Button>
-        <Button variant="ghost" onClick={onCancel}>
-          <X />
-        </Button>
+        <Input
+          value={permissions}
+          onChange={(e) => setPermissions(e.target.value)}
+          placeholder="Permissions (comma separated)"
+        />
+        <div className="flex gap-2">
+          <Button variant="primary-outline" onClick={handleSave}>
+            <Save />
+          </Button>
+          <Button variant="ghost" onClick={onCancel}>
+            <X />
+          </Button>
+        </div>
       </div>
-    </div>
+    </Reveal>
   );
 }
