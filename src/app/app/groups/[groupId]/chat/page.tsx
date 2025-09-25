@@ -77,26 +77,28 @@ export default function GroupChatPage() {
     filter: `group_id=eq.${groupId}`,
 
     onInsert: async (msg) => {
-      console.log('onInsert', msg)
-      // ambil profile pengirim
       const { data: profile } = await supabase
         .from("profiles")
         .select("id, full_name, avatar_url")
         .eq("id", msg.sender_id)
         .single()
 
-      if (!profile) return;
+      if (!profile) return
 
-      const messageWithProfile = {
-        ...msg,
-        sender: profile,
-      }
+      const messageWithProfile = { ...msg, sender: profile }
 
-      setMessages((prev) =>
-        [...prev, messageWithProfile].sort(
+      setMessages((prev) => {
+        // cek apakah sudah ada pesan sementara dengan content sama
+        const exists = prev.some(
+          (m) => m.id === msg.id || (m.sender_id === msg.sender_id && m.content === msg.content)
+        )
+        if (exists) {
+          return prev.map((m) => (m.id === msg.id ? messageWithProfile : m))
+        }
+        return [...prev, messageWithProfile].sort(
           (a, b) => new Date(a.createdat).getTime() - new Date(b.createdat).getTime()
         )
-      )
+      })
     },
     onUpdate: (msg) => {
       setMessages((prev) =>
@@ -115,20 +117,20 @@ export default function GroupChatPage() {
     const tempId = crypto.randomUUID()
 
     // buat pesan sementara
-    // const tempMessage: Message = {
-    //   id: tempId,
-    //   content: newMessage,
-    //   createdat: new Date().toISOString(),
-    //   sender_id: user.id,
-    //   sender: {
-    //     id: user.id,
-    //     full_name: user?.user_metadata?.full_name || "You",
-    //     avatar_url: user?.user_metadata?.avatar_url || null,
-    //   },
-    // }
+    const tempMessage: Message = {
+      id: tempId,
+      content: newMessage,
+      createdat: new Date().toISOString(),
+      sender_id: user.id,
+      sender: {
+        id: user.id,
+        full_name: user?.user_metadata?.full_name || "You",
+        avatar_url: user?.user_metadata?.avatar_url || null,
+      },
+    }
 
     // update state dulu
-    // setMessages((prev) => [...prev, tempMessage])
+    setMessages((prev) => [...prev, tempMessage])
     setNewMessage("")
 
     // kirim ke supabase
