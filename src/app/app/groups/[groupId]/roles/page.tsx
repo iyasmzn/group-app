@@ -121,7 +121,7 @@ export default function GroupRolesPage() {
   if (loading) return <LoadingOverlay />;
 
   return (
-    <div className="p-6">
+    <div className="p-2 md:p-6">
       <h1 className="text-2xl font-bold mb-4 flex items-center gap-2">
         <ShieldCheck className="w-6 h-6 text-primary" />
         Manage Roles
