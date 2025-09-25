@@ -43,7 +43,7 @@ export default function InvitePage() {
         role_id: invite.group_role_id,
       })
 
-      setGroupLink(`/groups/${invite.group_id}/dashboard`)
+      setGroupLink(`/app/groups/${invite.group_id}`)
     }
 
     joinGroup().finally(() => setLoading(false))

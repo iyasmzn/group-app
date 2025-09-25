@@ -14,6 +14,12 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "*.googleusercontent.com",
+        port: "",
+        pathname: "/**",
+      },
       // contoh tambahan kalau pakai Supabase Storage:
       // {
       //   protocol: "https",
