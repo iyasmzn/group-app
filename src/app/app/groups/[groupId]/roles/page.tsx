@@ -10,6 +10,7 @@ import Reveal from "@/components/animations/Reveal";
 import LoadingOverlay from "@/components/loading-overlay";
 import RoleForm from "./components/roles-form";
 import { GroupRole } from "@/types/group";
+import BackButton from "@/components/back-button";
 
 const DEFAULT_CODES = ["owner", "admin", "member"];
 
@@ -123,6 +124,7 @@ export default function GroupRolesPage() {
   return (
     <div className="p-2 md:p-6">
       <h1 className="text-2xl font-bold mb-4 flex items-center gap-2">
+        <BackButton />
         <ShieldCheck className="w-6 h-6 text-primary" />
         Manage Roles
       </h1>
