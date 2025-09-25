@@ -23,12 +23,12 @@ export default function ChatInput({ value, onChange, onSend }: ChatInputProps) {
     }
   }, [value]);
 
-  // const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-  //   if (e.key === "Enter" && !e.shiftKey) {
-  //     e.preventDefault();
-  //     onSend();
-  //   }
-  // };
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && e.ctrlKey) {
+      e.preventDefault();
+      onSend();
+    }
+  };
 
   return (
     <div className="fixed bottom-0 left-0 right-0 p-4 border-t bg-background">
@@ -48,6 +48,7 @@ export default function ChatInput({ value, onChange, onSend }: ChatInputProps) {
           ref={textareaRef}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder="Tulis pesan..."
           rows={1}
           className="flex-1 resize-none overflow-y-auto max-h-[150px] rounded-lg border border-input bg-card p-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"

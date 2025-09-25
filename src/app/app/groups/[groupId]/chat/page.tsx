@@ -90,7 +90,7 @@ export default function GroupChatPage() {
       setMessages((prev) => {
         // cek apakah sudah ada pesan sementara dengan content sama
         const exists = prev.some(
-          (m) => m.id === msg.id || (m.sender_id === msg.sender_id && m.content === msg.content)
+          (m) => m.id === msg.id
         )
         if (exists) {
           return prev.map((m) => (m.id === msg.id ? messageWithProfile : m))
