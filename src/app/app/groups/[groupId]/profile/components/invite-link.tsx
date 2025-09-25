@@ -87,7 +87,7 @@ export default function InviteLink() {
         onClick={handleOpen}
       >
         <Link2 className="w-7 h-7 text-primary" />
-        <span className="text-xs mt-1 text-foreground">Invite Link</span>
+        <span className="text-xs mt-1 text-foreground">Invite</span>
       </button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>

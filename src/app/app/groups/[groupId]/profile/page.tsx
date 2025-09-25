@@ -142,19 +142,19 @@ export default function GroupProfilePage() {
         </div>
 
         {/* Action list */}
-        <div className="flex items-center justify-center gap-4 mb-4">
+        <div className="grid grid-cols-4 justify-center gap-4 mb-4">
           <button onClick={handleBack} className="flex flex-col py-2 px-3 rounded-xl items-center border border-secondary hover:bg-secondary transition-all">
             <Undo2 className="w-7 h-7" />
-            <span className="text-xs mt-1 text-foreground">Go Back</span>
+            <span className="text-xs mt-1 text-foreground">Back</span>
           </button>
           <button className="flex flex-col py-2 px-3 rounded-xl items-center border border-primary hover:bg-secondary transition-all">
             <UserPlus2 className="w-7 h-7 text-primary" />
-            <span className="text-xs mt-1 text-foreground">Add Member</span>
+            <span className="text-xs mt-1 text-foreground">Add</span>
           </button>
           <InviteLink />
           <button className="flex flex-col py-2 px-3 rounded-xl items-center border border-primary hover:bg-secondary transition-all">
             <BellRing className="w-7 h-7 text-primary" />
-            <span className="text-xs mt-1 text-foreground">Notifications</span>
+            <span className="text-xs mt-1 text-foreground">Notif</span>
           </button>
         </div>
 
