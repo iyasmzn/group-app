@@ -46,7 +46,7 @@ export default function GroupDashboardPage() {
                   icon={MessageCircleWarning}
                   value={unread}
                   label="Unread Messages"
-                  accent={unread ? "animate-pulse text-warning" : ''}
+                  accent={unread ? "animate-pulse text-warning" : 'text-muted-foreground'}
                   onClick={() => router.push('chat')}
                 />
               </div>

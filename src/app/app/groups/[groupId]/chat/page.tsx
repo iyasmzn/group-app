@@ -11,7 +11,7 @@ import ChatInput from "@/components/app/chat-input"
 import { GroupAvatar } from "@/components/group-avatar"
 import { formatDateDivider } from "@/lib/utils/helper"
 import { useMessageSeen } from "@/lib/hooks/useMessageSeen"
-import ChatLayout from "./layout"
+import { ChatLayout } from "./layout"
 
 type Message = {
   id: string

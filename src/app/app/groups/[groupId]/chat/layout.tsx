@@ -1,7 +1,6 @@
-// app/app/groups/[groupId]/chat/layout.tsx
 "use client"
 
-export default function ChatLayout({
+export function ChatLayout({
   children, footer
 }: {
   children: React.ReactNode,
