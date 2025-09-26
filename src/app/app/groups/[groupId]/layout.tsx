@@ -6,9 +6,9 @@ import GroupTopbar from "@/components/group/GroupTopbar"
 
 // ✅ generateMetadata jalan di server, jadi bisa fetch langsung
 export async function generateMetadata(
-  { params }: { params: { groupId: string } }
+  { params }: { params: Promise<{ groupId: string }> }
 ): Promise<Metadata> {
-  const { groupId } = params
+  const { groupId } = await params
 
   // fetch data grup dari Supabase REST API
   const res = await fetch(
