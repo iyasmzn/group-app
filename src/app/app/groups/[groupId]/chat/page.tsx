@@ -11,7 +11,7 @@ import ChatInput from "@/components/app/chat-input"
 import { GroupAvatar } from "@/components/group-avatar"
 import { formatDateDivider } from "@/lib/utils/helper"
 import { useMessageSeen } from "@/lib/hooks/useMessageSeen"
-import { ChatLayout } from "./layout"
+import { ChatShell } from "./ChatShell"
 
 type Message = {
   id: string
@@ -172,7 +172,7 @@ export default function GroupChatPage() {
   }
 
   return (
-    <ChatLayout
+    <ChatShell
       footer={
         <ChatInput
           value={newMessage}
@@ -248,6 +248,6 @@ export default function GroupChatPage() {
           <div ref={messagesEndRef} /> {/* auto scroll anchor */}
         </div>
       </div>
-    </ChatLayout>
+    </ChatShell>
   )
 }
