@@ -3,7 +3,6 @@ import { MotionProvider } from "@/components/providers"
 import { GroupSeenClient } from "./components/group-seen-client"
 import { GroupNavigation } from "@/components/group/GroupNavigation"
 import GroupTopbar from "@/components/group/GroupTopbar"
-// import { GroupSidebar } from "./components/group-sidebar"
 
 // ✅ generateMetadata jalan di server, jadi bisa fetch langsung
 export async function generateMetadata(
