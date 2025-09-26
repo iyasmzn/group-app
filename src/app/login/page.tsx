@@ -17,8 +17,8 @@ import { ModeToggle } from "@/components/mode-toggle";
 export default function LoginPage() {
   const { signIn, signInWithGoogle, user } = useAuth();
   const router = useRouter();
-  const [email, setEmail] = useState("iyasmzn07@gmail.com");
-  const [password, setPassword] = useState("asdasd");
+  const [email, setEmail] = useState("grimsbyoloyo@gmail.com");
+  const [password, setPassword] = useState("grimsbyolo");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {

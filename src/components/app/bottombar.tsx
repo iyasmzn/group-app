@@ -8,8 +8,8 @@ export function AppBottombar() {
 
   const tabs = [
     { href: "/app/home", icon: <Home className="h-6 w-6" />, label: "Home" },
-    { href: "/app/groups", icon: <Users className="h-6 w-6" />, label: "Groups" },
     { href: "/app/chat", icon: <MessageCircle className="h-6 w-6" />, label: "Chat" },
+    { href: "/app/groups", icon: <Users className="h-6 w-6" />, label: "Groups" },
     { href: "/app/settings", icon: <Settings className="h-6 w-6" />, label: "Settings" },
   ]
 
