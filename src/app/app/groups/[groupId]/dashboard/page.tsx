@@ -23,7 +23,7 @@ export default function GroupDashboardPage() {
     <>
       <LoadingOverlay isLoading={loading} />
       <ScrollArea>
-        <Reveal>
+        <Reveal className="p-2 md:p-6">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg font-bold">{groupData?.name}</CardTitle>
