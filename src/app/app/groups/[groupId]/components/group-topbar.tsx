@@ -4,20 +4,15 @@ import { AppTopbar } from "@/components/app/topbar";
 import { GroupAvatar } from "@/components/group-avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useGroupData } from "@/lib/hooks/useGroupData";
-import { useAuth } from "@/lib/supabase/auth";
-import { GroupData } from "@/types/group";
 import { EllipsisVertical } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 
 type GroupTopbarProps = {
   backHref?: string
 }
 
 export default function GroupTopbar({backHref = '/app/groups'}: GroupTopbarProps) {
-  const {supabase} = useAuth()
   const params = useParams();
-  const groupId = params?.groupId;
   const groupData = useGroupData(params?.groupId as string)
   const router = useRouter()
 

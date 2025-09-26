@@ -82,7 +82,7 @@ function GroupsPage({ userId }: { userId: string }) {
       .ilike("name", `%${searchGroupName}%`)
       .order(sortBy, { ascending: ascending })
     
-    const {data: totalData, count} = await query
+    const {data: totalData} = await query
     setTotalRow(totalData ? totalData.length : 0)
     console.log('totalData',totalData)
     const { data, error } = await query

@@ -1,14 +1,13 @@
 // app/app/groups/[groupId]/chat/layout.tsx
 "use client"
 
-import GroupTopbar from "@/components/group/GroupTopbar"
 import { ReactNode } from "react"
 
 export default function ChatLayout({
   children, footer
 }: {
-  children: ReactNode,
-  footer: ReactNode
+  children: React.ReactNode,
+  footer: React.ReactNode
 }) {
   return (
     <div className="flex flex-col min-h-screen">
