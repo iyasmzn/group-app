@@ -3,6 +3,7 @@ import Reveal from "@/components/animations/Reveal";
 import { AppTopbar } from "@/components/app/topbar";
 import { GroupAvatar } from "@/components/group-avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useGroupData } from "@/lib/hooks/useGroupData";
 import { useAuth } from "@/lib/supabase/auth";
 import { GroupData } from "@/types/group";
 import { EllipsisVertical } from "lucide-react";
@@ -17,32 +18,8 @@ export default function GroupTopbar({backHref = '/app/groups'}: GroupTopbarProps
   const {supabase} = useAuth()
   const params = useParams();
   const groupId = params?.groupId;
-  const [groupData, setGroupData] = useState<GroupData | null>(null);
+  const groupData = useGroupData(params?.groupId as string)
   const router = useRouter()
-  
-  useEffect(() => {
-    // Fetch group details to verify access
-    const fetchGroupDetails = async () => {
-      if (groupId) {
-        // get grpoup details with list members
-        const { data, error } = await supabase
-          .from("groups")
-          .select("*, group_members(*)")
-          .eq("id", groupId)
-          .single();
-        
-        if (error) {
-          console.error("group-topbar.tsx - Error fetching group details:", error);
-        } else {
-          console.log("Group details:", data);
-          setGroupData(data);
-          // Optionally verify if the user has access to this group
-        }
-      }
-    };
-
-    fetchGroupDetails()
-  }, [groupId, supabase]);
 
   function goToProfile() {
     router.push('profile')

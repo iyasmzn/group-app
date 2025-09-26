@@ -76,8 +76,8 @@ export function AppTopbar({ titleSlot, title, backButton, backHref, hideAvatarUs
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background px-4 py-3">
-        <div className="flex items-center justify-between max-w-4xl mx-auto">
+      <header className="sticky top-0 left-0 right-0 z-50 border-b bg-background px-4 py-3">
+        <div className="flex items-center justify-between mx-auto">
           <div className="flex items-center flex-1">
             {/* Left section: back button */}
               {
@@ -114,9 +114,6 @@ export function AppTopbar({ titleSlot, title, backButton, backHref, hideAvatarUs
           </div>
         </div>
       </header>
-      
-      {/* Spacer supaya konten tidak ketiban topbar */}
-      <div className="h-14" /> {/* untuk topbar */}
     </>
   )
 }

@@ -16,9 +16,7 @@ export default function AppLayout({
   return (
     <>
       <MotionProvider>
-        <div className="px-4">
-          {children}
-        </div>
+        {children}
       </MotionProvider>
     </>
   );

@@ -133,3 +133,16 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-6deg) }
+  50%      { transform: rotate(6deg) }
+}
+
+@layer utilities {
+  .animate-wiggle {
+    animation: wiggle 0.5s ease-in-out infinite;
+    transform-origin: center;
+    background-color: 'red'!important;
+  }
+}
