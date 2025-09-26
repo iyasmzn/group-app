@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
+import { GroupNavigation } from "@/components/group/GroupNavigation"
+import GroupTopbar from "@/components/group/GroupTopbar"
 import { GroupBadgeProvider } from "@/context/GroupBadgeContext"
-import { GroupSeenClient } from "./components/group-seen-client"
 
 // ✅ generateMetadata jalan di server, jadi bisa fetch langsung
 export async function generateMetadata(
@@ -45,9 +46,14 @@ export default async function GroupLayout({
   const { groupId } = await params   // ✅ tunggu promise  
 
   return (
-    <GroupBadgeProvider groupId={groupId}>
-      <GroupSeenClient groupId={groupId} />
-      {children}
-    </GroupBadgeProvider>
+    <>
+      <GroupTopbar />
+      <div className="flex justify-center">
+        <GroupNavigation />
+        <main className="flex-1 max-w-4xl md:ml-56">
+          {children}
+        </main>
+      </div>
+    </>
   )
 }
