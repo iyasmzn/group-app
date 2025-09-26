@@ -11,6 +11,7 @@ import { toast } from "sonner"
 import ChatInput from "@/components/app/chat-input"
 import { GroupAvatar } from "@/components/group-avatar"
 import { formatDateDivider } from "@/lib/utils/helper"
+import { useMessageSeen } from "@/lib/hooks/useMessageSeen"
 
 type Message = {
   id: string
@@ -31,6 +32,7 @@ export default function GroupChatPage() {
   const [newMessage, setNewMessage] = useState("")
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
+
   if (!user) {
     toast.error('User invalid. Please re-Login.')
     redirect('/')
@@ -39,9 +41,11 @@ export default function GroupChatPage() {
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
-      updateLastSeen()
     }
   }, [messages])
+
+  // ✅ update message_last_seen_at hanya di chat page
+  useMessageSeen(groupId as string, messagesEndRef)
 
   // fetch messages awal
   useEffect(() => {
@@ -67,7 +71,6 @@ export default function GroupChatPage() {
     }
 
     fetchMessages()
-    updateLastSeen()
   }, [groupId, supabase])
 
   // subscribe realtime pakai hook
@@ -167,19 +170,6 @@ export default function GroupChatPage() {
       )
     }
   }
-
-  // update last_seen
-  const updateLastSeen = async () => {
-    if (!user || !groupId) return
-    await supabase
-      .from("group_last_seen")
-      .upsert({
-        user_id: user.id,
-        group_id: groupId,
-        last_seen_at: new Date().toISOString(),
-      })
-  }
-
 
   return (
     <>

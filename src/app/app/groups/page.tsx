@@ -4,7 +4,7 @@ import Link from "next/link"
 import { supabase } from "@/lib/supabase/client"
 import PageWrapper from "@/components/page-wrapper"
 import { AppTopbar } from "@/components/app/topbar"
-import { ArrowDownZA, ArrowUpAZ, BellDot, CalendarArrowDown, CalendarArrowUp, Home, MessageCircle, MessageCircleWarning, Settings2 } from "lucide-react"
+import { ArrowDownZA, ArrowUpAZ, BellDot, CalendarArrowDown, CalendarArrowUp, Home, MessageCircle, MessageCircleQuestion, RefreshCw, Settings2 } from "lucide-react"
 import { AppBottombar } from "@/components/app/bottombar"
 import { GroupAvatar } from "@/components/group-avatar"
 import { useAuth } from "@/lib/supabase/auth"
@@ -64,57 +64,57 @@ function GroupsPage({ userId }: { userId: string }) {
   const currentPage = Math.floor(offset / limit) +  1
 
   useEffect(() => {    
-    setLoading(true)
-    // ✅ Fetch groups where user is a member and get total group members
-    const fetchGroups = async () => {
-      const query = supabase
-        .from("groups")
-        .select(`
-          *,
-          group_members!inner(*),
-          group_last_seen(last_seen_at)
-        `)
-        .eq("group_members.user_id", userId)
-        .ilike("name", `%${searchGroupName}%`)
-        .order(sortBy, { ascending: ascending })
-      
-      const {data: totalData} = await query
-      setTotalRow(totalData ? totalData.length : 0)
-      console.log('totalData',totalData)
-      const { data, error } = await query
-        .range(offset, offset + limit - 1) // pagination
-        
-      
-      if (error) {
-        console.error("Error fetching groups:", error)
-      } else {
-        setGroups(data || [])
-        const groupsWithUnread = await Promise.all(
-          (data || []).map(async (g) => {
-            const lastSeenAt = g.group_last_seen?.[0]?.last_seen_at || "1970-01-01"
-
-            const { count } = await supabase
-              .from("group_messages")
-              .select("id", { count: "exact", head: true })
-              .eq("group_id", g.id)
-              .gt("createdat", lastSeenAt)
-
-            return {
-              ...g,
-              unreadCount: count || 0,
-            }
-          })
-        )
-        setGroups(groupsWithUnread)
-      }
-    }
-
     fetchGroups()
-      .finally(() => setLoading(false))
-      
   }, [userId , sortBy, ascending, searchGroupName, offset])
 
+  // ✅ Fetch groups where user is a member and get total group members
+  const fetchGroups = async () => {
+    setLoading(true)
+    const query = supabase
+      .from("groups")
+      .select(`
+        *,
+        group_members!inner(*),
+        group_last_seen(last_seen_at, message_last_seen_at)
+      `)
+      .eq("group_members.user_id", userId)
+      .eq("group_last_seen.user_id", userId)
+      .ilike("name", `%${searchGroupName}%`)
+      .order(sortBy, { ascending: ascending })
+    
+    const {data: totalData, count} = await query
+    setTotalRow(totalData ? totalData.length : 0)
+    console.log('totalData',totalData)
+    const { data, error } = await query
+      .range(offset, offset + limit - 1) // pagination
+    console.log('groups',data)
+      
+    
+    if (error) {
+      console.error("Error fetching groups:", error)
+      setLoading(false)
+    } else {
+      setGroups(data || [])
+      const groupsWithUnread = await Promise.all(
+        (data || []).map(async (g) => {
+          const lastSeenAt = g.group_last_seen?.[0]?.message_last_seen_at || "1970-01-01"
 
+          const { count } = await supabase
+            .from("group_messages")
+            .select("id", { count: "exact", head: true })
+            .eq("group_id", g.id)
+            .gt("createdat", lastSeenAt)
+
+          return {
+            ...g,
+            unreadCount: count || 0,
+          }
+        })
+      )
+      setGroups(groupsWithUnread)
+      setLoading(false)
+    }
+  }
 
   return (
     <>
@@ -160,6 +160,12 @@ function GroupsPage({ userId }: { userId: string }) {
                   )
                 }
                 {ascending ? "Asc" : "Desc"}
+              </Button>
+              <Button
+                onClick={fetchGroups}
+                variant={'outline'}
+              >
+                <RefreshCw className={loading ? "animate-spin" : ''} />
               </Button>
             </div>
           </div>
@@ -208,7 +214,7 @@ function GroupsPage({ userId }: { userId: string }) {
                         <Link href={`groups/${group.id}/chat`} className="pt-2 flex items-center gap-2">
                           {
                             group.unreadCount ?
-                            <MessageCircleWarning className="text-warning w-5 h-5" />
+                            <MessageCircleQuestion className="text-warning w-5 h-5" />
                             :
                             <MessageCircle />
                           }
