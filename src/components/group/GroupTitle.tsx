@@ -8,10 +8,10 @@ export function GroupTitle({ group }: { group: GroupData }) {
   const router = useRouter()
   return (
     <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push("profile")}>
-      <Reveal animation="fadeInRight" distance={10}>
+      <Reveal animation="fadeIn">
         <GroupAvatar name={group.name} image={group.image_url} size="md" />
       </Reveal>
-      <Reveal animation="fadeInRight" delay={0.5} distance={10}>
+      <Reveal animation="fadeIn" delay={0.5}>
         <div className="flex flex-col leading-tight">
           <span className="font-semibold text-md">{group.name}</span>
           <span className="text-sm text-muted-foreground">

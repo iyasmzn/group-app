@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react"
 import { redirect, useParams } from "next/navigation"
 import { useAuth } from "@/lib/supabase/auth"
 import Reveal from "@/components/animations/Reveal"
-import GroupTopbar from "../components/group-topbar"
 import { cn } from "@/lib/utils"
 import { useRealtimeTable } from "@/lib/hooks/useRealtimeTable"
 import { toast } from "sonner"
@@ -12,6 +11,7 @@ import ChatInput from "@/components/app/chat-input"
 import { GroupAvatar } from "@/components/group-avatar"
 import { formatDateDivider } from "@/lib/utils/helper"
 import { useMessageSeen } from "@/lib/hooks/useMessageSeen"
+import ChatLayout from "./layout"
 
 type Message = {
   id: string
@@ -172,79 +172,82 @@ export default function GroupChatPage() {
   }
 
   return (
-    <div className="flex flex-col p-2 md:p-6">
-      {/* Chat messages */}
-      <div className="flex-1 space-y-4">
-        {messages.map((msg, idx) => {
-          const isOwn = msg.sender_id === user?.id
-          const prevMsg = messages[idx - 1]
-          const showDivider =
-            !prevMsg ||
-            new Date(prevMsg.createdat).toDateString() !==
-              new Date(msg.createdat).toDateString()
+    <ChatLayout
+      footer={
+        <ChatInput
+          value={newMessage}
+          onChange={setNewMessage}
+          onSend={handleSend}
+        />
+      }
+    >
+      <div className="flex flex-col p-2 md:p-6">
+        {/* Chat messages */}
+        <div className="flex-1 space-y-4">
+          {messages.map((msg, idx) => {
+            const isOwn = msg.sender_id === user?.id
+            const prevMsg = messages[idx - 1]
+            const showDivider =
+              !prevMsg ||
+              new Date(prevMsg.createdat).toDateString() !==
+                new Date(msg.createdat).toDateString()
 
-          return (
-            <div key={msg.id}>
-              {showDivider && (
-                <div className="flex justify-center my-4">
-                  <span className="px-3 py-1 text-xs rounded-full bg-muted text-muted-foreground">
-                    {formatDateDivider(msg.createdat)}
-                  </span>
-                </div>
-              )}
-
-              <Reveal delay={0.1}>
-                <div
-                  className={cn(
-                    "flex items-start gap-2",
-                    isOwn ? "justify-end" : "justify-start"
-                  )}
-                >
-                  {!isOwn && msg.sender?.full_name && (
-                    <GroupAvatar
-                      image={msg.sender?.avatar_url || ""}
-                      name={msg.sender?.full_name}
-                      size="sm"
-                    />
-                  )}
-
-                  <div
-                    className={cn(
-                      "max-w-[70%] px-4 py-2 rounded-xl text-sm shadow",
-                      isOwn
-                        ? "bg-primary text-primary-foreground rounded-tr-none"
-                        : "bg-muted text-foreground rounded-tl-none"
-                    )}
-                  >
-                    {!isOwn && (
-                      <p className="text-xs text-secondary-foreground mb-2">
-                        {msg.sender?.full_name}
-                      </p>
-                    )}
-                    <p>{msg.content}</p>
-                    <span className="block text-[10px] text-muted-foreground mt-1 text-right">
-                      {new Date(msg.createdat).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+            return (
+              <div key={msg.id}>
+                {showDivider && (
+                  <div className="flex justify-center my-4">
+                    <span className="px-3 py-1 text-xs rounded-full bg-muted text-muted-foreground">
+                      {formatDateDivider(msg.createdat)}
                     </span>
                   </div>
-                </div>
-              </Reveal>
-            </div>
-          )
-        })}
+                )}
 
-        <div className="h-14"></div>
-        <div ref={messagesEndRef} /> {/* auto scroll anchor */}
+                <Reveal delay={0.1}>
+                  <div
+                    className={cn(
+                      "flex items-start gap-2",
+                      isOwn ? "justify-end" : "justify-start"
+                    )}
+                  >
+                    {!isOwn && msg.sender?.full_name && (
+                      <GroupAvatar
+                        image={msg.sender?.avatar_url || ""}
+                        name={msg.sender?.full_name}
+                        size="sm"
+                      />
+                    )}
+
+                    <div
+                      className={cn(
+                        "max-w-[70%] px-4 py-2 rounded-xl text-sm shadow",
+                        isOwn
+                          ? "bg-primary text-primary-foreground rounded-tr-none"
+                          : "bg-muted text-foreground rounded-tl-none"
+                      )}
+                    >
+                      {!isOwn && (
+                        <p className="text-xs text-secondary-foreground mb-2">
+                          {msg.sender?.full_name}
+                        </p>
+                      )}
+                      <p>{msg.content}</p>
+                      <span className="block text-[10px] text-muted-foreground mt-1 text-right">
+                        {new Date(msg.createdat).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                </Reveal>
+              </div>
+            )
+          })}
+
+          <div className="h-14"></div>
+          <div ref={messagesEndRef} /> {/* auto scroll anchor */}
+        </div>
       </div>
-
-      {/* Input */}
-      <ChatInput
-        value={newMessage}
-        onChange={setNewMessage}
-        onSend={handleSend}
-      />
-    </div>
+    </ChatLayout>
   )
 }

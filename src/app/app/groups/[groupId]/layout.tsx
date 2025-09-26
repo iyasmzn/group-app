@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
-import { MotionProvider } from "@/components/providers"
 import { GroupSeenClient } from "./components/group-seen-client"
 import { GroupNavigation } from "@/components/group/GroupNavigation"
 import GroupTopbar from "@/components/group/GroupTopbar"
+import { GroupBadgeProvider } from "@/context/GroupBadgeContext"
 
 // ✅ generateMetadata jalan di server, jadi bisa fetch langsung
 export async function generateMetadata(
@@ -44,10 +44,10 @@ export default async function GroupLayout({
   children: React.ReactNode
   params: Promise<{ groupId: string }>
 }) {
-  const { groupId } = await params   // ✅ tunggu promise
+  const { groupId } = await params   // ✅ tunggu promise  
 
   return (
-    <MotionProvider>
+    <GroupBadgeProvider groupId={groupId}>
       <GroupTopbar />
       <GroupSeenClient groupId={groupId} />
       <div className="flex justify-center">
@@ -56,6 +56,6 @@ export default async function GroupLayout({
           {children}
         </main>
       </div>
-    </MotionProvider>
+    </GroupBadgeProvider>
   )
 }

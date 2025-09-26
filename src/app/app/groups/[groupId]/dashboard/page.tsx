@@ -1,23 +1,23 @@
 "use client"
 import LoadingOverlay from "@/components/loading-overlay"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Reveal from "@/components/animations/Reveal"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { LucideUsers, MessageCircleWarning } from "lucide-react"
-import { useUnreadCount } from "@/lib/hooks/useUnreadCount"
 import { useGroupData } from "@/lib/hooks/useGroupData"
 import ClockWidget from "@/components/group/dashboard/ClockWidget"
 import { DashboardStatCard } from "@/components/group/dashboard/DashboardStatCard"
+import { useGroupBadges } from "@/context/GroupBadgeContext"
 
 export default function GroupDashboardPage() {
   const params = useParams()
   const groupId = params?.groupId as string
+  const router = useRouter()
   const [loading] = useState(false)
-
   const groupData = useGroupData(groupId)
-  const unreadCount = useUnreadCount(groupId)
+  const {unread} = useGroupBadges()
 
   return (
     <>
@@ -44,8 +44,10 @@ export default function GroupDashboardPage() {
                 {/* Unread Messages */}
                 <DashboardStatCard
                   icon={MessageCircleWarning}
-                  value={unreadCount}
+                  value={unread}
                   label="Unread Messages"
+                  accent={unread ? "animate-pulse text-warning" : ''}
+                  onClick={() => router.push('chat')}
                 />
               </div>
             </CardContent>

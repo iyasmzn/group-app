@@ -1,13 +1,10 @@
 "use client"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { useGroupBadges } from "@/context/GroupBadgeContext"
 import { EllipsisVertical, MessageCircle } from "lucide-react"
-import { useParams } from "next/navigation"
-import { useUnreadCount } from "@/lib/hooks/useUnreadCount"
 
 export function GroupTopbarMenu() {
-  const params = useParams()
-  const groupId = params?.groupId as string
-  const unread = useUnreadCount(groupId)
+  const {unread} = useGroupBadges()
 
   return (
     <DropdownMenu>

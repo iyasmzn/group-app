@@ -10,31 +10,24 @@ import {
   Handshake 
 } from "lucide-react"
 import { useLastSegment } from "@/lib/hooks/useLastSegment"
-import { useParams } from "next/navigation"
-import { useUnreadCount } from "@/lib/hooks/useUnreadCount"
-import { useEventBadge } from "@/lib/hooks/useEventBadge"
-import { useFinanceBadge } from "@/lib/hooks/useFinanceBadge"
-import { useCoopBadge } from "@/lib/hooks/useCoopBadge"
-import { useAssetBadge } from "@/lib/hooks/useAssetBadge"
+import { useGroupBadges } from "@/context/GroupBadgeContext"
+import { usePathname } from "next/navigation"
 
 export function GroupNavigation() {
   const active = useLastSegment()
-  const params = useParams()
-  const groupId = params?.groupId as string
+  const pathname = usePathname()
+  const isChatPage = pathname?.includes("/chat")
 
-  const unread = useUnreadCount(groupId)
-  const eventBadge = useEventBadge(groupId)
-  const financeBadge = useFinanceBadge(groupId)
-  const assetBadge = useAssetBadge(groupId)
-  const coopBadge = useCoopBadge(groupId)
+  
+  const {unread, events, finance ,assets, coop} = useGroupBadges()
 
   const tabs = [
     { href: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { href: "chat", icon: MessageCircle, label: "Chat", badge: unread },
-    { href: "events", icon: CalendarDays, label: "Events", badge: eventBadge },
-    { href: "finance", icon: DollarSign, label: "Finance", badge: financeBadge },
-    { href: "assets", icon: Package, label: "Assets", badge: assetBadge },
-    { href: "coop", icon: Handshake, label: "Koperasi", badge: coopBadge },
+    { href: "events", icon: CalendarDays, label: "Events", badge: events },
+    { href: "finance", icon: DollarSign, label: "Finance", badge: finance },
+    { href: "assets", icon: Package, label: "Assets", badge: assets },
+    { href: "coop", icon: Handshake, label: "Koperasi", badge: coop },
   ]
 
 
@@ -71,6 +64,8 @@ export function GroupNavigation() {
       </aside>
 
       {/* Mobile Bottom Bar */}
+      {
+        !isChatPage && 
         <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-background h-16 flex items-center z-50">
           <div className="max-w-4xl w-full mx-auto flex justify-around items-center px-4">
             {tabs.map(tab => {
@@ -97,6 +92,7 @@ export function GroupNavigation() {
             })}
           </div>
         </nav>
+      }
       <div className="h-16 md:hidden" /> {/* spacer for bottom bar */}
     </>
   )

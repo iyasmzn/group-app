@@ -20,6 +20,7 @@ export function useUnreadCount(groupId?: string) {
         .from("group_messages")
         .select("id", { count: "exact", head: true })
         .eq("group_id", groupId)
+        .neq("sender_id", user.id)
         .gt("createdat", since)
       return count || 0
     },
