@@ -232,7 +232,7 @@ export function ImageUploader({
 
       {/* Preview thumbnails */}
       {selectedFiles.length > 0 && (
-        <div className={`grid ${multiple ? "grid-cols-3 gap-3" : ""}`}>
+        <div className={`${multiple ? "grid grid-cols-3 gap-3" : "flex justify-center"}`}>
           {selectedFiles.map((file, idx) => (
             <Reveal key={idx + 'thumbnail' + URL.createObjectURL(file)} animation="fadeIn">
               <div
@@ -280,8 +280,8 @@ export function ImageUploader({
 
       {/* Upload button */}
       {selectedFiles.length > 0 && (
-        <Reveal animation="fadeInUp" distance={5}>
-          <Button onClick={handleUpload} disabled={isProcessing} className="w-full">
+        <Reveal animation="fadeInUp" distance={5} className="flex justify-center">
+          <Button onClick={handleUpload} disabled={isProcessing} className="">
             {isProcessing && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
             Upload
           </Button>
