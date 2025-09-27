@@ -109,7 +109,7 @@ export default function GroupProfilePage() {
 
   return (
     <>
-      <div className="flex flex-col pb-10">
+      <div className="flex flex-col pb-10 px-2 md:px-6">
         {/* Header */}
         <div className="flex flex-col items-center py-8">
           <GroupAvatar image={group.image_url} name={group.name} size="xxl" />
