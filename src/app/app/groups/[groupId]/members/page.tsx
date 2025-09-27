@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 import { useAuth } from "@/lib/supabase/auth";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserCog, UserMinus, UserPlus2 } from "lucide-react";
 import Reveal from "@/components/animations/Reveal";
 import LoadingOverlay from "@/components/loading-overlay";
@@ -21,7 +20,7 @@ import ConfirmRemoveModal from "./components/confirm-remove-modal";
 import { GroupMember, GroupRole } from "@/types/group";
 import BackButton from "@/components/back-button";
 import { GroupAvatar } from "@/components/group-avatar";
-import { formatDate, longDate } from "@/lib/utils/format";
+import { formatDate } from "@/lib/utils/format";
 
 export default function ManageMembersPage() {
   const { supabase } = useAuth();

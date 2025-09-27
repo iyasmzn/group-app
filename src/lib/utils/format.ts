@@ -26,7 +26,7 @@ export function formatDate(
 
 export function longDateTime(
   date: string | Date,
-  locale: string | null
+  locale?: string | null
 ) {
   const d = typeof date === "string" ? new Date(date) : date
 
