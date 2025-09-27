@@ -3,13 +3,19 @@
 import { ImageUploader } from "@/components/image-uploader"
 import { FileUploader } from "@/components/file-uploader"
 
-interface UnifiedUploaderProps {
+export interface UnifiedUploaderProps {
+  /** Tipe file yang diterima, default "*/
   accept?: string
+  /** Apakah bisa multiple upload */
   multiple?: boolean
+  /** Khusus image: aktifkan crop */
   enableCrop?: boolean
+  /** Ratio crop (1 = square, 16/9 = widescreen, dll) */
   aspect?: number
-  onUpload: (files: File[]) => Promise<any>
-  onRemove?: (file: File | string) => Promise<void>
+  /** Callback ketika upload, wajib return Promise<void> */
+  onUpload: (files: File[]) => Promise<void>
+  /** Callback optional untuk remove file */
+  onRemove?: (file?: File | string) => Promise<void>
 }
 
 export function UnifiedUploader({
