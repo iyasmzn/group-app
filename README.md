@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 Next.js Project
 
-## Getting Started
+This project is built with [Next.js](https://nextjs.org) and bootstrapped using [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 📦 Getting Started
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Run the development server:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+    npm run dev
+    # or
+    yarn dev
+    # or
+    pnpm dev
+    # or
+    bun dev
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Then, open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## ✏️ Development Notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- You can start editing the main page at **`app/page.tsx`**.  
+- The page auto-updates as you edit the file.  
+- This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family from Vercel.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 📚 Learn More
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- [Next.js Documentation](https://nextjs.org/docs) — explore features and APIs.  
+- [Interactive Next.js Tutorial](https://nextjs.org/learn) — step-by-step guide to learn Next.js.  
+- [Next.js GitHub Repository](https://github.com/vercel/next.js) — contribute and give feedback.  
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🚀 Deployment
+
+The easiest way to deploy your Next.js app is with [Vercel](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme), the creators of Next.js.
+
+See the [deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+---
+
+## 🖥️ Running Dev Server with WSL2
+
+If you’re using **WSL2** and want to access your dev server from another device on the same network:
+
+1. Run `ipconfig` in PowerShell and check the **WSL2 IP**.
+2. Add a port proxy rule (replace `172.27.176.1` with your WSL2 IP):
+
+    # Add proxy rule
+    netsh interface portproxy add v4tov4 listenaddress=0.0.0.0 listenport=3000 connectaddress=172.27.176.1 connectport=3000
+
+    # Show existing rules
+    netsh interface portproxy show all
+
+    # Delete proxy rule
+    netsh interface portproxy delete v4tov4 listenaddress=0.0.0.0 listenport=3000
+
+Now, you can access your dev server from another device using `http://<your-windows-ip>:3000`.
+
+---
