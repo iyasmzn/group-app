@@ -12,6 +12,7 @@ import PageWrapper from "@/components/page-wrapper"
 import { AppTopbar } from "@/components/app/topbar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { UnifiedUploader } from "@/components/unified-uploader"
+import LoadingOverlay from "@/components/loading-overlay"
 
 export default function ProfilePage() {
   const { user, updateUserMeta, updateProfile, getProfile } = useAuth()
@@ -106,15 +107,10 @@ export default function ProfilePage() {
   return (
     <>
       <AppTopbar title="Profile" backButton hideAvatarUser />
+      {/* Loading Overlay */}
+      <LoadingOverlay isLoading={isProcessing} />
       <PageWrapper>
         <div className="p-6 max-w-lg mx-auto space-y-8 relative">
-          {/* Loading Overlay */}
-          {isProcessing && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-              <Loader2 className="h-10 w-10 text-white animate-spin" />
-            </div>
-          )}
-
           {/* Profile header */}
           <div className="flex flex-col items-center space-y-3">
             <UserAvatar user={user} size={120} textSize={40} />

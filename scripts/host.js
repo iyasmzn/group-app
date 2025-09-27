@@ -37,6 +37,17 @@ function getWindowsIP() {
   }
 }
 
+function getWSL2IP() {
+  const nets = os.networkInterfaces();
+  // biasanya interface utama di WSL2 = eth0
+  const iface = nets["eth0"] || [];
+  for (const net of iface) {
+    if (net.family === "IPv4" && !net.internal) {
+      return net.address;
+    }
+  }
+  return null;
+}
 
 function findAvailablePort(startPort) {
   return new Promise((resolve) => {
@@ -56,12 +67,16 @@ const startPort = parseInt(process.env.PORT || "3000");
 const port = await findAvailablePort(startPort);
 
 // Ambil IP Windows, fallback ke IP WSL kalau gagal
-const ip = getWindowsIP() || getLocalIP();
+const windowsIP = getWindowsIP();
+const wsl2IP = getWSL2IP();
+const ip = windowsIP || getLocalIP();
 
 const localUrl = `http://localhost:${port}`;
 const networkUrl = `http://${ip}:${port}`;
 
-console.log("IP Windows", getWindowsIP());
+console.log("ℹ️  Deteksi IP:");
+console.log(`   - Windows IP : ${windowsIP || "❌ Tidak terdeteksi"}`);
+console.log(`   - WSL2 IP    : ${wsl2IP || "❌ Tidak terdeteksi"}\n`);
 
 console.log("✅ Next.js Dev Server bisa diakses di:");
 console.log(`   👉 ${localUrl} (dari PC/WSL2)`);

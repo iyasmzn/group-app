@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, DragEvent, useCallback } from "react"
+import { useState, DragEvent, useCallback, useRef } from "react"
 import Cropper, { Area } from "react-easy-crop"
 import { Button } from "@/components/ui/button"
-import { Upload, Loader2, X, Edit2, Eye } from "lucide-react"
+import { Upload, Loader2, X, Edit2, Eye, Camera } from "lucide-react"
 import { toast } from "sonner"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog"
 import Reveal from "./animations/Reveal"
@@ -36,6 +36,8 @@ export function ImageUploader({
   // Mobile bottom sheet state
   const [actionIndex, setActionIndex] = useState<number | null>(null)
   const [showActions, setShowActions] = useState(false)
+
+  const cameraInputRef = useRef<HTMLInputElement>(null)
 
   // Start crop directly from a given file (avoids async state timing issues)
   const startCropFile = (file: File, index: number) => {
@@ -183,6 +185,22 @@ export function ImageUploader({
           </span>
         </label>
       </div>
+
+      {/* input forced camera */}
+      <div className="flex gap-2 justify-end">
+        <Button variant="secondary" onClick={() => cameraInputRef.current?.click()}>
+          <Camera className="w-4 h-4 mr-2" /> Ambil dari kamera
+        </Button>
+        <input
+          ref={cameraInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={handleFileSelect}
+        />
+      </div>
+
 
       {/* Crop overlay */}
       {cropping && previewUrl && (
