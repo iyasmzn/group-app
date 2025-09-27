@@ -13,7 +13,7 @@ export default function ClockWidget() {
       <span className="text-lg font-semibold">
         {now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
       </span>
-      <span className="text-xs text-muted-foreground">
+      <span className="text-xs text-muted-foreground text-center">
         {now.toLocaleDateString("id-ID", {
           weekday: "long",
           day: "numeric",
