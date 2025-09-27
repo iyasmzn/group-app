@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, DragEvent } from "react"
+import { useState, DragEvent, useCallback } from "react"
 import Cropper from "react-easy-crop"
 import { Button } from "@/components/ui/button"
 import { Upload, Loader2 } from "lucide-react"
@@ -21,9 +21,11 @@ export function ImageUploader({
 }: ImageUploaderProps) {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [cropTargetIndex, setCropTargetIndex] = useState<number | null>(null)
   const [cropFile, setCropFile] = useState<File | null>(null)
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null)
   const [cropping, setCropping] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
 
@@ -35,9 +37,7 @@ export function ImageUploader({
     } else {
       const file = files[0]
       if (enableCrop) {
-        setCropFile(file)
-        setPreviewUrl(URL.createObjectURL(file))
-        setCropping(true)
+        startCrop(file, 0)
       } else {
         setSelectedFiles([file])
       }
@@ -52,14 +52,24 @@ export function ImageUploader({
     } else {
       const file = files[0]
       if (enableCrop) {
-        setCropFile(file)
-        setPreviewUrl(URL.createObjectURL(file))
-        setCropping(true)
+        startCrop(file, 0)
       } else {
         setSelectedFiles([file])
       }
     }
   }
+
+  const startCrop = (file: File, index: number) => {
+    if (!enableCrop) return
+    setCropFile(file)
+    setPreviewUrl(URL.createObjectURL(file))
+    setCropTargetIndex(index)
+    setCropping(true)
+  }
+
+  const onCropComplete = useCallback((_: any, croppedAreaPixels: any) => {
+    setCroppedAreaPixels(croppedAreaPixels)
+  }, [])
 
   const getCroppedImg = async (imageSrc: string, cropAreaPixels: any): Promise<File> => {
     const image = new Image()
@@ -91,12 +101,19 @@ export function ImageUploader({
     })
   }
 
-  const handleConfirmCrop = async (_: any, croppedAreaPixels: any) => {
-    if (!previewUrl) return
+  const handleConfirmCrop = async () => {
+    if (!previewUrl || !croppedAreaPixels || cropTargetIndex === null) return
     const croppedFile = await getCroppedImg(previewUrl, croppedAreaPixels)
-    setSelectedFiles([croppedFile])
+
+    setSelectedFiles((prev) => {
+      const newFiles = [...prev]
+      newFiles[cropTargetIndex] = croppedFile
+      return newFiles
+    })
+
     setCropping(false)
     setPreviewUrl(null)
+    setCropTargetIndex(null)
   }
 
   const handleUpload = async () => {
@@ -150,14 +167,28 @@ export function ImageUploader({
               aspect={aspect}
               onCropChange={setCrop}
               onZoomChange={setZoom}
-              onCropComplete={handleConfirmCrop}
+              onCropComplete={onCropComplete}
             />
           </div>
+
+          {/* Zoom slider */}
+          <div className="mt-4 w-64">
+            <input
+              type="range"
+              min={1}
+              max={3}
+              step={0.1}
+              value={zoom}
+              onChange={(e) => setZoom(Number(e.target.value))}
+              className="w-full"
+            />
+          </div>
+
           <div className="flex gap-4 mt-4">
             <Button onClick={() => setCropping(false)} variant="outline">
               Cancel
             </Button>
-            <Button onClick={() => setCropping(false)}>Confirm</Button>
+            <Button onClick={handleConfirmCrop}>Confirm</Button>
           </div>
         </div>
       )}
@@ -166,13 +197,23 @@ export function ImageUploader({
       {selectedFiles.length > 0 && (
         <div className={`grid ${multiple ? "grid-cols-3 gap-3" : ""}`}>
           {selectedFiles.map((file, idx) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <div
               key={idx}
-              src={URL.createObjectURL(file)}
-              alt={file.name}
-              className="w-24 h-24 object-cover rounded"
-            />
+              className="relative group cursor-pointer"
+              onClick={() => startCrop(file, idx)}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={URL.createObjectURL(file)}
+                alt={file.name}
+                className="w-24 h-24 object-cover rounded"
+              />
+              {enableCrop && multiple && (
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs">
+                  Crop
+                </div>
+              )}
+            </div>
           ))}
         </div>
       )}
