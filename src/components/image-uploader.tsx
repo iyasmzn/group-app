@@ -3,8 +3,9 @@
 import { useState, DragEvent, useCallback } from "react"
 import Cropper, { Area } from "react-easy-crop"
 import { Button } from "@/components/ui/button"
-import { Upload, Loader2 } from "lucide-react"
+import { Upload, Loader2, X, Edit2 } from "lucide-react"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 
 export interface ImageUploaderProps {
   multiple?: boolean
@@ -19,6 +20,7 @@ export function ImageUploader({
   aspect = 1,
   onUpload,
 }: ImageUploaderProps) {
+  const [originalFiles, setOriginalFiles] = useState<File[]>([])
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [cropTargetIndex, setCropTargetIndex] = useState<number | null>(null)
@@ -28,43 +30,46 @@ export function ImageUploader({
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
   const [cropping, setCropping] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
+
+  // ✅ langsung crop dari file baru
+  const startCropFile = (file: File, index: number) => {
+    setCropFile(file)
+    setPreviewUrl(URL.createObjectURL(file))
+    setCropTargetIndex(index)
+    setCropping(true)
+  }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
     const files = Array.from(e.target.files)
-    if (multiple) {
-      setSelectedFiles(files)
-    } else {
-      const file = files[0]
-      if (enableCrop) {
-        startCrop(file, 0)
-      } else {
-        setSelectedFiles([file])
-      }
+
+    setOriginalFiles(files)
+    setSelectedFiles(files)
+
+    if (!multiple && enableCrop) {
+      startCropFile(files[0], 0)
     }
   }
 
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault()
+    setIsDragging(false)
     const files = Array.from(e.dataTransfer.files)
-    if (multiple) {
-      setSelectedFiles(files)
-    } else {
-      const file = files[0]
-      if (enableCrop) {
-        startCrop(file, 0)
-      } else {
-        setSelectedFiles([file])
-      }
+
+    setOriginalFiles(files)
+    setSelectedFiles(files)
+
+    if (!multiple && enableCrop) {
+      startCropFile(files[0], 0)
     }
   }
 
-  const startCrop = (file: File, index: number) => {
+  const startCrop = (index: number) => {
     if (!enableCrop) return
-    setCropFile(file)
-    setPreviewUrl(URL.createObjectURL(file))
-    setCropTargetIndex(index)
-    setCropping(true)
+    const file = originalFiles[index]
+    if (!file) return
+    startCropFile(file, index)
   }
 
   const onCropComplete = useCallback((_: Area, croppedAreaPixels: Area) => {
@@ -111,9 +116,15 @@ export function ImageUploader({
       return newFiles
     })
 
+    URL.revokeObjectURL(previewUrl)
     setCropping(false)
     setPreviewUrl(null)
     setCropTargetIndex(null)
+  }
+
+  const handleRemove = (index: number) => {
+    setOriginalFiles((prev) => prev.filter((_, i) => i !== index))
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
   const handleUpload = async () => {
@@ -122,6 +133,7 @@ export function ImageUploader({
     try {
       await onUpload(selectedFiles)
       toast.success("Upload success ✅")
+      setOriginalFiles([])
       setSelectedFiles([])
     } catch (err) {
       console.error(err)
@@ -134,8 +146,15 @@ export function ImageUploader({
     <div className="space-y-3">
       {/* Dropzone */}
       <div
-        className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer"
-        onDragOver={(e) => e.preventDefault()}
+        className={cn(
+          "border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors",
+          isDragging ? "border-primary bg-primary/10" : "border-muted-foreground/30"
+        )}
+        onDragOver={(e) => {
+          e.preventDefault()
+          setIsDragging(true)
+        }}
+        onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
       >
         <input
@@ -158,8 +177,8 @@ export function ImageUploader({
 
       {/* Crop overlay */}
       {cropping && previewUrl && (
-        <div className="fixed inset-0 bg-black/80 flex flex-col items-center justify-center z-50">
-          <div className="relative w-[90vw] h-[70vh] bg-black">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center z-50 animate-fadeIn">
+          <div className="relative w-[90vw] h-[70vh] bg-black rounded-lg overflow-hidden">
             <Cropper
               image={previewUrl}
               crop={crop}
@@ -173,6 +192,7 @@ export function ImageUploader({
 
           {/* Zoom slider */}
           <div className="mt-4 w-64">
+            <label className="text-white text-xs mb-1 block">Zoom</label>
             <input
               type="range"
               min={1}
@@ -180,7 +200,7 @@ export function ImageUploader({
               step={0.1}
               value={zoom}
               onChange={(e) => setZoom(Number(e.target.value))}
-              className="w-full"
+              className="w-full accent-primary"
             />
           </div>
 
@@ -200,19 +220,28 @@ export function ImageUploader({
             <div
               key={idx}
               className="relative group cursor-pointer"
-              onClick={() => startCrop(file, idx)}
+              onClick={() => startCrop(idx)}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={URL.createObjectURL(file)}
                 alt={file.name}
-                className="w-24 h-24 object-cover rounded"
+                className="w-24 h-24 object-cover rounded border"
               />
-              {enableCrop && multiple && (
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs">
-                  Crop
+              {enableCrop && (
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs transition-opacity">
+                  <Edit2 className="w-4 h-4 mr-1" /> Crop
                 </div>
               )}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleRemove(idx)
+                }}
+                className="absolute top-1 right-1 bg-black/60 rounded-full p-1 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <X className="w-3 h-3" />
+              </button>
             </div>
           ))}
         </div>

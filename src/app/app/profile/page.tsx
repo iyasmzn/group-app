@@ -119,16 +119,6 @@ export default function ProfilePage() {
           <div className="flex flex-col items-center space-y-3">
             <UserAvatar user={user} size={120} textSize={40} />
 
-            {/* Avatar uploader */}
-            <UnifiedUploader
-              accept="image/*"
-              multiple={false}
-              enableCrop={true}
-              aspect={1}
-              onUpload={handleUploadAvatar}
-              onRemove={handleRemoveAvatar}
-            />
-
             {fullName ? (
               <h2 className="text-xl font-semibold">{fullName}</h2>
             ) : (
@@ -148,6 +138,19 @@ export default function ProfilePage() {
 
           {/* Edit form */}
           <div className="space-y-4">
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Avatar</label>
+              {/* Avatar uploader */}
+              <UnifiedUploader
+                accept="image/*"
+                multiple={false}
+                enableCrop={true}
+                aspect={1}
+                onUpload={handleUploadAvatar}
+                onRemove={handleRemoveAvatar}
+              />
+            </div>
             <div>
               <label className="block text-sm font-medium mb-1">Full Name</label>
               <Input
