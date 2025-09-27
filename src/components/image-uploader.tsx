@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, DragEvent, useCallback } from "react"
-import Cropper from "react-easy-crop"
+import Cropper, { Area } from "react-easy-crop"
 import { Button } from "@/components/ui/button"
 import { Upload, Loader2 } from "lucide-react"
 import { toast } from "sonner"
@@ -25,7 +25,7 @@ export function ImageUploader({
   const [cropFile, setCropFile] = useState<File | null>(null)
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null)
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
   const [cropping, setCropping] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
 
@@ -67,11 +67,11 @@ export function ImageUploader({
     setCropping(true)
   }
 
-  const onCropComplete = useCallback((_: any, croppedAreaPixels: any) => {
+  const onCropComplete = useCallback((_: Area, croppedAreaPixels: Area) => {
     setCroppedAreaPixels(croppedAreaPixels)
   }, [])
 
-  const getCroppedImg = async (imageSrc: string, cropAreaPixels: any): Promise<File> => {
+  const getCroppedImg = async (imageSrc: string, cropAreaPixels: Area): Promise<File> => {
     const image = new Image()
     image.src = imageSrc
     await new Promise((resolve) => (image.onload = resolve))
