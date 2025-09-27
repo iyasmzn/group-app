@@ -5,10 +5,10 @@ import { Upload, Loader2, Trash2, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 
-interface FileUploaderProps {
+export interface FileUploaderProps {
   accept?: string
   multiple?: boolean
-  onUpload: (files: File[]) => Promise<any>
+  onUpload: (files: File[]) => Promise<void>
   onRemove?: (file: File | string) => Promise<void>
 }
 
@@ -66,7 +66,6 @@ export function FileUploader({
 
   return (
     <div className="space-y-3">
-      {/* Dropzone */}
       <div
         className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
           isDragging ? "border-primary bg-primary/10" : "border-muted-foreground/30"
@@ -94,7 +93,6 @@ export function FileUploader({
         </label>
       </div>
 
-      {/* Preview */}
       {selectedFiles.length > 0 && (
         <div className="space-y-2">
           {selectedFiles.map((file, idx) => (
@@ -116,7 +114,6 @@ export function FileUploader({
         </div>
       )}
 
-      {/* Upload button */}
       {selectedFiles.length > 0 && (
         <Button onClick={handleUpload} disabled={isProcessing}>
           {isProcessing && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}

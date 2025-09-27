@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button"
 import { Upload, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
-interface ImageUploaderProps {
+export interface ImageUploaderProps {
   multiple?: boolean
   enableCrop?: boolean
   aspect?: number
-  onUpload: (files: File[]) => Promise<any>
+  onUpload: (files: File[]) => Promise<void>
 }
 
 export function ImageUploader({
@@ -91,7 +91,7 @@ export function ImageUploader({
     })
   }
 
-  const handleConfirmCrop = async (croppedArea: any, croppedAreaPixels: any) => {
+  const handleConfirmCrop = async (_: any, croppedAreaPixels: any) => {
     if (!previewUrl) return
     const croppedFile = await getCroppedImg(previewUrl, croppedAreaPixels)
     setSelectedFiles([croppedFile])
