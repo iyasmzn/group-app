@@ -121,7 +121,7 @@ function GroupsPage({ userId }: { userId: string }) {
       <LoadingOverlay isLoading={loading} />
       <AppTopbar title="Groups" titleIcon={<Home className="h-6 w-6" />} />
       <PageWrapper>
-        <div className="max-w-4xl mx-auto py-4">
+        <div className="max-w-4xl mx-auto py-4 px-2 md:px-6">
           <div className="flex items-center justify-between mb-4 gap-2">
             <div className="flex-1">
               <Input type="text" placeholder="🔍 Search by Group Name" value={searchGroupName} onChange={e => setSearchGroupName(e.target.value)} />
