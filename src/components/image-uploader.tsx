@@ -3,9 +3,10 @@
 import { useState, DragEvent, useCallback } from "react"
 import Cropper, { Area } from "react-easy-crop"
 import { Button } from "@/components/ui/button"
-import { Upload, Loader2, X, Edit2 } from "lucide-react"
+import { Upload, Loader2, X, Edit2, Eye } from "lucide-react"
 import { toast } from "sonner"
-import { cn } from "@/lib/utils"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog"
+import Reveal from "./animations/Reveal"
 
 export interface ImageUploaderProps {
   multiple?: boolean
@@ -32,10 +33,15 @@ export function ImageUploader({
   const [isProcessing, setIsProcessing] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
 
-  // ✅ langsung crop dari file baru
+  // Mobile bottom sheet state
+  const [actionIndex, setActionIndex] = useState<number | null>(null)
+  const [showActions, setShowActions] = useState(false)
+
+  // Start crop directly from a given file (avoids async state timing issues)
   const startCropFile = (file: File, index: number) => {
+    const url = URL.createObjectURL(file)
     setCropFile(file)
-    setPreviewUrl(URL.createObjectURL(file))
+    setPreviewUrl(url)
     setCropTargetIndex(index)
     setCropping(true)
   }
@@ -47,7 +53,7 @@ export function ImageUploader({
     setOriginalFiles(files)
     setSelectedFiles(files)
 
-    if (!multiple && enableCrop) {
+    if (!multiple && enableCrop && files[0]) {
       startCropFile(files[0], 0)
     }
   }
@@ -60,7 +66,7 @@ export function ImageUploader({
     setOriginalFiles(files)
     setSelectedFiles(files)
 
-    if (!multiple && enableCrop) {
+    if (!multiple && enableCrop && files[0]) {
       startCropFile(files[0], 0)
     }
   }
@@ -72,29 +78,29 @@ export function ImageUploader({
     startCropFile(file, index)
   }
 
-  const onCropComplete = useCallback((_: Area, croppedAreaPixels: Area) => {
-    setCroppedAreaPixels(croppedAreaPixels)
+  const onCropComplete = useCallback((_: Area, pixels: Area) => {
+    setCroppedAreaPixels(pixels)
   }, [])
 
-  const getCroppedImg = async (imageSrc: string, cropAreaPixels: Area): Promise<File> => {
+  const getCroppedImg = async (imageSrc: string, pixels: Area): Promise<File> => {
     const image = new Image()
     image.src = imageSrc
     await new Promise((resolve) => (image.onload = resolve))
 
     const canvas = document.createElement("canvas")
-    canvas.width = cropAreaPixels.width
-    canvas.height = cropAreaPixels.height
+    canvas.width = pixels.width
+    canvas.height = pixels.height
     const ctx = canvas.getContext("2d")!
     ctx.drawImage(
       image,
-      cropAreaPixels.x,
-      cropAreaPixels.y,
-      cropAreaPixels.width,
-      cropAreaPixels.height,
+      pixels.x,
+      pixels.y,
+      pixels.width,
+      pixels.height,
       0,
       0,
-      cropAreaPixels.width,
-      cropAreaPixels.height
+      pixels.width,
+      pixels.height
     )
 
     return new Promise((resolve) => {
@@ -111,15 +117,19 @@ export function ImageUploader({
     const croppedFile = await getCroppedImg(previewUrl, croppedAreaPixels)
 
     setSelectedFiles((prev) => {
-      const newFiles = [...prev]
-      newFiles[cropTargetIndex] = croppedFile
-      return newFiles
+      const next = [...prev]
+      next[cropTargetIndex] = croppedFile
+      return next
     })
 
+    // cleanup
     URL.revokeObjectURL(previewUrl)
     setCropping(false)
     setPreviewUrl(null)
     setCropTargetIndex(null)
+    setCroppedAreaPixels(null)
+    setCrop({ x: 0, y: 0 })
+    setZoom(1)
   }
 
   const handleRemove = (index: number) => {
@@ -146,10 +156,9 @@ export function ImageUploader({
     <div className="space-y-3">
       {/* Dropzone */}
       <div
-        className={cn(
-          "border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors",
+        className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
           isDragging ? "border-primary bg-primary/10" : "border-muted-foreground/30"
-        )}
+        }`}
         onDragOver={(e) => {
           e.preventDefault()
           setIsDragging(true)
@@ -205,7 +214,15 @@ export function ImageUploader({
           </div>
 
           <div className="flex gap-4 mt-4">
-            <Button onClick={() => setCropping(false)} variant="outline">
+            <Button onClick={() => {
+              if (previewUrl) URL.revokeObjectURL(previewUrl)
+              setCropping(false)
+              setPreviewUrl(null)
+              setCropTargetIndex(null)
+              setCroppedAreaPixels(null)
+              setCrop({ x: 0, y: 0 })
+              setZoom(1)
+            }} variant="outline">
               Cancel
             </Button>
             <Button onClick={handleConfirmCrop}>Confirm</Button>
@@ -217,43 +234,110 @@ export function ImageUploader({
       {selectedFiles.length > 0 && (
         <div className={`grid ${multiple ? "grid-cols-3 gap-3" : ""}`}>
           {selectedFiles.map((file, idx) => (
-            <div
-              key={idx}
-              className="relative group cursor-pointer"
-              onClick={() => startCrop(idx)}
-            >
-              <img
-                src={URL.createObjectURL(file)}
-                alt={file.name}
-                className="w-24 h-24 object-cover rounded border"
-              />
-              {enableCrop && (
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs transition-opacity">
-                  <Edit2 className="w-4 h-4 mr-1" /> Crop
-                </div>
-              )}
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleRemove(idx)
+            <Reveal key={idx + 'thumbnail' + URL.createObjectURL(file)} animation="fadeIn">
+              <div
+                key={idx}
+                className="relative group cursor-pointer"
+                onClick={() => {
+                  // Mobile: open bottom sheet
+                  if (window.innerWidth < 768) {
+                    setActionIndex(idx)
+                    setShowActions(true)
+                  } else {
+                    // Desktop: go straight to crop
+                    startCrop(idx)
+                  }
                 }}
-                className="absolute top-1 right-1 bg-black/60 rounded-full p-1 text-white opacity-0 group-hover:opacity-100 transition-opacity"
               >
-                <X className="w-3 h-3" />
-              </button>
-            </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt={file.name}
+                  className="w-24 h-24 object-cover rounded border"
+                />
+                {/* Desktop hover overlay */}
+                {enableCrop && (
+                  <div className="hidden md:flex absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 items-center justify-center text-white text-xs transition-opacity">
+                    <Edit2 className="w-4 h-4 mr-1" /> Crop
+                  </div>
+                )}
+                {/* Desktop remove button */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleRemove(idx)
+                  }}
+                  className="hidden md:block absolute top-1 right-1 bg-black/60 rounded-full p-1 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            </Reveal>
           ))}
         </div>
       )}
 
       {/* Upload button */}
       {selectedFiles.length > 0 && (
-        <Button onClick={handleUpload} disabled={isProcessing}>
-          {isProcessing && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
-          Upload
-        </Button>
+        <Reveal animation="fadeInUp" distance={5}>
+          <Button onClick={handleUpload} disabled={isProcessing} className="w-full">
+            {isProcessing && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
+            Upload
+          </Button>
+        </Reveal>
       )}
+
+      {/* Mobile bottom sheet actions */}
+      <Dialog open={showActions} onOpenChange={setShowActions}>
+        <DialogContent
+          showCloseButton={false}
+        >
+          <DialogHeader>
+            <DialogTitle>Actions</DialogTitle>
+            <DialogDescription>Pilih aksi untuk gambar ini</DialogDescription>
+          </DialogHeader>
+
+          <Button
+            variant="ghost"
+            className="w-full justify-start"
+            onClick={() => {
+              if (actionIndex !== null) startCrop(actionIndex)
+              setShowActions(false)
+            }}
+          >
+            <Edit2 className="w-4 h-4 mr-2" /> Crop
+          </Button>
+
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-red-600"
+            onClick={() => {
+              if (actionIndex !== null) handleRemove(actionIndex)
+              setShowActions(false)
+            }}
+          >
+            <X className="w-4 h-4 mr-2" /> Remove
+          </Button>
+
+          <Button
+            variant="ghost"
+            className="w-full justify-start"
+            onClick={() => {
+              if (actionIndex !== null) {
+                const file = selectedFiles[actionIndex]
+                if (file) {
+                  const url = URL.createObjectURL(file)
+                  window.open(url, "_blank")
+                }
+              }
+              setShowActions(false)
+            }}
+          >
+            <Eye className="w-4 h-4 mr-2" /> Preview
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
