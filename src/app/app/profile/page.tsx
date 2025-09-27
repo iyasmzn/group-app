@@ -15,9 +15,9 @@ import { UnifiedUploader } from "@/components/unified-uploader"
 
 export default function ProfilePage() {
   const { user, updateUserMeta, updateProfile, getProfile } = useAuth()
-  const [fullName, setFullName] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [isProcessing, setIsProcessing] = useState(false)
+  const [fullName, setFullName] = useState<string>("")
+  const [loading, setLoading] = useState<boolean>(false)
+  const [isProcessing, setIsProcessing] = useState<boolean>(false)
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -30,7 +30,7 @@ export default function ProfilePage() {
   }, [user, getProfile])
 
   // ✅ Update nama
-  const handleUpdate = async () => {
+  const handleUpdate = async (): Promise<void> => {
     setLoading(true)
     try {
       await updateProfile({ full_name: fullName })
@@ -38,20 +38,21 @@ export default function ProfilePage() {
       toast.success("Profile updated")
     } catch (err) {
       toast.error("Failed to update profile")
-      console.log(err)
+      console.error(err)
     }
     setLoading(false)
   }
 
   // ✅ Upload avatar
-  const handleUploadAvatar = async (files: File[]) => {
+  const handleUploadAvatar = async (files: File[]): Promise<void> => {
+    if (!files.length) return
     setIsProcessing(true)
     try {
       const file = files[0]
       const result = await uploadToCloudinary(file)
+
       if (result) {
-        // hapus avatar lama kalau ada
-        const oldPublicId = user?.user_metadata?.avatar_public_id
+        const oldPublicId = user?.user_metadata?.avatar_public_id as string | undefined
         if (oldPublicId) {
           await fetch("/api/cloudinary/delete", {
             method: "POST",
@@ -68,20 +69,21 @@ export default function ProfilePage() {
           avatar_url: result.secure_url,
           avatar_public_id: result.public_id,
         })
+
         toast.success("Avatar updated")
       }
     } catch (err) {
       toast.error("Failed to upload avatar")
-      console.log(err)
+      console.error(err)
     }
     setIsProcessing(false)
   }
 
   // ✅ Remove avatar
-  const handleRemoveAvatar = async () => {
+  const handleRemoveAvatar = async (): Promise<void> => {
     setIsProcessing(true)
     try {
-      const oldPublicId = user?.user_metadata?.avatar_public_id
+      const oldPublicId = user?.user_metadata?.avatar_public_id as string | undefined
       if (oldPublicId) {
         await fetch("/api/cloudinary/delete", {
           method: "POST",
@@ -89,12 +91,14 @@ export default function ProfilePage() {
           body: JSON.stringify({ public_id: oldPublicId }),
         })
       }
+
       await updateProfile({ avatar_url: null, avatar_public_id: null })
       await updateUserMeta({ avatar_url: null, avatar_public_id: null })
+
       toast.success("Avatar removed")
     } catch (err) {
       toast.error("Failed to remove avatar")
-      console.log(err)
+      console.error(err)
     }
     setIsProcessing(false)
   }
