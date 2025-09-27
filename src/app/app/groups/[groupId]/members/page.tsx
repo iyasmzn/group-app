@@ -20,6 +20,8 @@ import {
 import ConfirmRemoveModal from "./components/confirm-remove-modal";
 import { GroupMember, GroupRole } from "@/types/group";
 import BackButton from "@/components/back-button";
+import { GroupAvatar } from "@/components/group-avatar";
+import { formatDate, longDate } from "@/lib/utils/format";
 
 export default function ManageMembersPage() {
   const { supabase } = useAuth();
@@ -38,6 +40,7 @@ export default function ManageMembersPage() {
         .select(`
           id,
           role_id,
+          joinedat,
           profiles ( id, full_name, avatar_url ),
           group_roles ( id, code, name )
         `)
@@ -67,7 +70,9 @@ export default function ManageMembersPage() {
     const { error } = await supabase
       .from("group_members")
       .update({ role_id: newRoleId })
-      .eq("id", memberId);
+      .eq("id", memberId)
+      .select()
+      .single();
 
     if (error) {
       setLoading(false)
@@ -194,19 +199,15 @@ export default function ManageMembersPage() {
           >
             <li className="flex items-center justify-between p-4 hover:bg-accent">
               <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10">
-                  {m.profiles?.avatar_url ? (
-                    <AvatarImage src={m.profiles.avatar_url} />
-                  ) : (
-                    <AvatarFallback>
-                      {m.profiles?.full_name?.[0] || "?"}
-                    </AvatarFallback>
-                  )}
-                </Avatar>
+                <GroupAvatar image={m.profiles?.avatar_url} name={m.profiles?.full_name || "?"} />
                 <div>
                   <p className="font-medium">{m.profiles?.full_name}</p>
                   <p className="text-xs text-muted-foreground">
-                    {m.group_roles?.name} ({m.group_roles?.code})
+                    Since {m.joinedat ? formatDate(m.joinedat, null, {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric'
+                    }) : null}
                   </p>
                 </div>
               </div>

@@ -16,6 +16,7 @@ export interface GroupData {
 
 export interface GroupMember {
   id: string
+  joinedat?: string
   user_id?: string
   role_id?: string
   profiles?: Partial<Profile> | null

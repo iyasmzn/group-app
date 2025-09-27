@@ -17,20 +17,20 @@
 
 export function formatDate(
   date: string | Date,
-  locale: string = "id-ID",
+  locale: string | null,
   options: Intl.DateTimeFormatOptions = { day: "2-digit", month: "short", year: "numeric" }
 ) {
   const d = typeof date === "string" ? new Date(date) : date
-  return new Intl.DateTimeFormat(locale, options).format(d)
+  return new Intl.DateTimeFormat(locale || "id-ID", options).format(d)
 }
 
 export function longDateTime(
   date: string | Date,
-  locale: string = "id-ID"
+  locale: string | null
 ) {
   const d = typeof date === "string" ? new Date(date) : date
 
-  return new Intl.DateTimeFormat(locale, {
+  return new Intl.DateTimeFormat(locale || "id-ID", {
     weekday: "long",
     day: "2-digit",
     month: "long",
