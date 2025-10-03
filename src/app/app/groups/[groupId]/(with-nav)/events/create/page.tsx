@@ -53,7 +53,22 @@ export default function CreateEventPage() {
   const [participantError, setParticipantError] = useState<string | null>(null)
   const [participantInputError, setParticipantInputError] = useState<string | null>(null)
   
-  if (!user) return redirect('/login')
+  useEffect(() => {
+    if (!user) return redirect('/login')
+      
+    const fetchMembers = async () => {
+      const data = await groupMemberService.read({ group_id: groupId }, {
+        select: "*, profiles(*)"
+      })
+      setGroupMembers(data.map((m) => ({ 
+        user_id: m.user_id, 
+        full_name: m?.profiles?.full_name ?? "(Tanpa Nama)", 
+        profiles: m?.profiles 
+      }))) 
+      // TODO: ganti `m.user_id` dengan field nama user kalau ada relasi ke profile
+    }
+    fetchMembers()
+  }, [groupId])
 
   const handleSubmit = async (formData: FormData) => {
     setLoading(true)
@@ -132,21 +147,6 @@ export default function CreateEventPage() {
       setLoading(false)
     }
   }
-
-  useEffect(() => {
-    const fetchMembers = async () => {
-      const data = await groupMemberService.read({ group_id: groupId }, {
-        select: "*, profiles(*)"
-      })
-      setGroupMembers(data.map((m) => ({ 
-        user_id: m.user_id, 
-        full_name: m?.profiles?.full_name ?? "(Tanpa Nama)", 
-        profiles: m?.profiles 
-      }))) 
-      // TODO: ganti `m.user_id` dengan field nama user kalau ada relasi ke profile
-    }
-    fetchMembers()
-  }, [groupId])
 
 
   return (
