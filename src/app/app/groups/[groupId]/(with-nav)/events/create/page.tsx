@@ -19,6 +19,7 @@ import { DateRangePicker } from "@/components/ui/date-range-picker"
 import { DateRange } from "react-day-picker"
 import { Switch } from "@/components/ui/switch"
 import { attendanceService } from "@/services/eventService/attendanceService"
+import { groupMemberService } from "@/services/eventService/groupMemberService"
 
 export default function CreateEventPage() {
   const { user } = useAuth()
@@ -41,6 +42,9 @@ export default function CreateEventPage() {
   // peserta awal (manual input nama)
   const [participants, setParticipants] = useState<string[]>([])
   const [newParticipant, setNewParticipant] = useState("")
+
+  // state untuk assign semua member
+  const [assignAll, setAssignAll] = useState(false)
 
   const addParticipant = () => {
     if (newParticipant.trim()) {
@@ -71,12 +75,22 @@ export default function CreateEventPage() {
       })
 
       // 2. Assign peserta awal (manual input nama)
-      if (participants.length > 0) {
+      // 2. Assign peserta awal
+      if (assignAll) {
+        // ambil semua member grup
+        const members = await groupMemberService.read({ group_id: groupId })
+        await attendanceService.assignParticipants(
+          newEvent.id,
+          members.map((m) => ({ user_id: m.user_id }))
+        )
+      } else if (participants.length > 0) {
+        // assign manual input nama
         await attendanceService.assignParticipants(
           newEvent.id,
           participants.map((name) => ({ display_name: name }))
         )
       }
+
 
       // 3. Opsional: buat task awal
       const firstTask = formData.get("task_title") as string
@@ -190,31 +204,46 @@ export default function CreateEventPage() {
           <h2 className="font-semibold flex items-center gap-2">
             <Users className="w-4 h-4 text-muted-foreground" /> Peserta Awal
           </h2>
-          <div className="flex gap-2">
-            <Input
-              value={newParticipant}
-              onChange={(e) => setNewParticipant(e.target.value)}
-              placeholder="Nama peserta"
-            />
-            <Button type="button" onClick={addParticipant}>Tambah</Button>
-          </div>
-          <ul className="list-disc pl-5 space-y-1">
-            {participants.map((p, idx) => (
-              <li key={idx} className="flex justify-between items-center">
-                {p}
-                <Button
-                  type="button"
-                  size="xs"
-                  variant="ghost"
-                  onClick={() => removeParticipant(idx)}
-                >
-                  Hapus
-                </Button>
-              </li>
-            ))}
-          </ul>
-        </div>
 
+          {/* Checkbox assign semua member */}
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="assign_all"
+              checked={assignAll}
+              onChange={(e) => setAssignAll(e.target.checked)}
+            />
+            <Label htmlFor="assign_all">Assign semua member grup</Label>
+          </div>
+
+          {!assignAll && (
+            <>
+              <div className="flex gap-2">
+                <Input
+                  value={newParticipant}
+                  onChange={(e) => setNewParticipant(e.target.value)}
+                  placeholder="Nama peserta"
+                />
+                <Button type="button" onClick={addParticipant}>Tambah</Button>
+              </div>
+              <ul className="list-disc pl-5 space-y-1">
+                {participants.map((p, idx) => (
+                  <li key={idx} className="flex justify-between items-center">
+                    {p}
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => removeParticipant(idx)}
+                    >
+                      Hapus
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
 
         {/* Relasi opsional */}
         <div className="border-t pt-4 space-y-6">
