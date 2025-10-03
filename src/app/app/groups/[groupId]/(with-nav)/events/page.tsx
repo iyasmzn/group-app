@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { EventStatusBadge } from "@/components/app/events/EventStatusBadge"
 
 export default function EventsPage() {
   const { groupId } = useParams() as { groupId: string }
@@ -164,85 +165,9 @@ export default function EventsPage() {
 
               <div className="flex flex-wrap gap-3 text-sm text-neutral-600 dark:text-neutral-400">
                 {event.start_at && (
-                  (() => {
-                    const start = new Date(event.start_at)
-                    const end = event.end_at ? new Date(event.end_at) : null
-                    const now = new Date()
-
-                    // Tentukan status
-                    let status: "Upcoming" | "Ongoing" | "Past" = "Upcoming"
-                    if (end && now > end) status = "Past"
-                    else if (end && now >= start && now <= end) status = "Ongoing"
-                    else if (!end && now > start) status = "Past"
-
-                    // Badge warna
-                    const badgeColor =
-                      status === "Upcoming"
-                        ? "bg-blue-100 text-blue-700"
-                        : status === "Ongoing"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-200 text-gray-700"
-
-                    // Jika tidak ada end → tampilkan start saja
-                    if (!end) {
-                      return (
-                        <div className="flex items-center gap-2">
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            {start.toLocaleString("id-ID", {
-                              dateStyle: "medium",
-                              timeStyle: "short",
-                            })}
-                          </span>
-                          <span className={`px-2 py-0.5 rounded text-xs font-medium ${badgeColor}`}>
-                            {status}
-                          </span>
-                        </div>
-                      )
-                    }
-
-                    // Jika sama hari
-                    const sameDay = start.toDateString() === end.toDateString()
-                    if (sameDay) {
-                      const sameTime = start.getHours() === end.getHours() && start.getMinutes() === end.getMinutes()
-                      return (
-                        <div className="flex items-center gap-2">
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            {start.toLocaleDateString("id-ID", { dateStyle: "medium" })},{" "}
-                            {sameTime
-                              ? start.toLocaleTimeString("id-ID", { timeStyle: "short" })
-                              : `${start.toLocaleTimeString("id-ID", { timeStyle: "short" })} – ${end.toLocaleTimeString("id-ID", { timeStyle: "short" })}`}
-                          </span>
-                          <span className={`px-2 py-0.5 rounded text-xs font-medium ${badgeColor}`}>
-                            {status}
-                          </span>
-                        </div>
-                      )
-                    }
-
-                    // Kalau beda hari → tampilkan rentang
-                    return (
-                      <div className="flex items-center gap-2">
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          {start.toLocaleString("id-ID", {
-                            dateStyle: "medium",
-                            timeStyle: "short",
-                          })}{" "}
-                          s/d{" "}
-                          {end.toLocaleString("id-ID", {
-                            dateStyle: "medium",
-                            timeStyle: "short",
-                          })}
-                        </span>
-                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${badgeColor}`}>
-                          {status}
-                        </span>
-                      </div>
-                    )
-                  })()
+                  <EventStatusBadge start={event.start_at} end={event.end_at} />
                 )}
+
                 {event.location && (
                   <span className="flex items-center gap-1">
                     <MapPin className="w-4 h-4" />
