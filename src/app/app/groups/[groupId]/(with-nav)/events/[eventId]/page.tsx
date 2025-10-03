@@ -27,7 +27,7 @@ export default function EventDetailPage() {
         const data = await eventService.read({ id: eventId })
         setEvent(data[0] ?? null)
       } catch (err) {
-        console.error("Error fetching event:", err)
+        console.log("Error fetching event:", err)
       } finally {
         setLoading(false)
       }

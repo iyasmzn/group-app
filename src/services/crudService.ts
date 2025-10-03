@@ -6,14 +6,14 @@ type Where<T> = {
 
 export function crudService<T extends { id: string }>(table: string) {
   return {
-    async create(payload: Omit<T, "id">) {
+    async create(payload: Omit<T, "id">, select: string = "*") {
       const { data, error } = await supabase
         .from(table)
         .insert(payload)
-        .select()
+        .select(select)
         .single()
       if (error) throw error
-      return data as T
+      return data as unknown as T
     },
 
     async read(
@@ -23,9 +23,10 @@ export function crudService<T extends { id: string }>(table: string) {
         orderDir?: "asc" | "desc"
         limit?: number
         offset?: number
+        select?: string
       }
     ) {
-      let query = supabase.from(table).select("*")
+      let query = supabase.from(table).select(options?.select ?? "*")
 
       // filter
       if (where) {
@@ -43,23 +44,30 @@ export function crudService<T extends { id: string }>(table: string) {
 
       // pagination
       if (options?.limit !== undefined && options?.offset !== undefined) {
-        query = query.range(options.offset, options.offset + options.limit - 1)
+        query = query.range(
+          options.offset,
+          options.offset + options.limit - 1
+        )
       }
 
       const { data, error } = await query
       if (error) throw error
-      return data as T[]
+      return data as unknown as T[]
     },
 
-    async update(id: string, payload: Partial<Omit<T, "id">>) {
+    async update(
+      id: string,
+      payload: Partial<Omit<T, "id">>,
+      select: string = "*"
+    ) {
       const { data, error } = await supabase
         .from(table)
         .update(payload)
         .eq("id", id)
-        .select()
+        .select(select)
         .maybeSingle()
       if (error) throw error
-      return data as T
+      return data as unknown as T
     },
 
     async remove(id: string) {

@@ -1,4 +1,5 @@
 import { crudService } from "@/services/crudService"
+import { Profile } from "@/types/profile"
 
 export type GroupMember = {
   id: string
@@ -6,6 +7,7 @@ export type GroupMember = {
   user_id: string
   role?: "admin" | "member"
   joined_at?: string
+  profiles?: Profile | null
 }
 
 export const groupMemberService = crudService<GroupMember>("group_members")

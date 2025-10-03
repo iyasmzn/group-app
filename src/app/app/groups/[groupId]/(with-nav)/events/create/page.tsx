@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,6 +20,7 @@ import { DateRange } from "react-day-picker"
 import { Switch } from "@/components/ui/switch"
 import { attendanceService } from "@/services/eventService/attendanceService"
 import { groupMemberService } from "@/services/eventService/groupMemberService"
+import { MemberMultiSelect, MemberOption } from "@/components/app/events/MemberMultiSelect"
 
 export default function CreateEventPage() {
   const { user } = useAuth()
@@ -45,22 +46,19 @@ export default function CreateEventPage() {
 
   // state untuk assign semua member
   const [assignAll, setAssignAll] = useState(false)
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([])
+  const [groupMembers, setGroupMembers] = useState<MemberOption[]>([])
+  const [participantError, setParticipantError] = useState<string | null>(null)
 
-  const addParticipant = () => {
-    if (newParticipant.trim()) {
-      setParticipants([...participants, newParticipant.trim()])
-      setNewParticipant("")
-    }
-  }
-
-  const removeParticipant = (idx: number) => {
-    setParticipants(participants.filter((_, i) => i !== idx))
-  }
-
-
-  
   const handleSubmit = async (formData: FormData) => {
     setLoading(true)
+
+    // Validasi peserta
+    if (!assignAll && selectedMembers.length === 0 && participants.length === 0) {
+      setParticipantError("Minimal harus ada 1 peserta yang di-assign")
+      setLoading(false)
+      return
+    }
 
     try {
       // 1. Buat event utama
@@ -74,23 +72,24 @@ export default function CreateEventPage() {
         recurrence_rule: formData.get("recurrence_rule") as string,
       })
 
-      // 2. Assign peserta awal (manual input nama)
-      // 2. Assign peserta awal
+      // Assign peserta awal
       if (assignAll) {
-        // ambil semua member grup
         const members = await groupMemberService.read({ group_id: groupId })
         await attendanceService.assignParticipants(
           newEvent.id,
           members.map((m) => ({ user_id: m.user_id }))
         )
+      } else if (selectedMembers.length > 0) {
+        await attendanceService.assignParticipants(
+          newEvent.id,
+          selectedMembers.map((id) => ({ user_id: id }))
+        )
       } else if (participants.length > 0) {
-        // assign manual input nama
         await attendanceService.assignParticipants(
           newEvent.id,
           participants.map((name) => ({ display_name: name }))
         )
       }
-
 
       // 3. Opsional: buat task awal
       const firstTask = formData.get("task_title") as string
@@ -127,6 +126,22 @@ export default function CreateEventPage() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    const fetchMembers = async () => {
+      const data = await groupMemberService.read({ group_id: groupId }, {
+        select: "*, profiles(*)"
+      })
+      setGroupMembers(data.map((m) => ({ 
+        user_id: m.user_id, 
+        full_name: m?.profiles?.full_name ?? "(Tanpa Nama)", 
+        profiles: m?.profiles 
+      }))) 
+      // TODO: ganti `m.user_id` dengan field nama user kalau ada relasi ke profile
+    }
+    fetchMembers()
+  }, [groupId])
+
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
@@ -199,7 +214,6 @@ export default function CreateEventPage() {
           <input type="hidden" name="recurrence_rule" value={rrule} />
         </div>
 
-        {/* Peserta awal */}
         <div className="border-t pt-4 space-y-2">
           <h2 className="font-semibold flex items-center gap-2">
             <Users className="w-4 h-4 text-muted-foreground" /> Peserta Awal
@@ -216,15 +230,39 @@ export default function CreateEventPage() {
             <Label htmlFor="assign_all">Assign semua member grup</Label>
           </div>
 
+          {/* Multi-select subset */}
           {!assignAll && (
-            <>
+            <div className="space-y-2">
+              <Label>Pilih member grup</Label>
+              <MemberMultiSelect
+                members={groupMembers}
+                selected={selectedMembers}
+                onChange={setSelectedMembers}
+              />
+            </div>
+          )}
+
+          {/* Input manual nama */}
+          {!assignAll && (
+            <div className="space-y-2">
+              <Label>Tambah peserta manual</Label>
               <div className="flex gap-2">
                 <Input
                   value={newParticipant}
                   onChange={(e) => setNewParticipant(e.target.value)}
                   placeholder="Nama peserta"
                 />
-                <Button type="button" onClick={addParticipant}>Tambah</Button>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    if (newParticipant.trim()) {
+                      setParticipants([...participants, newParticipant.trim()])
+                      setNewParticipant("")
+                    }
+                  }}
+                >
+                  Tambah
+                </Button>
               </div>
               <ul className="list-disc pl-5 space-y-1">
                 {participants.map((p, idx) => (
@@ -232,16 +270,22 @@ export default function CreateEventPage() {
                     {p}
                     <Button
                       type="button"
-                      size="sm"
+                      size="xs"
                       variant="ghost"
-                      onClick={() => removeParticipant(idx)}
+                      onClick={() =>
+                        setParticipants(participants.filter((_, i) => i !== idx))
+                      }
                     >
                       Hapus
                     </Button>
                   </li>
                 ))}
               </ul>
-            </>
+            </div>
+          )}
+
+          {participantError && (
+            <p className="text-sm text-red-500">{participantError}</p>
           )}
         </div>
 
@@ -321,8 +365,6 @@ export default function CreateEventPage() {
             )}
           </div>
         </div>
-
-
 
         <Button type="submit" disabled={loading || !!dateError}>
           {loading ? "Menyimpan..." : "Simpan Event"}
