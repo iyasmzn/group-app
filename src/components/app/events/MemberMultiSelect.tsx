@@ -52,8 +52,8 @@ export function MemberMultiSelect({
                 className="flex items-center justify-between"
               >
                 <span className="flex items-center gap-2">
-                  <GroupAvatar image={m.profiles?.avatar_url} name={m.profiles?.full_name || 'Member'} size="xs" />
-                  {m.profiles?.full_name}
+                  <GroupAvatar image={m.profiles?.avatar_url} name={m?.full_name || 'Member'} size="xs" />
+                  {m?.full_name}
                 </span>
                 {selected.includes(m.user_id) && (
                   <Check className="w-4 h-4 text-primary" />
@@ -78,7 +78,7 @@ export function MemberMultiSelect({
                 >
                   <GroupAvatar
                     image={member?.profiles?.avatar_url}
-                    name={member?.profiles?.full_name || "Member"}
+                    name={member?.full_name || "Member"}
                     size="xs"
                   />
                   {displayName} ✕

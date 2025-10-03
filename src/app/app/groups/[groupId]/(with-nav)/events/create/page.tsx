@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { ClipboardList, FileText, MapPin, Users, Wallet } from "lucide-react"
+import { ClipboardList, FileText, MapPin, User, Users, Wallet } from "lucide-react"
 import Reveal from "@/components/animations/Reveal"
 import { useAuth } from "@/lib/supabase/auth"
 import { eventService } from "@/services/eventService/eventService"
@@ -49,6 +49,7 @@ export default function CreateEventPage() {
   const [selectedMembers, setSelectedMembers] = useState<string[]>([])
   const [groupMembers, setGroupMembers] = useState<MemberOption[]>([])
   const [participantError, setParticipantError] = useState<string | null>(null)
+  const [participantInputError, setParticipantInputError] = useState<string | null>(null)
 
   const handleSubmit = async (formData: FormData) => {
     setLoading(true)
@@ -249,25 +250,58 @@ export default function CreateEventPage() {
               <div className="flex gap-2">
                 <Input
                   value={newParticipant}
-                  onChange={(e) => setNewParticipant(e.target.value)}
+                  onChange={(e) => {
+                    setNewParticipant(e.target.value)
+                    setParticipantInputError(null) // reset error saat user mengetik lagi
+                  }}
                   placeholder="Nama peserta"
+                  className={participantInputError ? "border-red-500 focus-visible:ring-red-500" : ""}
                 />
                 <Button
                   type="button"
                   onClick={() => {
-                    if (newParticipant.trim()) {
-                      setParticipants([...participants, newParticipant.trim()])
-                      setNewParticipant("")
+                    const name = newParticipant.trim()
+                    if (!name) return
+
+                    // cek duplikat manual
+                    const existsManual = participants.some(
+                      (p) => p.toLowerCase() === name.toLowerCase()
+                    )
+
+                    // cek duplikat dengan member multi-select
+                    const existsMember = groupMembers.some(
+                      (m) =>
+                        m.full_name && m.full_name.toLowerCase() === name.toLowerCase()
+                    )
+
+                    if (existsManual) {
+                      setParticipantInputError("Nama peserta sudah ada di daftar peserta manual")
+                      return
                     }
+
+                    if (existsMember) {
+                      setParticipantInputError("Nama peserta ada dalam member grup")
+                      return
+                    }
+
+                    setParticipants([...participants, name])
+                    setNewParticipant("")
+                    setParticipantInputError(null)
                   }}
                 >
                   Tambah
                 </Button>
               </div>
+              {participantInputError && (
+                <p className="text-sm text-red-500">{participantInputError}</p>
+              )}
               <ul className="list-disc pl-5 space-y-1">
                 {participants.map((p, idx) => (
                   <li key={idx} className="flex justify-between items-center">
-                    {p}
+                    <div className="flex items-center gap-2">
+                      <User className="w-4 h-4" />
+                      {p}
+                    </div>
                     <Button
                       type="button"
                       size="xs"
