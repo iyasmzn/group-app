@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import Reveal from "@/components/animations/Reveal"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
@@ -18,7 +18,7 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
   const [updateLoading, setUpdateLoading] = useState(false)
   const [filter, setFilter] = useState<"all" | GroupEventAttendance["status"]>("all")
 
-  const fetchAttendees = async () => {
+  const fetchAttendees = useCallback(async () => {
     try {
       const data = await attendanceService.read({ event_id: eventId }, {
         select: "*, profiles(full_name, avatar_url)"
@@ -29,11 +29,11 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [eventId])
 
   useEffect(() => {
     fetchAttendees()
-  }, [eventId])
+  }, [fetchAttendees])
 
   const handleMark = async (id: string, status: GroupEventAttendance["status"]) => {
     try {
@@ -121,7 +121,7 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
           Total Peserta: {counts.all}
         </p>
         {/* Filter Dropdown */}
-        <Select value={filter} onValueChange={(v) => setFilter(v as unknown as any)}>
+        <Select value={filter} onValueChange={(v: "all" | GroupEventAttendance["status"]) => setFilter(v)}>
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Filter status" />
           </SelectTrigger>

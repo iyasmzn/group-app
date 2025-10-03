@@ -25,7 +25,6 @@ import LoadingOverlay from "@/components/loading-overlay"
 
 export default function CreateEventPage() {
   const { user } = useAuth()
-  if (!user) return redirect('/login')
 
   const router = useRouter()
   const { groupId } = useParams() as { groupId: string }
@@ -53,6 +52,8 @@ export default function CreateEventPage() {
   const [groupMembers, setGroupMembers] = useState<MemberOption[]>([])
   const [participantError, setParticipantError] = useState<string | null>(null)
   const [participantInputError, setParticipantInputError] = useState<string | null>(null)
+  
+  if (!user) return redirect('/login')
 
   const handleSubmit = async (formData: FormData) => {
     setLoading(true)
