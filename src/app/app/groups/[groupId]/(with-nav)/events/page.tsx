@@ -33,7 +33,7 @@ export default function EventsPage() {
 
   // sorting & pagination state
   const [orderBy, setOrderBy] = useState<
-    "created_at" | "start_at" | "end_at"
+    "created_at" | "start_at" | "end_at" | "title"
   >("created_at")
   const [orderDir, setOrderDir] = useState<"asc" | "desc">("desc")
   const [page, setPage] = useState(1)
@@ -103,6 +103,7 @@ export default function EventsPage() {
             <SelectItem value="created_at">Created At</SelectItem>
             <SelectItem value="start_at">Start At</SelectItem>
             <SelectItem value="end_at">End At</SelectItem>
+            <SelectItem value="title">Judul</SelectItem>
           </SelectContent>
         </Select>
 
@@ -141,8 +142,8 @@ export default function EventsPage() {
           <p className="text-muted-foreground">Belum ada event.</p>
         )}
 
-        {events.map((event, idx) => (
-          <Reveal key={event.id} animation="fadeInUp" delay={0.05 * idx}>
+        {!loading && events.map((event, idx) => (
+          <Reveal key={event.id} animation="fadeInRight" delay={0.05 * idx}>
             <Link
               href={`./events/${event.id}`}
               className="block rounded-lg border p-4 shadow-sm hover:shadow-md transition bg-white dark:bg-neutral-900"
@@ -194,7 +195,7 @@ export default function EventsPage() {
         <span className="text-sm text-muted-foreground">Halaman {page}</span>
         <Button
           variant="outline"
-          disabled={events.length < limit}
+          disabled={events.length <= limit}
           onClick={() => setPage((p) => p + 1)}
         >
           Next

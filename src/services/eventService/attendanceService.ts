@@ -1,27 +1,28 @@
 import { supabase } from "@/lib/supabase/client"
-import { crudServiceComposite } from "@/services/crudServiceComposite"
+import { Profile } from "@/types/profile"
+import { crudService } from "../crudService"
 
 export type GroupEventAttendance = {
+  id: string
   event_id: string
   user_id?: string | null
   display_name?: string | null
   status: "present" | "absent" | "late" | "excused"
+  profiles?: Profile | null
+  attend_at?: string | null
 }
 
-const base = crudServiceComposite<GroupEventAttendance>(
-  "group_event_attendance",
-  ["event_id", "user_id"]
-)
+const base = crudService<GroupEventAttendance>("group_event_attendance")
 
 export const attendanceService = {
   ...base,
 
   async markAttendance(
-    eventId: string,
-    userId: string,
+    id: string,
     status: GroupEventAttendance["status"]
   ) {
-    return base.create({ event_id: eventId, user_id: userId, status })
+    const now = new Date().toISOString()
+    return base.update(id, { status, attend_at: ['present', 'late'].includes(status) ? now : null })
   },
 
   /**

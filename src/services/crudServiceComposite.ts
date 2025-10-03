@@ -23,9 +23,10 @@ export function crudServiceComposite<T>(table: string, keys: (keyof T)[]) {
         orderDir?: "asc" | "desc"
         limit?: number
         offset?: number
+        select?: string
       }
     ) {
-      let query = supabase.from(table).select("*")
+      let query = supabase.from(table).select(options?.select ?? "*")
 
       if (where) {
         Object.entries(where).forEach(([key, value]) => {

@@ -21,6 +21,7 @@ import { Switch } from "@/components/ui/switch"
 import { attendanceService } from "@/services/eventService/attendanceService"
 import { groupMemberService } from "@/services/eventService/groupMemberService"
 import { MemberMultiSelect, MemberOption } from "@/components/app/events/MemberMultiSelect"
+import LoadingOverlay from "@/components/loading-overlay"
 
 export default function CreateEventPage() {
   const { user } = useAuth()
@@ -146,6 +147,7 @@ export default function CreateEventPage() {
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
+      <LoadingOverlay isLoading={loading} />
       <Reveal animation="fadeInDown">
         <h1 className="text-2xl font-bold mb-6">Buat Event Baru</h1>
       </Reveal>

@@ -1,15 +1,16 @@
 "use client"
 
 import Link from "next/link"
-import { 
-  MessageCircle, 
-  LayoutDashboard, 
-  CalendarDays, 
-  DollarSign, 
-  Package, 
-  Handshake 
+import {
+  MessageCircle,
+  LayoutDashboard,
+  CalendarDays,
+  DollarSign,
+  Package,
+  Handshake
 } from "lucide-react"
-import { useLastSegment } from "@/lib/hooks/useLastSegment"
+import { usePathname } from "next/navigation"
+import { cn } from "@/lib/utils"
 
 const tabs = [
   { href: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -20,8 +21,12 @@ const tabs = [
   { href: "coop", icon: Handshake, label: "Koperasi" },
 ]
 
-export function GroupBottombar() {
-  const active = useLastSegment()
+export function GroupBottombar({ groupId }: { groupId: string }) {
+  const pathname = usePathname()
+  // ambil segmen setelah groupId
+  const parts = pathname.split("/")
+  const idx = parts.indexOf(groupId)
+  const active = parts[idx + 1] // misalnya "events"
 
   return (
     <>
@@ -31,15 +36,18 @@ export function GroupBottombar() {
           <nav className="flex-1 space-y-2 px-4">
             {tabs.map(tab => {
               const Icon = tab.icon
+              const href = `/groups/${groupId}/${tab.href}`
+              const isActive = pathname.startsWith(href)
               return (
                 <Link
                   key={tab.href}
-                  href={tab.href}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    active === tab.href 
-                      ? "bg-primary/10 text-primary" 
+                  href={href}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                    isActive
+                      ? "bg-primary/10 text-primary"
                       : "text-gray-600 hover:bg-gray-100"
-                  }`}
+                  )}
                 >
                   <Icon className="h-5 w-5" />
                   <span>{tab.label}</span>
@@ -55,13 +63,16 @@ export function GroupBottombar() {
         <div className="max-w-4xl w-full mx-auto flex justify-around items-center px-4">
           {tabs.map(tab => {
             const Icon = tab.icon
+            const href = `/groups/${groupId}/${tab.href}`
+            const isActive = pathname.startsWith(href)
             return (
               <Link
                 key={tab.href}
-                href={tab.href}
-                className={`flex flex-col items-center justify-center ${
-                  active === tab.href ? "text-primary" : "text-gray-500"
-                }`}
+                href={href}
+                className={cn(
+                  "flex flex-col items-center justify-center",
+                  isActive ? "text-primary" : "text-gray-500"
+                )}
               >
                 <Icon className="h-6 w-6" />
                 <span className="text-xs">{tab.label}</span>
