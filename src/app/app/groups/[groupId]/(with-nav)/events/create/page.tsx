@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { ClipboardList, FileText, MapPin, Wallet } from "lucide-react"
+import { ClipboardList, FileText, MapPin, Users, Wallet } from "lucide-react"
 import Reveal from "@/components/animations/Reveal"
 import { useAuth } from "@/lib/supabase/auth"
 import { eventService } from "@/services/eventService/eventService"
@@ -18,6 +18,7 @@ import { toast } from "sonner"
 import { DateRangePicker } from "@/components/ui/date-range-picker"
 import { DateRange } from "react-day-picker"
 import { Switch } from "@/components/ui/switch"
+import { attendanceService } from "@/services/eventService/attendanceService"
 
 export default function CreateEventPage() {
   const { user } = useAuth()
@@ -37,7 +38,23 @@ export default function CreateEventPage() {
   const [enableContribution, setEnableContribution] = useState(false)
   const [enableMinutes, setEnableMinutes] = useState(false)
 
+  // peserta awal (manual input nama)
+  const [participants, setParticipants] = useState<string[]>([])
+  const [newParticipant, setNewParticipant] = useState("")
 
+  const addParticipant = () => {
+    if (newParticipant.trim()) {
+      setParticipants([...participants, newParticipant.trim()])
+      setNewParticipant("")
+    }
+  }
+
+  const removeParticipant = (idx: number) => {
+    setParticipants(participants.filter((_, i) => i !== idx))
+  }
+
+
+  
   const handleSubmit = async (formData: FormData) => {
     setLoading(true)
 
@@ -53,7 +70,15 @@ export default function CreateEventPage() {
         recurrence_rule: formData.get("recurrence_rule") as string,
       })
 
-      // 2. Opsional: buat task awal
+      // 2. Assign peserta awal (manual input nama)
+      if (participants.length > 0) {
+        await attendanceService.assignParticipants(
+          newEvent.id,
+          participants.map((name) => ({ display_name: name }))
+        )
+      }
+
+      // 3. Opsional: buat task awal
       const firstTask = formData.get("task_title") as string
       if (firstTask) {
         await taskService.assignTask(newEvent.id, {
@@ -63,7 +88,7 @@ export default function CreateEventPage() {
         })
       }
 
-      // 3. Opsional: kontribusi awal
+      // 4. Opsional: kontribusi awal
       const amount = formData.get("contribution_amount") as string
       if (amount) {
         await contributionService.addContribution(
@@ -74,7 +99,7 @@ export default function CreateEventPage() {
         )
       }
 
-      // 4. Opsional: notulen awal
+      // 5. Opsional: notulen awal
       const minutes = formData.get("minutes") as string
       if (minutes) {
         await minutesService.addMinute(newEvent.id, user?.id!, minutes)
@@ -159,6 +184,37 @@ export default function CreateEventPage() {
           <RRuleSelector onChange={setRrule} />
           <input type="hidden" name="recurrence_rule" value={rrule} />
         </div>
+
+        {/* Peserta awal */}
+        <div className="border-t pt-4 space-y-2">
+          <h2 className="font-semibold flex items-center gap-2">
+            <Users className="w-4 h-4 text-muted-foreground" /> Peserta Awal
+          </h2>
+          <div className="flex gap-2">
+            <Input
+              value={newParticipant}
+              onChange={(e) => setNewParticipant(e.target.value)}
+              placeholder="Nama peserta"
+            />
+            <Button type="button" onClick={addParticipant}>Tambah</Button>
+          </div>
+          <ul className="list-disc pl-5 space-y-1">
+            {participants.map((p, idx) => (
+              <li key={idx} className="flex justify-between items-center">
+                {p}
+                <Button
+                  type="button"
+                  size="xs"
+                  variant="ghost"
+                  onClick={() => removeParticipant(idx)}
+                >
+                  Hapus
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
 
         {/* Relasi opsional */}
         <div className="border-t pt-4 space-y-6">
