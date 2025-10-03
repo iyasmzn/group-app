@@ -23,11 +23,4 @@ export const eventService = {
     const events = await base.read({ group_id: groupId })
     return events.filter(e => e.start_at && new Date(e.start_at) > new Date())
   },
-
-  async createWithTasks(event: Omit<GroupEvent, "id">, tasks: any[]) {
-    // bisa pakai supabase transaction (rpc) atau 2 step insert
-    const newEvent = await base.create(event)
-    // TODO: insert tasks ke group_event_tasks pakai newEvent.id
-    return newEvent
-  }
 }

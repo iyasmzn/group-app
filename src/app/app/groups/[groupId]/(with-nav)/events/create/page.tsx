@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter, useParams } from "next/navigation"
+import { useRouter, useParams, redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -25,6 +25,8 @@ import LoadingOverlay from "@/components/loading-overlay"
 
 export default function CreateEventPage() {
   const { user } = useAuth()
+  if (!user) return redirect('/login')
+
   const router = useRouter()
   const { groupId } = useParams() as { groupId: string }
 
@@ -109,7 +111,7 @@ export default function CreateEventPage() {
       if (amount) {
         await contributionService.addContribution(
           newEvent.id,
-          user?.id!,
+          user.id,
           parseFloat(amount),
           formData.get("contribution_note") as string
         )
@@ -118,13 +120,13 @@ export default function CreateEventPage() {
       // 5. Opsional: notulen awal
       const minutes = formData.get("minutes") as string
       if (minutes) {
-        await minutesService.addMinute(newEvent.id, user?.id!, minutes)
+        await minutesService.addMinute(newEvent.id, user.id, minutes)
       }
 
       toast.success("Event berhasil dibuat 🎉")
       router.push(`/app/groups/${groupId}/events`)
-    } catch (err: any) {
-      toast.error(`Gagal membuat event: ${err.message}`)
+    } catch (err) {
+      toast.error(`Gagal membuat event`)
     } finally {
       setLoading(false)
     }

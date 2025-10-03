@@ -29,6 +29,8 @@ import { EventStatusBadge } from "@/components/app/events/EventStatusBadge"
 import { toast } from "sonner"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 
+type OrderByField = "created_at" | "start_at" | "end_at" | "title"
+
 export default function EventsPage() {
   const { groupId } = useParams() as { groupId: string }
   const [events, setEvents] = useState<GroupEvent[]>([])
@@ -99,7 +101,10 @@ export default function EventsPage() {
 
       {/* Sorting controls */}
       <div className="flex items-center gap-4">
-        <Select value={orderBy} onValueChange={(v: any) => setOrderBy(v)}>
+        <Select 
+          value={orderBy} 
+          onValueChange={(v: OrderByField) => setOrderBy(v)}
+        >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Urutkan berdasarkan" />
           </SelectTrigger>
