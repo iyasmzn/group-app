@@ -86,7 +86,8 @@ export default function CreateEventPage() {
           newEvent.id,
           selectedMembers.map((id) => ({ user_id: id }))
         )
-      } else if (participants.length > 0) {
+      } 
+      if (participants.length > 0) {
         await attendanceService.assignParticipants(
           newEvent.id,
           participants.map((name) => ({ display_name: name }))

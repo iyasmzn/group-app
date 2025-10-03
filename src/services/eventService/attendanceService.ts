@@ -38,7 +38,6 @@ export const attendanceService = {
       event_id: eventId,
       user_id: p.user_id ?? null,
       display_name: p.display_name ?? null,
-      status: "absent" as const,
     }))
 
     const { data, error } = await supabase

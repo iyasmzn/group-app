@@ -8,6 +8,7 @@ import {
   Plus,
   SortAsc,
   SortDesc,
+  Trash2
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -25,11 +26,14 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { EventStatusBadge } from "@/components/app/events/EventStatusBadge"
+import { toast } from "sonner"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 
 export default function EventsPage() {
   const { groupId } = useParams() as { groupId: string }
   const [events, setEvents] = useState<GroupEvent[]>([])
   const [loading, setLoading] = useState(true)
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
   // sorting & pagination state
   const [orderBy, setOrderBy] = useState<
@@ -142,19 +146,66 @@ export default function EventsPage() {
           <p className="text-muted-foreground">Belum ada event.</p>
         )}
 
-        {!loading && events.map((event, idx) => (
+        {!loading &&
+          events.map((event, idx) => (
           <Reveal key={event.id} animation="fadeInRight" delay={0.05 * idx}>
-            <Link
-              href={`./events/${event.id}`}
-              className="block rounded-lg border p-4 shadow-sm hover:shadow-md transition bg-white dark:bg-neutral-900"
-            >
+            <div className="rounded-lg border p-4 shadow-sm hover:shadow-md transition bg-white dark:bg-neutral-900">
               <div className="flex items-center justify-between mb-2">
-                <h2 className="text-lg font-semibold">{event.title}</h2>
-                <span className="text-xs text-muted-foreground">
-                  Dibuat{" "}
-                  {event.created_at &&
-                    new Date(event.created_at).toLocaleDateString("id-ID")}
-                </span>
+                <Link href={`./events/${event.id}`} className="flex-1">
+                  <h2 className="text-lg font-semibold">{event.title}</h2>
+                </Link>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">
+                    Dibuat{" "}
+                    {event.created_at &&
+                      new Date(event.created_at).toLocaleDateString("id-ID")}
+                  </span>
+
+                  {/* ✅ Delete pakai AlertDialog */}
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button size="icon" variant="destructive">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Hapus Event?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Tindakan ini tidak bisa dibatalkan. Event akan dihapus secara permanen.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Batal</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={async () => {
+                            setDeleteLoading(true)
+                            try {
+                              await eventService.remove(event.id)
+                              toast.success("Event berhasil dihapus")
+                              setEvents(prev => prev.filter(e => e.id !== event.id))
+                            } catch (err) {
+                              toast.error("Gagal menghapus event")
+                              console.error(err)
+                            } finally {
+                              setDeleteLoading(false)
+                            }
+                          }}
+                          className="bg-red-600 hover:bg-red-700"
+                        >
+                          {deleteLoading ? (
+                            <span className="flex items-center gap-2">
+                              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                              Menghapus...
+                            </span>
+                          ) : (
+                            "Hapus"
+                          )}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               </div>
 
               {event.description && (
@@ -178,7 +229,7 @@ export default function EventsPage() {
                   <Users className="w-4 h-4" /> Attendance
                 </span>
               </div>
-            </Link>
+            </div>
           </Reveal>
         ))}
       </div>
