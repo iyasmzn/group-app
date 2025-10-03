@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 interface GroupAvatarProps {
   name: string
   image?: string | null
-  size?: "sm" | "md" | "lg" | "xl" | "xxl"
+  size?: "xs" | "sm" | "md" | "lg" | "xl" | "xxl"
   className?: string
 }
 
@@ -38,6 +38,7 @@ export function GroupAvatar({ name, image, size = "md", className }: GroupAvatar
   const bg = getAvatarColor(name)
 
   const sizeMap = {
+    xs: { box: "w-5 h-5 text-sm", img: 20 },
     sm: { box: "w-8 h-8 text-sm", img: 32 },
     md: { box: "w-10 h-10 text-base", img: 40 },
     lg: { box: "w-14 h-14 text-lg", img: 56 },

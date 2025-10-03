@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/command"
 import { Button } from "@/components/ui/button"
 import { Profile } from "@/types/profile"
+import { GroupAvatar } from "@/components/group-avatar"
+import Reveal from "@/components/animations/Reveal"
 
 export type MemberOption = {
   user_id: string
@@ -50,7 +52,7 @@ export function MemberMultiSelect({
                 className="flex items-center justify-between"
               >
                 <span className="flex items-center gap-2">
-                  <Users className="w-4 h-4" />
+                  <GroupAvatar image={m.profiles?.avatar_url} name={m.profiles?.full_name || 'Member'} size="xs" />
                   {m.profiles?.full_name}
                 </span>
                 {selected.includes(m.user_id) && (
@@ -65,15 +67,23 @@ export function MemberMultiSelect({
         <div className="flex flex-wrap gap-2 p-2 border-t">
           {selected.map((id) => {
             const member = members.find((m) => m.user_id === id)
+            const displayName =
+              member?.profiles?.full_name?.split(" ")[0] ?? id // 👈 ambil kata pertama
             return (
-              <Button
-                key={id}
-                size="xs"
-                variant="outline"
-                onClick={() => toggle(id)}
-              >
-                {member?.profiles?.full_name ?? id} ✕
-              </Button>
+              <Reveal key={id} animation="zoomIn">
+                <Button
+                  size="xs"
+                  variant="outline"
+                  onClick={() => toggle(id)}
+                >
+                  <GroupAvatar
+                    image={member?.profiles?.avatar_url}
+                    name={member?.profiles?.full_name || "Member"}
+                    size="xs"
+                  />
+                  {displayName} ✕
+                </Button>
+              </Reveal>
             )
           })}
         </div>
