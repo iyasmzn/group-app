@@ -55,7 +55,7 @@ export default function CreateEventPage() {
   
   useEffect(() => {
     if (!user) return redirect('/login')
-      
+
     const fetchMembers = async () => {
       const data = await groupMemberService.read({ group_id: groupId }, {
         select: "*, profiles(*)"
@@ -124,7 +124,7 @@ export default function CreateEventPage() {
 
       // 4. Opsional: kontribusi awal
       const amount = formData.get("contribution_amount") as string
-      if (amount) {
+      if (amount && user) {
         await contributionService.addContribution(
           newEvent.id,
           user.id,
@@ -135,7 +135,7 @@ export default function CreateEventPage() {
 
       // 5. Opsional: notulen awal
       const minutes = formData.get("minutes") as string
-      if (minutes) {
+      if (minutes && user) {
         await minutesService.addMinute(newEvent.id, user.id, minutes)
       }
 
