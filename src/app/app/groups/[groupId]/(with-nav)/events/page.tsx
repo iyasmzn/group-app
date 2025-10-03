@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 import {
   Calendar,
   MapPin,
-  Clock,
   Users,
   Plus,
   SortAsc,
