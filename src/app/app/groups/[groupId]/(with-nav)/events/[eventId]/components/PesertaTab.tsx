@@ -12,10 +12,11 @@ import LoadingOverlay from "@/components/loading-overlay"
 import { cn } from "@/lib/utils"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
-import { Pencil } from "lucide-react"
+import { Pencil, Trash2 } from "lucide-react"
 import { ExcuseDialog } from "@/components/app/events/ExuseDialog"
 import { AddParticipantDialog } from "@/components/app/events/AddParticipantDialog"
 import { useGroupMembers } from "@/lib/hooks/useGroupMembers"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 
 export default function PesertaTab({ eventId, groupId }: { eventId: string; groupId: string }) {
   const [attendees, setAttendees] = useState<GroupEventAttendance[]>([])
@@ -259,6 +260,45 @@ export default function PesertaTab({ eventId, groupId }: { eventId: string; grou
                     </Button>
                   }
                 />
+
+                {/* Tombol hapus peserta */}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button size="sm" variant="destructive" className="flex-1 sm:flex-none">
+                      <Trash2 className="w-4 h-4 mr-1" /> Hapus
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Hapus Peserta</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Apakah kamu yakin ingin menghapus <b>{name}</b> dari daftar peserta?
+                        Tindakan ini tidak bisa dibatalkan.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Batal</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={async () => {
+                          try {
+                            setUpdateLoading(true)
+                            await attendanceService.remove(a.id)
+                            toast.success("Peserta dihapus")
+                            fetchAttendees()
+                          } catch (err) {
+                            toast.error("Gagal menghapus peserta")
+                            console.error(err)
+                          } finally {
+                            setUpdateLoading(false)
+                          }
+                        }}
+                      >
+                        Hapus
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+
               </div>
             </div>
           </Reveal>
