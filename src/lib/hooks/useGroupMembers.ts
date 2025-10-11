@@ -14,9 +14,10 @@ export function useGroupMembers(groupId: string) {
       const data = await groupService.getMembers(groupId)
       setMembers(data)
       setError(null)
-    } catch (err: any) {
-      console.error("Error fetching group members:", err)
-      setError(err)
+    } catch (err: unknown) {
+      const e = err instanceof Error ? err : new Error("Unknown error")
+      console.error("Error fetching group members:", e)
+      setError(e)
     } finally {
       setLoading(false)
     }
