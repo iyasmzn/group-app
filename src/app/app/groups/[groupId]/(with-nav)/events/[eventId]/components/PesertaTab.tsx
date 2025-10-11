@@ -135,9 +135,26 @@ export default function PesertaTab({ eventId, groupId }: { eventId: string; grou
 
       {/* Header: total + filter + search */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <p className="text-sm font-medium">
-          Total Peserta: {counts.all}
-        </p>
+        <div className="flex justify-between items-end gap-2">
+          <p className="text-sm font-medium">
+            Total Peserta: {counts.all}
+          </p>
+          {
+            !membersLoading && 
+              <AddParticipantDialog
+                eventId={eventId}
+                members={availableMembers.map((m) => ({
+                  user_id: m.user_id,
+                  full_name: m.profiles?.full_name ?? null,
+                  profiles: m.profiles,
+                }))}
+                onAdded={fetchAttendees}
+                existingNames={attendees.map(
+                  (a) => a.display_name || a.profiles?.full_name || ""
+                )}
+              />
+          }
+        </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Input
             placeholder="Cari peserta..."
@@ -162,25 +179,6 @@ export default function PesertaTab({ eventId, groupId }: { eventId: string; grou
           </Select>
         </div>
       </div>
-      {
-        !membersLoading && 
-        <div className="flex justify-end">
-          <AddParticipantDialog
-            eventId={eventId}
-            members={availableMembers.map((m) => ({
-              user_id: m.user_id,
-              full_name: m.profiles?.full_name ?? null,
-              profiles: m.profiles,
-            }))}
-            onAdded={fetchAttendees}
-            existingNames={attendees.map(
-              (a) => a.display_name || a.profiles?.full_name || ""
-            )}
-          />
-        </div>
-      }
-
-
 
       {sortedAttendees.map((a) => {
         const name = a.display_name || a.profiles?.full_name || `User ${a.user_id}`
