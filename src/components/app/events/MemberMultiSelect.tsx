@@ -16,9 +16,9 @@ import { GroupAvatar } from "@/components/group-avatar"
 import Reveal from "@/components/animations/Reveal"
 
 export type MemberOption = {
-  user_id: string
+  user_id: string | null
   full_name: string | null
-  profiles?: Profile | null
+  profiles?: Partial<Profile> | null
 }
 
 export function MemberMultiSelect({
@@ -30,7 +30,8 @@ export function MemberMultiSelect({
   selected: string[]
   onChange: (ids: string[]) => void
 }) {
-  const toggle = (id: string) => {
+  const toggle = (id: string | null) => {
+    if (!id) return
     if (selected.includes(id)) {
       onChange(selected.filter((s) => s !== id))
     } else {
@@ -39,7 +40,7 @@ export function MemberMultiSelect({
   }
 
   // ✅ filter members yang belum dipilih
-  const availableMembers = members.filter((m) => !selected.includes(m.user_id))
+  const availableMembers = members.filter((m) => m.user_id && !selected.includes(m.user_id))
 
   return (
     <div className="rounded-md">
@@ -57,9 +58,6 @@ export function MemberMultiSelect({
                   <GroupAvatar image={m.profiles?.avatar_url} name={m?.full_name || 'Member'} size="xs" />
                   {m?.full_name}
                 </span>
-                {selected.includes(m.user_id) && (
-                  <Check className="w-4 h-4 text-primary" />
-                )}
               </CommandItem>
             ))}
           </CommandGroup>

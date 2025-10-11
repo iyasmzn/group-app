@@ -17,7 +17,7 @@ import KontribusiTab from "./components/KontribusiTab"
 import NotulenTab from "./components/NotulenTab"
 
 export default function EventDetailPage() {
-  const { eventId } = useParams() as { eventId: string }
+  const { eventId, groupId } = useParams() as { eventId: string, groupId: string }
   const [event, setEvent] = useState<GroupEvent | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -104,7 +104,7 @@ export default function EventDetailPage() {
           <div className="h-14 sm:hidden" /> {/* spacer biar konten tidak ketutup navbar */}
         </TabsContent>
         <TabsContent value="peserta" className="mt-4">
-          <PesertaTab eventId={event.id} />
+          <PesertaTab eventId={event.id} groupId={groupId} />
           <div className="h-14 sm:hidden" /> {/* spacer biar konten tidak ketutup navbar */}
         </TabsContent>
         <TabsContent value="task" className="mt-4">

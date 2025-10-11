@@ -14,13 +14,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input"
 import { Pencil } from "lucide-react"
 import { ExcuseDialog } from "@/components/app/events/ExuseDialog"
+import { AddParticipantDialog } from "@/components/app/events/AddParticipantDialog"
+import { useGroupMembers } from "@/lib/hooks/useGroupMembers"
 
-export default function PesertaTab({ eventId }: { eventId: string }) {
+export default function PesertaTab({ eventId, groupId }: { eventId: string; groupId: string }) {
   const [attendees, setAttendees] = useState<GroupEventAttendance[]>([])
   const [loading, setLoading] = useState(true)
   const [updateLoading, setUpdateLoading] = useState(false)
   const [filter, setFilter] = useState<"all" | GroupEventAttendance["status"]>("all")
   const [search, setSearch] = useState("")
+  const { members: groupMembers, loading: membersLoading } = useGroupMembers(groupId)
+
 
   const fetchAttendees = useCallback(async () => {
     try {
@@ -154,6 +158,22 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
           </Select>
         </div>
       </div>
+      {
+        !membersLoading && 
+        <div className="flex justify-end">
+          <AddParticipantDialog
+            eventId={eventId}
+            members={groupMembers.map((m) => ({
+              user_id: m.user_id,
+              full_name: m.profiles?.full_name ?? null,
+              profiles: m.profiles,
+            }))}
+            onAdded={fetchAttendees}
+          />
+        </div>
+      }
+
+
 
       {sortedAttendees.map((a) => {
         const name = a.display_name || a.profiles?.full_name || `User ${a.user_id}`

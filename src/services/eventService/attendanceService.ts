@@ -34,12 +34,19 @@ export const attendanceService = {
    */
   async assignParticipants(
     eventId: string,
-    participants: { user_id?: string | null; display_name?: string | null }[]
+    participants: {
+      user_id?: string | null
+      display_name?: string | null
+      status?: GroupEventAttendance["status"] | null
+      notes?: string | null
+    }[]
   ) {
     const rows = participants.map((p) => ({
       event_id: eventId,
       user_id: p.user_id ?? null,
       display_name: p.display_name ?? null,
+      status: p.status ?? null, // gunakan default di DB jika ada
+      notes: p.notes ?? null,
     }))
 
     const { data, error } = await supabase
@@ -50,4 +57,7 @@ export const attendanceService = {
     if (error) throw error
     return data as GroupEventAttendance[]
   },
+  async addParticipant(eventId: string, participant: { user_id?: string; display_name?: string; status?: GroupEventAttendance["status"]; notes?: string }) {
+    return this.assignParticipants(eventId, [participant])
+  }
 }
