@@ -224,6 +224,8 @@ export default function PesertaTab({
                       <>
                         <span>Alasan: {a.notes}</span>
                         <ExcuseDialog
+                          roleCode={roleCode}
+                          canEdit={a.user_id === user?.id}
                           initialNotes={a.notes}
                           onSave={(notes) => handleMark(a.id, "excused", notes)}
                           trigger={
@@ -258,6 +260,8 @@ export default function PesertaTab({
                     ))}
 
                     <ExcuseDialog
+                      roleCode={roleCode}
+                      canEdit={a.user_id === user?.id} // hanya dirinya sendiri
                       initialNotes={a.notes}
                       onSave={(notes) => handleMark(a.id, "excused", notes)}
                       trigger={
@@ -315,6 +319,8 @@ export default function PesertaTab({
                   {
                     a.user_id === user?.id && (
                       <ExcuseDialog
+                        roleCode={roleCode}
+                        canEdit={a.user_id === user?.id}
                         initialNotes={a.notes}
                         onSave={(notes) => handleMark(a.id, "excused", notes)}
                         trigger={

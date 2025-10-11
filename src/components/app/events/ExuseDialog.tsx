@@ -25,10 +25,14 @@ export function ExcuseDialog({
   trigger,
   initialNotes,
   onSave,
+  roleCode,
+  canEdit,
 }: {
   trigger: ReactNode
   initialNotes?: string | null
   onSave: (notes: string) => void
+  roleCode: string
+  canEdit: boolean
 }) {
   const [notes, setNotes] = useState(initialNotes || "")
   const [preset, setPreset] = useState("")
@@ -44,6 +48,11 @@ export function ExcuseDialog({
   ]
 
   const isDisabled = notes.trim().length === 0
+
+  // 🚫 Jika bukan admin dan bukan dirinya sendiri → disable trigger
+  if (roleCode !== "admin" && !canEdit) {
+    return <>{trigger}</> // tampilkan tombol tapi tidak bisa buka dialog
+  }
 
   return (
     <AlertDialog>
