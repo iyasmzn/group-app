@@ -42,6 +42,8 @@ export function ExcuseDialog({
     "Lainnya",
   ]
 
+  const isDisabled = notes.trim().length === 0
+
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
@@ -60,7 +62,6 @@ export function ExcuseDialog({
               setPreset(val)
               if (val === "Lainnya") {
                 setNotes("")
-                // fokus ke textarea
                 setTimeout(() => textareaRef.current?.focus(), 50)
               } else {
                 setNotes(val)
@@ -68,7 +69,7 @@ export function ExcuseDialog({
             }}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Pilih alasan umum atau ketik alasan dibawah" />
+              <SelectValue placeholder="Pilih alasan umum" />
             </SelectTrigger>
             <SelectContent>
               {presetOptions.map((opt) => (
@@ -90,10 +91,13 @@ export function ExcuseDialog({
         <AlertDialogFooter>
           <AlertDialogCancel>Batal</AlertDialogCancel>
           <AlertDialogAction
+            disabled={isDisabled}
             onClick={() => {
-              onSave(notes)
-              setNotes("")
-              setPreset("")
+              if (!isDisabled) {
+                onSave(notes)
+                setNotes("")
+                setPreset("")
+              }
             }}
           >
             Simpan
