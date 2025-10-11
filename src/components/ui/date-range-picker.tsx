@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import clsx from "clsx"
 import { toast } from "sonner"
+import { TimePicker24 } from "./time-picker-24"
 
 type Props = {
   value?: DateRange
@@ -134,23 +135,17 @@ export function DateRangePicker({
       {withTime && (
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="start_time" className="block mb-1">Jam Mulai</Label>
-            <Input
-              id="start_time"
-              type="time"
+            <Label className="block mb-1">Jam Mulai</Label>
+            <TimePicker24
               value={startTime}
-              onChange={(e) => onStartTimeChange?.(e.target.value)}
-              className={clsx(error && "border-red-500 focus-visible:ring-red-500")}
+              onChange={(val) => onStartTimeChange?.(val)}
             />
           </div>
           <div>
-            <Label htmlFor="end_time" className="block mb-1">Jam Selesai</Label>
-            <Input
-              id="end_time"
-              type="time"
+            <Label className="block mb-1">Jam Selesai</Label>
+            <TimePicker24
               value={endTime}
-              onChange={(e) => onEndTimeChange?.(e.target.value)}
-              className={clsx(error && "border-red-500 focus-visible:ring-red-500")}
+              onChange={(val) => onEndTimeChange?.(val)}
             />
           </div>
         </div>

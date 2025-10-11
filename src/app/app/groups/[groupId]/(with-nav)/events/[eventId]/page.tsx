@@ -56,9 +56,9 @@ export default function EventDetailPage() {
         <Reveal animation="fadeInDown">
           <h1 className="text-2xl font-bold">{event.title}</h1>
         </Reveal>
-        <Button variant="outline" size="sm" className="self-start sm:self-auto">
+        {/* <Button variant="outline" size="sm" className="self-start sm:self-auto">
           <Edit className="w-4 h-4 mr-1" /> Edit
-        </Button>
+        </Button> */}
       </div>
 
       {/* Tabs */}
