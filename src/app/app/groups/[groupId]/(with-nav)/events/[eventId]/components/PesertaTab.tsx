@@ -167,7 +167,7 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
               {/* Info peserta */}
               <div className="flex flex-col gap-1 min-w-0">
                 <div className="flex items-center gap-2 min-w-0">
-                  <GroupAvatar image={a.profiles?.avatar_url} name={name} />
+                  <GroupAvatar image={a.profiles?.avatar_url} name={name} size="sm" />
                   <span className="truncate">{name}</span>
                   {/* Badge ringkas */}
                   <span className="flex items-center gap-1 text-xs">
