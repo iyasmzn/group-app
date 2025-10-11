@@ -38,14 +38,16 @@ export function MemberMultiSelect({
     }
   }
 
+  // ✅ filter members yang belum dipilih
+  const availableMembers = members.filter((m) => !selected.includes(m.user_id))
+
   return (
-    <div className="border rounded-md">
-      <Command>
+    <div className="rounded-md">
+      <Command className="border">
         <CommandInput placeholder="Cari member..." />
         <CommandList>
-          <CommandEmpty>Tidak ada hasil</CommandEmpty>
           <CommandGroup heading="Member Grup">
-            {members.map((m) => (
+            {availableMembers.map((m) => (
               <CommandItem
                 key={m.user_id}
                 onSelect={() => toggle(m.user_id)}
@@ -61,32 +63,38 @@ export function MemberMultiSelect({
               </CommandItem>
             ))}
           </CommandGroup>
+          <CommandEmpty>Tidak ada hasil</CommandEmpty>
         </CommandList>
       </Command>
       {selected.length > 0 && (
-        <div className="flex flex-wrap gap-2 p-2 border-t">
-          {selected.map((id) => {
-            const member = members.find((m) => m.user_id === id)
-            const displayName =
-              member?.profiles?.full_name?.split(" ")[0] ?? id // 👈 ambil kata pertama
-            return (
-              <Reveal key={id} animation="zoomIn">
-                <Button
-                  size="xs"
-                  variant="outline"
-                  onClick={() => toggle(id)}
-                >
-                  <GroupAvatar
-                    image={member?.profiles?.avatar_url}
-                    name={member?.full_name || "Member"}
-                    size="xs"
-                  />
-                  {displayName} ✕
-                </Button>
-              </Reveal>
-            )
-          })}
-        </div>
+        <Reveal animation="fadeInUp">
+          <div className="mt-2 rounded-md border p-2">
+            <div className="mb-2 text-secondary-foreground text-sm">Peserta Terpilih ({selected.length})</div>
+            <div className="flex flex-wrap gap-2">
+              {selected.map((id) => {
+                const member = members.find((m) => m.user_id === id)
+                const displayName =
+                  member?.profiles?.full_name?.split(" ")[0] ?? id // 👈 ambil kata pertama
+                return (
+                  <Reveal key={id} animation="zoomIn">
+                    <Button
+                      size="xs"
+                      variant="outline"
+                      onClick={() => toggle(id)}
+                    >
+                      <GroupAvatar
+                        image={member?.profiles?.avatar_url}
+                        name={member?.full_name || "Member"}
+                        size="xs"
+                      />
+                      {displayName} ✕
+                    </Button>
+                  </Reveal>
+                )
+              })}
+            </div>
+          </div>
+        </Reveal>
       )}
     </div>
   )
