@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Textarea } from "@/components/ui/textarea"
+import { Pencil } from "lucide-react"
 
 export default function PesertaTab({ eventId }: { eventId: string }) {
   const [attendees, setAttendees] = useState<GroupEventAttendance[]>([])
@@ -22,6 +23,8 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
   const [filter, setFilter] = useState<"all" | GroupEventAttendance["status"]>("all")
   const [search, setSearch] = useState("")
   const [excuseNotes, setExcuseNotes] = useState("")
+  const [editingId, setEditingId] = useState<string | null>(null)
+
 
   const fetchAttendees = useCallback(async () => {
     try {
@@ -43,7 +46,7 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
   const handleMark = async (
     id: string,
     status: GroupEventAttendance["status"],
-    notes?: string
+    notes?: string | null
   ) => {
     try {
       setUpdateLoading(true)
@@ -162,23 +165,81 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
           <Reveal key={`${a.event_id}-${a.id}`} animation="fadeInUp">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-neutral-700 dark:text-neutral-300 border-b pb-2">
               {/* Info peserta */}
-              <div className="flex items-center gap-2 min-w-0">
-                <GroupAvatar image={a.profiles?.avatar_url} name={name} />
-                <span className="truncate">{name}</span>
-                {/* Badge ringkas */}
-                <span className="flex items-center gap-1 text-xs">
-                  <span
-                    className={cn(
-                      "inline-block w-2 h-2 rounded-full",
-                      statusColor[a.status]
-                    )}
-                  />
-                  {statusLabel[a.status]}
-                </span>
-                {a.attend_at && (
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">
-                    • {longDateTime(a.attend_at)}
+              <div className="flex flex-col gap-1 min-w-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <GroupAvatar image={a.profiles?.avatar_url} name={name} />
+                  <span className="truncate">{name}</span>
+                  {/* Badge ringkas */}
+                  <span className="flex items-center gap-1 text-xs">
+                    <span
+                      className={cn(
+                        "inline-block w-2 h-2 rounded-full",
+                        statusColor[a.status]
+                      )}
+                    />
+                    {statusLabel[a.status]}
                   </span>
+                  {a.attend_at && (
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                      • {longDateTime(a.attend_at)}
+                    </span>
+                  )}
+                </div>
+
+                {/* 👇 Notes tampil di bawah jika ada */}
+                {a.status === "excused" && (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground ml-8">
+                    {a.notes ? (
+                      <>
+                        <span>Alasan: {a.notes}</span>
+                        {/* Tombol edit */}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <button
+                              className="text-primary hover:underline flex items-center gap-1"
+                              onClick={() => {
+                                setEditingId(a.id)
+                                setExcuseNotes(a.notes || "")
+                              }}
+                            >
+                              <Pencil className="w-3 h-3" /> Edit
+                            </button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Edit Alasan Izin</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Ubah alasan izin untuk peserta ini.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <div className="py-2">
+                              <Textarea
+                                placeholder="Tulis alasan izin..."
+                                value={excuseNotes}
+                                onChange={(e) => setExcuseNotes(e.target.value)}
+                              />
+                            </div>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel onClick={() => setEditingId(null)}>Batal</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => {
+                                  if (editingId) {
+                                    handleMark(editingId, "excused", excuseNotes)
+                                  }
+                                  setExcuseNotes("")
+                                  setEditingId(null)
+                                }}
+                              >
+                                Simpan
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </>
+                    ) : (
+                      <span className="italic">Belum ada alasan</span>
+                    )}
+                  </div>
                 )}
               </div>
 
@@ -189,51 +250,55 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
                     key={s}
                     size="sm"
                     variant={a.status === s ? "default" : "outline"}
-                    onClick={() => handleMark(a.id, s)}
+                    onClick={() => handleMark(a.id, s, null)}
                     className="flex-1 sm:flex-none"
                   >
                     {statusLabel[s]}
                   </Button>
                 ))}
-                  {/* Tombol izin pakai dialog */}
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        size="sm"
-                        variant={a.status === "excused" ? "default" : "outline"}
-                        className="flex-1 sm:flex-none"
-                      >
-                        {statusLabel["excused"]}
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Alasan Izin</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Silakan isi alasan izin untuk peserta ini.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <div className="py-2">
-                        <Textarea
-                          placeholder="Tulis alasan izin..."
-                          value={excuseNotes}
-                          onChange={(e) => setExcuseNotes(e.target.value)}
-                        />
-                      </div>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Batal</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => {
-                            handleMark(a.id, "excused", excuseNotes)
-                            setExcuseNotes("")
-                          }}
-                        >
-                          Simpan
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
 
+                {/* Tombol izin pakai dialog */}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant={a.status === "excused" ? "default" : "outline"}
+                      className="flex-1 sm:flex-none"
+                      onClick={() => {
+                        setEditingId(a.id)
+                        setExcuseNotes(a.notes || "")
+                      }}
+                    >
+                      {statusLabel["excused"]}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Alasan Izin</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Silakan isi alasan izin untuk peserta ini.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <div className="py-2">
+                      <Textarea
+                        placeholder="Tulis alasan izin..."
+                        value={excuseNotes}
+                        onChange={(e) => setExcuseNotes(e.target.value)}
+                      />
+                    </div>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Batal</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => {
+                          handleMark(a.id, "excused", excuseNotes)
+                          setExcuseNotes("")
+                        }}
+                      >
+                        Simpan
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           </Reveal>
