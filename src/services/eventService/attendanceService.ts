@@ -10,6 +10,7 @@ export type GroupEventAttendance = {
   status: "present" | "absent" | "late" | "excused"
   profiles?: Profile | null
   attend_at?: string | null
+  notes?: string | null
 }
 
 const base = crudService<GroupEventAttendance>("group_event_attendance")
@@ -19,10 +20,11 @@ export const attendanceService = {
 
   async markAttendance(
     id: string,
-    status: GroupEventAttendance["status"]
+    status: GroupEventAttendance["status"],
+    notes?: GroupEventAttendance["notes"],
   ) {
     const now = new Date().toISOString()
-    return base.update(id, { status, attend_at: ['present', 'late'].includes(status) ? now : null })
+    return base.update(id, { status, attend_at: ['present', 'late'].includes(status) ? now : null, notes })
   },
 
   /**

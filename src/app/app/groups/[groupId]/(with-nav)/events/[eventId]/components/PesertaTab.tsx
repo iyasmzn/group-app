@@ -12,6 +12,8 @@ import LoadingOverlay from "@/components/loading-overlay"
 import { cn } from "@/lib/utils"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { Textarea } from "@/components/ui/textarea"
 
 export default function PesertaTab({ eventId }: { eventId: string }) {
   const [attendees, setAttendees] = useState<GroupEventAttendance[]>([])
@@ -19,6 +21,7 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
   const [updateLoading, setUpdateLoading] = useState(false)
   const [filter, setFilter] = useState<"all" | GroupEventAttendance["status"]>("all")
   const [search, setSearch] = useState("")
+  const [excuseNotes, setExcuseNotes] = useState("")
 
   const fetchAttendees = useCallback(async () => {
     try {
@@ -37,10 +40,14 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
     fetchAttendees()
   }, [fetchAttendees])
 
-  const handleMark = async (id: string, status: GroupEventAttendance["status"]) => {
+  const handleMark = async (
+    id: string,
+    status: GroupEventAttendance["status"],
+    notes?: string
+  ) => {
     try {
       setUpdateLoading(true)
-      await attendanceService.markAttendance(id, status)
+      await attendanceService.markAttendance(id, status, notes)
       toast.success("Update success")
       fetchAttendees()
     } catch (err) {
@@ -177,7 +184,7 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
 
               {/* Tombol aksi */}
               <div className="flex flex-wrap sm:flex-nowrap gap-2">
-                {(["present", "absent", "late", "excused"] as const).map((s) => (
+                {(["present", "absent", "late"] as const).map((s) => (
                   <Button
                     key={s}
                     size="sm"
@@ -188,6 +195,45 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
                     {statusLabel[s]}
                   </Button>
                 ))}
+                  {/* Tombol izin pakai dialog */}
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        size="sm"
+                        variant={a.status === "excused" ? "default" : "outline"}
+                        className="flex-1 sm:flex-none"
+                      >
+                        {statusLabel["excused"]}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Alasan Izin</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Silakan isi alasan izin untuk peserta ini.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <div className="py-2">
+                        <Textarea
+                          placeholder="Tulis alasan izin..."
+                          value={excuseNotes}
+                          onChange={(e) => setExcuseNotes(e.target.value)}
+                        />
+                      </div>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Batal</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => {
+                            handleMark(a.id, "excused", excuseNotes)
+                            setExcuseNotes("")
+                          }}
+                        >
+                          Simpan
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+
               </div>
             </div>
           </Reveal>
