@@ -12,7 +12,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Textarea } from "@/components/ui/textarea"
-import { ReactNode, useState } from "react"
 import {
   Select,
   SelectContent,
@@ -20,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-
+import { ReactNode, useRef, useState } from "react"
 
 export function ExcuseDialog({
   trigger,
@@ -33,12 +32,14 @@ export function ExcuseDialog({
 }) {
   const [notes, setNotes] = useState(initialNotes || "")
   const [preset, setPreset] = useState("")
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
   const presetOptions = [
-    "Bekerja",
     "Sakit",
     "Urusan keluarga",
+    "Tugas lain",
     "Perjalanan",
+    "Lainnya",
   ]
 
   return (
@@ -52,17 +53,22 @@ export function ExcuseDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        {/* Default pilihan */}
         <div className="py-2 space-y-2">
           <Select
             value={preset}
             onValueChange={(val) => {
               setPreset(val)
-              setNotes(val) // otomatis isi textarea
+              if (val === "Lainnya") {
+                setNotes("")
+                // fokus ke textarea
+                setTimeout(() => textareaRef.current?.focus(), 50)
+              } else {
+                setNotes(val)
+              }
             }}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Pilih alasan umum" />
+              <SelectValue placeholder="Pilih alasan umum atau ketik alasan dibawah" />
             </SelectTrigger>
             <SelectContent>
               {presetOptions.map((opt) => (
@@ -73,8 +79,8 @@ export function ExcuseDialog({
             </SelectContent>
           </Select>
 
-          {/* Textarea untuk detail */}
           <Textarea
+            ref={textareaRef}
             placeholder="Tulis alasan izin..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
