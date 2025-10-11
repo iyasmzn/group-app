@@ -27,7 +27,7 @@ export function ExcuseDialog({
   onSave,
 }: {
   trigger: ReactNode
-  initialNotes?: string
+  initialNotes?: string | null
   onSave: (notes: string) => void
 }) {
   const [notes, setNotes] = useState(initialNotes || "")
