@@ -15,11 +15,13 @@ import PesertaTab from "./components/PesertaTab"
 import TaskTab from "./components/TaskTab"
 import KontribusiTab from "./components/KontribusiTab"
 import NotulenTab from "./components/NotulenTab"
+import { useGroupRole } from "@/lib/hooks/useGroupRole"
 
 export default function EventDetailPage() {
   const { eventId, groupId } = useParams() as { eventId: string, groupId: string }
   const [event, setEvent] = useState<GroupEvent | null>(null)
   const [loading, setLoading] = useState(true)
+  const {role, loading: roleLoading} = useGroupRole(groupId)
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -104,7 +106,9 @@ export default function EventDetailPage() {
           <div className="h-30 sm:hidden" /> {/* spacer biar konten tidak ketutup navbar */}
         </TabsContent>
         <TabsContent value="peserta" className="mt-4">
-          <PesertaTab eventId={event.id} groupId={groupId} />
+          {!roleLoading && (
+            <PesertaTab eventId={event.id} groupId={groupId} roleCode={role?.code ?? "member"} />
+          )}
           <div className="h-30 sm:hidden" /> {/* spacer biar konten tidak ketutup navbar */}
         </TabsContent>
         <TabsContent value="task" className="mt-4">

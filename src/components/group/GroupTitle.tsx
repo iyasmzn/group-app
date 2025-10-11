@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation"
 export function GroupTitle({ group }: { group: GroupData }) {
   const router = useRouter()
   return (
-    <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push("profile")}>
+    <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push(`/app/groups/${group.id}/profile`)}>
       <Reveal animation="fadeIn">
         <GroupAvatar name={group.name} image={group.image_url} size="md" />
       </Reveal>

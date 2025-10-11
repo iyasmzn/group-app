@@ -18,7 +18,15 @@ import { AddParticipantDialog } from "@/components/app/events/AddParticipantDial
 import { useGroupMembers } from "@/lib/hooks/useGroupMembers"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 
-export default function PesertaTab({ eventId, groupId }: { eventId: string; groupId: string }) {
+export default function PesertaTab({
+  eventId,
+  groupId,
+  roleCode,
+}: {
+  eventId: string
+  groupId: string
+  roleCode: string
+}) {
   const [attendees, setAttendees] = useState<GroupEventAttendance[]>([])
   const [loading, setLoading] = useState(true)
   const [updateLoading, setUpdateLoading] = useState(false)
@@ -140,7 +148,7 @@ export default function PesertaTab({ eventId, groupId }: { eventId: string; grou
             Total Peserta: {counts.all}
           </p>
           {
-            !membersLoading && 
+            !membersLoading && roleCode === "admin" && 
               <AddParticipantDialog
                 eventId={eventId}
                 members={availableMembers.map((m) => ({
@@ -232,71 +240,91 @@ export default function PesertaTab({ eventId, groupId }: { eventId: string; grou
 
               {/* Tombol aksi */}
               <div className="flex flex-wrap sm:flex-nowrap gap-2">
-                {(["present", "absent", "late"] as const).map((s) => (
-                  <Button
-                    key={s}
-                    size="sm"
-                    variant={a.status === s ? "default" : "outline"}
-                    onClick={() => handleMark(a.id, s, null)}
-                    className="flex-1 sm:flex-none"
-                  >
-                    {statusLabel[s]}
-                  </Button>
-                ))}
-
-                {/* Tombol izin pakai dialog */}
-                <ExcuseDialog
-                  initialNotes={a.notes}
-                  onSave={(notes) => handleMark(a.id, "excused", notes)}
-                  trigger={
-                    <Button
-                      size="sm"
-                      variant={a.status === "excused" ? "default" : "outline"}
-                      className="flex-1 sm:flex-none"
-                    >
-                      {statusLabel["excused"]}
-                    </Button>
-                  }
-                />
-
-                {/* Tombol hapus peserta */}
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button size="sm" variant="destructive" className="flex-1 sm:flex-none">
-                      <Trash2 className="w-4 h-4 mr-1" /> Hapus
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Hapus Peserta</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Apakah kamu yakin ingin menghapus <b>{name}</b> dari daftar peserta?
-                        Tindakan ini tidak bisa dibatalkan.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Batal</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={async () => {
-                          try {
-                            setUpdateLoading(true)
-                            await attendanceService.remove(a.id)
-                            toast.success("Peserta dihapus")
-                            fetchAttendees()
-                          } catch (err) {
-                            toast.error("Gagal menghapus peserta")
-                            console.error(err)
-                          } finally {
-                            setUpdateLoading(false)
-                          }
-                        }}
+                {roleCode === "admin" ? (
+                  // Admin bisa semua
+                  <>
+                    {(["present", "absent", "late"] as const).map((s) => (
+                      <Button
+                        key={s}
+                        size="sm"
+                        variant={a.status === s ? "default" : "outline"}
+                        onClick={() => handleMark(a.id, s, null)}
+                        className="flex-1 sm:flex-none"
                       >
-                        Hapus
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                        {statusLabel[s]}
+                      </Button>
+                    ))}
 
+                    <ExcuseDialog
+                      initialNotes={a.notes}
+                      onSave={(notes) => handleMark(a.id, "excused", notes)}
+                      trigger={
+                        <Button
+                          size="sm"
+                          variant={a.status === "excused" ? "default" : "outline"}
+                          className="flex-1 sm:flex-none"
+                        >
+                          {statusLabel["excused"]}
+                        </Button>
+                      }
+                    />
+
+                    {/* Hapus peserta */}
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="sm" variant="destructive" className="flex-1 sm:flex-none">
+                          <Trash2 className="w-4 h-4 mr-1" /> Hapus
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Hapus Peserta</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Apakah kamu yakin ingin menghapus <b>{name}</b> dari daftar peserta?
+                            Tindakan ini tidak bisa dibatalkan.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Batal</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={async () => {
+                              try {
+                                setUpdateLoading(true)
+                                await attendanceService.remove(a.id)
+                                toast.success("Peserta dihapus")
+                                fetchAttendees()
+                              } catch (err) {
+                                toast.error("Gagal menghapus peserta")
+                                console.error(err)
+                              } finally {
+                                setUpdateLoading(false)
+                              }
+                            }}
+                          >
+                            Hapus
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </>
+                ) : (
+                  // Non-admin hanya bisa izin
+                  <>
+                    <ExcuseDialog
+                      initialNotes={a.notes}
+                      onSave={(notes) => handleMark(a.id, "excused", notes)}
+                      trigger={
+                        <Button
+                          size="sm"
+                          variant={a.status === "excused" ? "default" : "outline"}
+                          className="flex-1 sm:flex-none"
+                        >
+                          {statusLabel["excused"]}
+                        </Button>
+                      }
+                    />
+                  </>
+                )}
               </div>
             </div>
           </Reveal>
