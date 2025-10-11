@@ -12,9 +12,8 @@ import LoadingOverlay from "@/components/loading-overlay"
 import { cn } from "@/lib/utils"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import { Textarea } from "@/components/ui/textarea"
 import { Pencil } from "lucide-react"
+import { ExcuseDialog } from "@/components/app/events/ExuseDialog"
 
 export default function PesertaTab({ eventId }: { eventId: string }) {
   const [attendees, setAttendees] = useState<GroupEventAttendance[]>([])
@@ -22,9 +21,6 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
   const [updateLoading, setUpdateLoading] = useState(false)
   const [filter, setFilter] = useState<"all" | GroupEventAttendance["status"]>("all")
   const [search, setSearch] = useState("")
-  const [excuseNotes, setExcuseNotes] = useState("")
-  const [editingId, setEditingId] = useState<string | null>(null)
-
 
   const fetchAttendees = useCallback(async () => {
     try {
@@ -192,49 +188,15 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
                     {a.notes ? (
                       <>
                         <span>Alasan: {a.notes}</span>
-                        {/* Tombol edit */}
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <button
-                              className="text-primary hover:underline flex items-center gap-1"
-                              onClick={() => {
-                                setEditingId(a.id)
-                                setExcuseNotes(a.notes || "")
-                              }}
-                            >
+                        <ExcuseDialog
+                          initialNotes={a.notes}
+                          onSave={(notes) => handleMark(a.id, "excused", notes)}
+                          trigger={
+                            <button className="text-primary hover:underline flex items-center gap-1">
                               <Pencil className="w-3 h-3" /> Edit
                             </button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Edit Alasan Izin</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Ubah alasan izin untuk peserta ini.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <div className="py-2">
-                              <Textarea
-                                placeholder="Tulis alasan izin..."
-                                value={excuseNotes}
-                                onChange={(e) => setExcuseNotes(e.target.value)}
-                              />
-                            </div>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel onClick={() => setEditingId(null)}>Batal</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => {
-                                  if (editingId) {
-                                    handleMark(editingId, "excused", excuseNotes)
-                                  }
-                                  setExcuseNotes("")
-                                  setEditingId(null)
-                                }}
-                              >
-                                Simpan
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                          }
+                        />
                       </>
                     ) : (
                       <span className="italic">Belum ada alasan</span>
@@ -258,47 +220,19 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
                 ))}
 
                 {/* Tombol izin pakai dialog */}
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
+                <ExcuseDialog
+                  initialNotes={a.notes}
+                  onSave={(notes) => handleMark(a.id, "excused", notes)}
+                  trigger={
                     <Button
                       size="sm"
                       variant={a.status === "excused" ? "default" : "outline"}
                       className="flex-1 sm:flex-none"
-                      onClick={() => {
-                        setEditingId(a.id)
-                        setExcuseNotes(a.notes || "")
-                      }}
                     >
                       {statusLabel["excused"]}
                     </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Alasan Izin</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Silakan isi alasan izin untuk peserta ini.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <div className="py-2">
-                      <Textarea
-                        placeholder="Tulis alasan izin..."
-                        value={excuseNotes}
-                        onChange={(e) => setExcuseNotes(e.target.value)}
-                      />
-                    </div>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Batal</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => {
-                          handleMark(a.id, "excused", excuseNotes)
-                          setExcuseNotes("")
-                        }}
-                      >
-                        Simpan
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                  }
+                />
               </div>
             </div>
           </Reveal>
