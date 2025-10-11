@@ -24,7 +24,10 @@ export default function PesertaTab({ eventId, groupId }: { eventId: string; grou
   const [filter, setFilter] = useState<"all" | GroupEventAttendance["status"]>("all")
   const [search, setSearch] = useState("")
   const { members: groupMembers, loading: membersLoading } = useGroupMembers(groupId)
-
+  // ambil semua user_id peserta yang sudah terdaftar
+  const existingIds = new Set(attendees.map((a) => a.user_id).filter(Boolean))
+  // filter members agar hanya yang belum jadi peserta
+  const availableMembers = groupMembers.filter((m) => !existingIds.has(m.user_id))
 
   const fetchAttendees = useCallback(async () => {
     try {
@@ -163,7 +166,7 @@ export default function PesertaTab({ eventId, groupId }: { eventId: string; grou
         <div className="flex justify-end">
           <AddParticipantDialog
             eventId={eventId}
-            members={groupMembers.map((m) => ({
+            members={availableMembers.map((m) => ({
               user_id: m.user_id,
               full_name: m.profiles?.full_name ?? null,
               profiles: m.profiles,
