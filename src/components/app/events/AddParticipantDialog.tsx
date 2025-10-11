@@ -77,20 +77,21 @@ export function AddParticipantDialog({
           <DialogTitle>Tambah Peserta</DialogTitle>
         </DialogHeader>
 
-        {/* Pilih dari member grup */}
-        <MemberMultiSelect
-          members={members}
-          selected={selectedMembers}
-          onChange={setSelectedMembers}
-        />
-
-        {/* Atau input manual */}
-        <div className="mt-4">
-          <Input
-            placeholder="Nama peserta manual..."
-            value={manualName}
-            onChange={(e) => setManualName(e.target.value)}
+        <div>
+          {/* Pilih dari member grup */}
+          <MemberMultiSelect
+            members={members}
+            selected={selectedMembers}
+            onChange={setSelectedMembers}
           />
+          {/* Atau input manual */}
+          <div className="mt-4">
+            <Input
+              placeholder="Nama peserta manual..."
+              value={manualName}
+              onChange={(e) => setManualName(e.target.value)}
+            />
+          </div>
         </div>
 
         <DialogFooter>
