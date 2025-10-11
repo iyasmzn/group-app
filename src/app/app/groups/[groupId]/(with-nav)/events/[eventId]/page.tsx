@@ -78,7 +78,7 @@ export default function EventDetailPage() {
         </TabsList>
 
         {/* Mobile Bottom Tab Bar */}
-        <div className="sm:hidden fixed bottom-13 left-0 right-0 border-t bg-background h-14 flex items-center z-50 px-2">
+        <div className="sm:hidden fixed bottom-13 left-0 right-0 border-t bg-background h-14 flex items-center z-50 px-2 rounded-2xl">
           <TabsList className="flex justify-around w-full">
             <TabsTrigger value="detail" className="flex flex-col items-center text-xs">
               Detail
@@ -101,23 +101,23 @@ export default function EventDetailPage() {
         {/* Tab Contents */}
         <TabsContent value="detail" className="mt-4">
           <DetailTab event={event} />
-          <div className="h-14 sm:hidden" /> {/* spacer biar konten tidak ketutup navbar */}
+          <div className="h-30 sm:hidden" /> {/* spacer biar konten tidak ketutup navbar */}
         </TabsContent>
         <TabsContent value="peserta" className="mt-4">
           <PesertaTab eventId={event.id} groupId={groupId} />
-          <div className="h-14 sm:hidden" /> {/* spacer biar konten tidak ketutup navbar */}
+          <div className="h-30 sm:hidden" /> {/* spacer biar konten tidak ketutup navbar */}
         </TabsContent>
         <TabsContent value="task" className="mt-4">
           <TaskTab eventId={event.id} />
-          <div className="h-14 sm:hidden" /> {/* spacer biar konten tidak ketutup navbar */}
+          <div className="h-30 sm:hidden" /> {/* spacer biar konten tidak ketutup navbar */}
         </TabsContent>
         <TabsContent value="kontribusi" className="mt-4">
           <KontribusiTab eventId={event.id} />
-          <div className="h-14 sm:hidden" /> {/* spacer biar konten tidak ketutup navbar */}
+          <div className="h-30 sm:hidden" /> {/* spacer biar konten tidak ketutup navbar */}
         </TabsContent>
         <TabsContent value="notulen" className="mt-4">
           <NotulenTab eventId={event.id} />
-          <div className="h-14 sm:hidden" /> {/* spacer biar konten tidak ketutup navbar */}
+          <div className="h-30 sm:hidden" /> {/* spacer biar konten tidak ketutup navbar */}
         </TabsContent>
       </Tabs>
 
