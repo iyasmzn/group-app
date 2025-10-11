@@ -35,6 +35,7 @@ export function ExcuseDialog({
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
   const presetOptions = [
+    "Bekerja",
     "Sakit",
     "Urusan keluarga",
     "Tugas lain",
