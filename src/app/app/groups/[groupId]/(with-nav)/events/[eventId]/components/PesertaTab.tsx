@@ -11,12 +11,14 @@ import { longDateTime } from "@/lib/utils/format"
 import LoadingOverlay from "@/components/loading-overlay"
 import { cn } from "@/lib/utils"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
 
 export default function PesertaTab({ eventId }: { eventId: string }) {
   const [attendees, setAttendees] = useState<GroupEventAttendance[]>([])
   const [loading, setLoading] = useState(true)
   const [updateLoading, setUpdateLoading] = useState(false)
   const [filter, setFilter] = useState<"all" | GroupEventAttendance["status"]>("all")
+  const [search, setSearch] = useState("")
 
   const fetchAttendees = useCallback(async () => {
     try {
@@ -38,9 +40,8 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
   const handleMark = async (id: string, status: GroupEventAttendance["status"]) => {
     try {
       setUpdateLoading(true)
-      await attendanceService.markAttendance(id, status).then(() => {
-        toast.success("Update success")
-      })
+      await attendanceService.markAttendance(id, status)
+      toast.success("Update success")
       fetchAttendees()
     } catch (err) {
       toast.error("Update Failed")
@@ -68,15 +69,14 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
     )
   }
 
-  // mapping warna status
+  // mapping warna status (badge ringkas)
   const statusColor: Record<GroupEventAttendance["status"], string> = {
-    present: "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300",
-    absent: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300",
-    late: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300",
-    excused: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
+    present: "bg-green-500",
+    absent: "bg-red-500",
+    late: "bg-yellow-500",
+    excused: "bg-blue-500",
   }
 
-  // mapping label status
   const statusLabel: Record<GroupEventAttendance["status"], string> = {
     present: "Hadir",
     absent: "Tidak Hadir",
@@ -84,7 +84,6 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
     excused: "Izin",
   }
 
-  // urutan sort status
   const statusOrder: GroupEventAttendance["status"][] = [
     "present",
     "late",
@@ -92,10 +91,14 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
     "absent",
   ]
 
-  // filter + sort
-  const filteredAttendees = attendees.filter((a) =>
-    filter === "all" ? true : a.status === filter
-  )
+  // filter + search + sort
+  const filteredAttendees = attendees
+    .filter((a) => (filter === "all" ? true : a.status === filter))
+    .filter((a) => {
+      const name = a.display_name || a.profiles?.full_name || `User ${a.user_id}`
+      return name.toLowerCase().includes(search.toLowerCase())
+    })
+
   const sortedAttendees = [...filteredAttendees].sort(
     (a, b) => statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status)
   )
@@ -111,38 +114,43 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
       number
     >
   )
-  
+
   return (
     <div className="space-y-3">
       <LoadingOverlay isLoading={updateLoading} />
 
-      {/* Header: total + filter */}
+      {/* Header: total + filter + search */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <p className="text-sm font-medium">
           Total Peserta: {counts.all}
         </p>
-        <Select
-          value={filter}
-          onValueChange={(v: "all" | GroupEventAttendance["status"]) => setFilter(v)}
-        >
-          <SelectTrigger className="w-full sm:w-[200px]">
-            <SelectValue placeholder="Filter status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Semua ({counts.all})</SelectItem>
-            <SelectItem value="present">Hadir ({counts.present})</SelectItem>
-            <SelectItem value="late">Terlambat ({counts.late})</SelectItem>
-            <SelectItem value="excused">Izin ({counts.excused})</SelectItem>
-            <SelectItem value="absent">Tidak Hadir ({counts.absent})</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Input
+            placeholder="Cari peserta..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full sm:w-[200px]"
+          />
+          <Select
+            value={filter}
+            onValueChange={(v: "all" | GroupEventAttendance["status"]) => setFilter(v)}
+          >
+            <SelectTrigger className="w-full sm:w-[200px]">
+              <SelectValue placeholder="Filter status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua ({counts.all})</SelectItem>
+              <SelectItem value="present">Hadir ({counts.present})</SelectItem>
+              <SelectItem value="late">Terlambat ({counts.late})</SelectItem>
+              <SelectItem value="excused">Izin ({counts.excused})</SelectItem>
+              <SelectItem value="absent">Tidak Hadir ({counts.absent})</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {sortedAttendees.map((a) => {
-        const name = a.display_name
-          ? a.display_name
-          : a.profiles?.full_name || `User ${a.user_id}`
-
+        const name = a.display_name || a.profiles?.full_name || `User ${a.user_id}`
         return (
           <Reveal key={`${a.event_id}-${a.id}`} animation="fadeInUp">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-neutral-700 dark:text-neutral-300 border-b pb-2">
@@ -150,12 +158,14 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
               <div className="flex items-center gap-2 min-w-0">
                 <GroupAvatar image={a.profiles?.avatar_url} name={name} />
                 <span className="truncate">{name}</span>
-                <span
-                  className={cn(
-                    "text-xs px-2 py-0.5 rounded whitespace-nowrap",
-                    statusColor[a.status]
-                  )}
-                >
+                {/* Badge ringkas */}
+                <span className="flex items-center gap-1 text-xs">
+                  <span
+                    className={cn(
+                      "inline-block w-2 h-2 rounded-full",
+                      statusColor[a.status]
+                    )}
+                  />
                   {statusLabel[a.status]}
                 </span>
                 {a.attend_at && (
