@@ -13,6 +13,14 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { ReactNode, useState } from "react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
 
 export function ExcuseDialog({
   trigger,
@@ -20,10 +28,18 @@ export function ExcuseDialog({
   onSave,
 }: {
   trigger: ReactNode
-  initialNotes?: string | null
+  initialNotes?: string
   onSave: (notes: string) => void
 }) {
   const [notes, setNotes] = useState(initialNotes || "")
+  const [preset, setPreset] = useState("")
+
+  const presetOptions = [
+    "Bekerja",
+    "Sakit",
+    "Urusan keluarga",
+    "Perjalanan",
+  ]
 
   return (
     <AlertDialog>
@@ -32,22 +48,46 @@ export function ExcuseDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Alasan Izin</AlertDialogTitle>
           <AlertDialogDescription>
-            Silakan isi atau ubah alasan izin untuk peserta ini.
+            Pilih alasan izin atau tulis manual.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <div className="py-2">
+
+        {/* Default pilihan */}
+        <div className="py-2 space-y-2">
+          <Select
+            value={preset}
+            onValueChange={(val) => {
+              setPreset(val)
+              setNotes(val) // otomatis isi textarea
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Pilih alasan umum" />
+            </SelectTrigger>
+            <SelectContent>
+              {presetOptions.map((opt) => (
+                <SelectItem key={opt} value={opt}>
+                  {opt}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Textarea untuk detail */}
           <Textarea
             placeholder="Tulis alasan izin..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
         </div>
+
         <AlertDialogFooter>
           <AlertDialogCancel>Batal</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
               onSave(notes)
-              setNotes("") // reset setelah simpan
+              setNotes("")
+              setPreset("")
             }}
           >
             Simpan
