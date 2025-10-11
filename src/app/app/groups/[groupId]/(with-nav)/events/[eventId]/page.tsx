@@ -52,18 +52,24 @@ export default function EventDetailPage() {
   return (
     <div className="p-4 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <Reveal animation="fadeInDown">
           <h1 className="text-2xl font-bold">{event.title}</h1>
         </Reveal>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" className="self-start sm:self-auto">
           <Edit className="w-4 h-4 mr-1" /> Edit
         </Button>
       </div>
 
       {/* Tabs */}
       <Tabs defaultValue="detail" className="w-full">
-        <TabsList className="grid grid-cols-5 w-full">
+        {/* Desktop TabsList */}
+        <TabsList
+          className="
+            hidden sm:grid sm:grid-cols-5
+            w-full rounded-md
+          "
+        >
           <TabsTrigger value="detail">Detail</TabsTrigger>
           <TabsTrigger value="peserta">Peserta</TabsTrigger>
           <TabsTrigger value="task">Task</TabsTrigger>
@@ -71,22 +77,50 @@ export default function EventDetailPage() {
           <TabsTrigger value="notulen">Notulen</TabsTrigger>
         </TabsList>
 
+        {/* Mobile Bottom Tab Bar */}
+        <div className="sm:hidden fixed bottom-13 left-0 right-0 border-t bg-background h-14 flex items-center z-50 px-2">
+          <TabsList className="flex justify-around w-full">
+            <TabsTrigger value="detail" className="flex flex-col items-center text-xs">
+              Detail
+            </TabsTrigger>
+            <TabsTrigger value="peserta" className="flex flex-col items-center text-xs">
+              Peserta
+            </TabsTrigger>
+            <TabsTrigger value="task" className="flex flex-col items-center text-xs">
+              Task
+            </TabsTrigger>
+            <TabsTrigger value="kontribusi" className="flex flex-col items-center text-xs">
+              Kontribusi
+            </TabsTrigger>
+            <TabsTrigger value="notulen" className="flex flex-col items-center text-xs">
+              Notulen
+            </TabsTrigger>
+          </TabsList>
+        </div>
+
+        {/* Tab Contents */}
         <TabsContent value="detail" className="mt-4">
           <DetailTab event={event} />
+          <div className="h-14 sm:hidden" /> {/* spacer biar konten tidak ketutup navbar */}
         </TabsContent>
         <TabsContent value="peserta" className="mt-4">
           <PesertaTab eventId={event.id} />
+          <div className="h-14 sm:hidden" /> {/* spacer biar konten tidak ketutup navbar */}
         </TabsContent>
         <TabsContent value="task" className="mt-4">
           <TaskTab eventId={event.id} />
+          <div className="h-14 sm:hidden" /> {/* spacer biar konten tidak ketutup navbar */}
         </TabsContent>
         <TabsContent value="kontribusi" className="mt-4">
           <KontribusiTab eventId={event.id} />
+          <div className="h-14 sm:hidden" /> {/* spacer biar konten tidak ketutup navbar */}
         </TabsContent>
         <TabsContent value="notulen" className="mt-4">
           <NotulenTab eventId={event.id} />
+          <div className="h-14 sm:hidden" /> {/* spacer biar konten tidak ketutup navbar */}
         </TabsContent>
       </Tabs>
+
     </div>
   )
 }

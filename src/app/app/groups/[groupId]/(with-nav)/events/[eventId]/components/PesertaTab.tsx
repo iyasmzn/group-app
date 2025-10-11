@@ -116,13 +116,16 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
     <div className="space-y-3">
       <LoadingOverlay isLoading={updateLoading} />
 
-      <div className="flex items-center justify-between">
+      {/* Header: total + filter */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <p className="text-sm font-medium">
           Total Peserta: {counts.all}
         </p>
-        {/* Filter Dropdown */}
-        <Select value={filter} onValueChange={(v: "all" | GroupEventAttendance["status"]) => setFilter(v)}>
-          <SelectTrigger className="w-[200px]">
+        <Select
+          value={filter}
+          onValueChange={(v: "all" | GroupEventAttendance["status"]) => setFilter(v)}
+        >
+          <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Filter status" />
           </SelectTrigger>
           <SelectContent>
@@ -135,40 +138,42 @@ export default function PesertaTab({ eventId }: { eventId: string }) {
         </Select>
       </div>
 
-
-
       {sortedAttendees.map((a) => {
         const name = a.display_name
           ? a.display_name
           : a.profiles?.full_name || `User ${a.user_id}`
+
         return (
           <Reveal key={`${a.event_id}-${a.id}`} animation="fadeInUp">
-            <div className="flex items-center justify-between text-sm text-neutral-700 dark:text-neutral-300 border-b pb-2">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-neutral-700 dark:text-neutral-300 border-b pb-2">
+              {/* Info peserta */}
+              <div className="flex items-center gap-2 min-w-0">
                 <GroupAvatar image={a.profiles?.avatar_url} name={name} />
-                <span>{name}</span>
+                <span className="truncate">{name}</span>
                 <span
                   className={cn(
-                    "text-xs px-2 py-0.5 rounded",
+                    "text-xs px-2 py-0.5 rounded whitespace-nowrap",
                     statusColor[a.status]
                   )}
                 >
                   {statusLabel[a.status]}
                 </span>
                 {a.attend_at && (
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
                     • {longDateTime(a.attend_at)}
                   </span>
                 )}
               </div>
 
-              <div className="flex gap-2">
+              {/* Tombol aksi */}
+              <div className="flex flex-wrap sm:flex-nowrap gap-2">
                 {(["present", "absent", "late", "excused"] as const).map((s) => (
                   <Button
                     key={s}
                     size="sm"
                     variant={a.status === s ? "default" : "outline"}
                     onClick={() => handleMark(a.id, s)}
+                    className="flex-1 sm:flex-none"
                   >
                     {statusLabel[s]}
                   </Button>
