@@ -20,17 +20,29 @@ export function AddParticipantDialog({
   eventId,
   members,
   onAdded,
+  existingNames, // 👈 daftar nama peserta yang sudah ada
 }: {
   eventId: string
   members: MemberOption[]
   onAdded: () => void
+  existingNames: string[]
 }) {
   const [open, setOpen] = useState(false)
   const [selectedMembers, setSelectedMembers] = useState<string[]>([])
   const [manualName, setManualName] = useState("")
   const [loading, setLoading] = useState(false)
 
+  const normalizedExisting = existingNames.map((n) => n.trim().toLowerCase())
+  const isDuplicateManual =
+    manualName.trim() &&
+    normalizedExisting.includes(manualName.trim().toLowerCase())
+
   const handleSave = async () => {
+    if (isDuplicateManual) {
+      toast.error("Nama sudah terdaftar sebagai peserta")
+      return
+    }
+
     try {
       setLoading(true)
 
@@ -92,10 +104,15 @@ export function AddParticipantDialog({
               onChange={(e) => setManualName(e.target.value)}
             />
           </div>
+          {isDuplicateManual && (
+            <p className="text-xs text-red-500 mt-1">
+              Nama ini sudah ada di daftar peserta
+            </p>
+          )}
         </div>
 
         <DialogFooter>
-          <Button onClick={handleSave} disabled={loading}>
+          <Button onClick={handleSave} disabled={loading || isDuplicateManual ? true : false}>
             Simpan
           </Button>
         </DialogFooter>

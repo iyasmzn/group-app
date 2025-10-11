@@ -172,6 +172,9 @@ export default function PesertaTab({ eventId, groupId }: { eventId: string; grou
               profiles: m.profiles,
             }))}
             onAdded={fetchAttendees}
+            existingNames={attendees.map(
+              (a) => a.display_name || a.profiles?.full_name || ""
+            )}
           />
         </div>
       }
