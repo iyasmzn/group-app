@@ -17,6 +17,7 @@ import { ExcuseDialog } from "@/components/app/events/ExuseDialog"
 import { AddParticipantDialog } from "@/components/app/events/AddParticipantDialog"
 import { useGroupMembers } from "@/lib/hooks/useGroupMembers"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { useAuth } from "@/lib/supabase/auth"
 
 export default function PesertaTab({
   eventId,
@@ -27,6 +28,7 @@ export default function PesertaTab({
   groupId: string
   roleCode: string
 }) {
+  const {user} = useAuth()
   const [attendees, setAttendees] = useState<GroupEventAttendance[]>([])
   const [loading, setLoading] = useState(true)
   const [updateLoading, setUpdateLoading] = useState(false)
@@ -310,19 +312,23 @@ export default function PesertaTab({
                 ) : (
                   // Non-admin hanya bisa izin
                   <>
-                    <ExcuseDialog
-                      initialNotes={a.notes}
-                      onSave={(notes) => handleMark(a.id, "excused", notes)}
-                      trigger={
-                        <Button
-                          size="sm"
-                          variant={a.status === "excused" ? "default" : "outline"}
-                          className="flex-1 sm:flex-none"
-                        >
-                          {statusLabel["excused"]}
-                        </Button>
-                      }
-                    />
+                  {
+                    a.user_id === user?.id && (
+                      <ExcuseDialog
+                        initialNotes={a.notes}
+                        onSave={(notes) => handleMark(a.id, "excused", notes)}
+                        trigger={
+                          <Button
+                            size="sm"
+                            variant={a.status === "excused" ? "default" : "outline"}
+                            className="flex-1 sm:flex-none"
+                          >
+                            {statusLabel["excused"]}
+                          </Button>
+                        }
+                      />
+                    )
+                  }
                   </>
                 )}
               </div>
