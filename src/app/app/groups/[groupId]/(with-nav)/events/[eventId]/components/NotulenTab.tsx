@@ -1,7 +1,7 @@
 "use client"
 
 import Reveal from "@/components/animations/Reveal"
-import Stepper, { Step } from "@/components/Stepper"
+import Stepper, { Step } from "@/components/ui/stepper"
 import { FileText } from "lucide-react"
 import { useState } from "react"
 
