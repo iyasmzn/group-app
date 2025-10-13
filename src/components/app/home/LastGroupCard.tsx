@@ -88,7 +88,7 @@ export function LastGroupCard({ lastGroup }: { lastGroup: LastGroup }) {
               className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted"
             >
               {unread > 0 ? (
-                <MessageCircleWarning className="w-6 h-6 mb-2 text-warning animate-pulse" />
+                <MessageCircleWarning className="w-6 h-6 mb-2 text-primary animate-pulse" />
               ) : (
                 <MessageCircle className="w-6 h-6 mb-2" />
               )}
@@ -98,7 +98,7 @@ export function LastGroupCard({ lastGroup }: { lastGroup: LastGroup }) {
                 separator=","
                 direction="up"
                 duration={1}
-                className={`text-3xl font-bold ${unread && 'text-warning animate-pulse'}`}
+                className={`text-3xl font-bold ${unread && 'text-primary animate-pulse'}`}
               />
               <span className="text-xs text-muted-foreground">
                 Unread Messages
