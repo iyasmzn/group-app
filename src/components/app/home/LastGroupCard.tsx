@@ -3,10 +3,13 @@
 import Link from "next/link"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Clock, MessageCircle, MessageCircleQuestion } from "lucide-react"
+import { Clock, MessageCircle, MessageCircleQuestion, MessageCircleWarning } from "lucide-react"
 import { GroupAvatar } from "@/components/group-avatar"
 import { useGroupBadges } from "@/context/GroupBadgeContext"
 import Reveal from "@/components/animations/Reveal"
+import { ShineBorder } from "@/components/ui/shine-border"
+import { useTheme } from "next-themes"
+import CountUp from "@/components/ui/count-up"
 
 type LastGroup = {
   id: string
@@ -19,12 +22,14 @@ type LastGroup = {
 export function LastGroupCard({ lastGroup }: { lastGroup: LastGroup }) {
   // ambil badge dari provider
   const { unread } = useGroupBadges()
+  const theme = useTheme()
 
   if (!lastGroup) return null
 
   return (
     <Reveal delay={0.2}>
-      <Card>
+      <Card className="relative overflow-hidden">
+        <ShineBorder shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]} />
         <CardHeader>
           <CardTitle>Last Group</CardTitle>
         </CardHeader>
@@ -83,11 +88,18 @@ export function LastGroupCard({ lastGroup }: { lastGroup: LastGroup }) {
               className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted"
             >
               {unread > 0 ? (
-                <MessageCircleQuestion className="w-6 h-6 mb-2 text-primary" />
+                <MessageCircleWarning className="w-6 h-6 mb-2 text-warning animate-pulse" />
               ) : (
-                <MessageCircle className="w-6 h-6 mb-2 text-primary" />
+                <MessageCircle className="w-6 h-6 mb-2" />
               )}
-              <span className="text-3xl font-bold text-primary">{unread}</span>
+              <CountUp
+                from={0}
+                to={unread}
+                separator=","
+                direction="up"
+                duration={1}
+                className={`text-3xl font-bold ${unread && 'text-warning animate-pulse'}`}
+              />
               <span className="text-xs text-muted-foreground">
                 Unread Messages
               </span>
