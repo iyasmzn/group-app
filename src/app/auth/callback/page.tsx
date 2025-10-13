@@ -9,7 +9,6 @@ export default function AuthCallback() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      // Supabase akan otomatis handle access token di URL
       const { data, error } = await supabase.auth.getSession()
 
       if (error) {
@@ -19,10 +18,34 @@ export default function AuthCallback() {
       }
 
       if (data.session) {
+        const user = data.session.user
+
+        try {
+          // ambil avatar_url dari tabel profiles
+          const { data: profile, error: profileError } = await supabase
+            .from("profiles")
+            .select("avatar_url")
+            .eq("id", user.id)
+            .maybeSingle()
+
+          if (profileError) throw profileError
+
+          if (profile?.avatar_url) {
+            // update metadata user
+            const { error: updateError } = await supabase.auth.updateUser({
+              data: { avatar_url: profile.avatar_url },
+            })
+            if (updateError) {
+              console.error("Error updating user metadata:", updateError)
+            }
+          }
+        } catch (err) {
+          console.error("Profile fetch/update error:", err)
+        }
+
         // sukses login → redirect ke halaman app
         router.replace("/app/home")
       } else {
-        // kalau session kosong → kembali ke login
         router.replace("/login")
       }
     }
@@ -32,7 +55,7 @@ export default function AuthCallback() {
 
   return (
     <div className="flex items-center justify-center min-h-screen">
-      <p className="text-sm text-muted-foreground"></p>
+      <p className="text-sm text-muted-foreground">Authenticating...</p>
     </div>
   )
 }
