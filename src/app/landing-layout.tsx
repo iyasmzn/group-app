@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "@/styles/global.css";
-import { Navbar } from "@/components/navbar";
+import { NavbarDemo } from "@/components/navbar-demo";
 
 export const metadata: Metadata = {
   title: "Group App - Manage Groups & Chat",
@@ -25,8 +25,8 @@ export default function LandingLayout({
 }>) {
   return (
     <>
-        <Navbar />
-        <main className="px-4 py-6">{children}</main>
+      <NavbarDemo />
+      <main className="px-4 py-6">{children}</main>
     </>
   );
 }
