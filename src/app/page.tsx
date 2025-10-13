@@ -3,6 +3,7 @@ import LandingLayout from "./landing-layout";
 import Link from "next/link";
 import { useAuth } from "@/lib/supabase/auth";
 import Reveal from "@/components/animations/Reveal";
+import FeaturesSection from "@/components/landing/features-section";
 
 export default function LandingPage() {
   const { user } = useAuth()
@@ -48,34 +49,11 @@ export default function LandingPage() {
         {/* Features Section */}
         <section id="features" className="max-w-6xl mx-auto py-24 px-6">
           <Reveal>
-            <h2 className="text-3xl font-bold text-center mb-12">Features</h2>
+            <h2 className="text-3xl font-bold text-center mb-4">Features</h2>
           </Reveal>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <Reveal>
-              <div className="border p-6 rounded-xl shadow hover:shadow-lg transition-shadow">
-                <h3 className="font-semibold text-xl mb-2">Group Management</h3>
-                <p>Create and manage groups with flexible member roles.</p>
-              </div>
-            </Reveal>
-            <Reveal delay={0.3}>
-              <div className="border p-6 rounded-xl shadow hover:shadow-lg transition-shadow">
-                <h3 className="font-semibold text-xl mb-2">Realtime Chat</h3>
-                <p>Chat with your group members instantly, upload files and images.</p>
-              </div>
-            </Reveal>
-            <Reveal delay={0.6}>
-              <div className="border p-6 rounded-xl shadow hover:shadow-lg transition-shadow">
-                <h3 className="font-semibold text-xl mb-2">Dynamic Roles</h3>
-                <p>Owners can create custom roles with permissions dynamically.</p>
-              </div>
-            </Reveal>
-            <Reveal delay={0.9}>
-              <div className="border p-6 rounded-xl shadow hover:shadow-lg transition-shadow">
-                <h3 className="font-semibold text-xl mb-2">Theme & Accessibility</h3>
-                <p>Toggle dark/light mode and enjoy fully responsive design.</p>
-              </div>
-            </Reveal>
-          </div>
+          <Reveal delay={0.5} animation="fadeInUp">
+            <FeaturesSection />
+          </Reveal>
         </section>
 
         {/* Call to Action */}
