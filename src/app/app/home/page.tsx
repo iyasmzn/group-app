@@ -11,6 +11,8 @@ import { GroupAvatar } from "@/components/group-avatar"
 import Link from "next/link"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { GroupBadgeProvider } from "@/context/GroupBadgeContext"
+import { LastGroupCard } from "@/components/app/home/LastGroupCard"
 
 type LastGroup = {
   id: string
@@ -19,7 +21,7 @@ type LastGroup = {
   message_last_seen_at: string
   last_seen_at: string
   unreadCount: number
-  joinedate: Date
+  joinedate: string
 }
 
 export default function UserHomePage() {
@@ -112,69 +114,9 @@ export default function UserHomePage() {
           </Reveal>
 
           {lastGroup && (
-            <Reveal delay={0.2}>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Last Group</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-row justify-between items-center">
-                    <Link href={`groups/${lastGroup.id}`} className="flex items-center gap-2 mb-4">
-                      <GroupAvatar 
-                        name={lastGroup.name} 
-                        image={lastGroup.image_url} // kalau ada, tampil gambar
-                        size="lg" 
-                      />
-                      <div>
-                        <p>{ lastGroup.name }</p>
-                        <p className="text-xs text-muted-foreground">
-                          Joined: 
-                          <span className="ml-1">
-                            { lastGroup.joinedate ? new Date(lastGroup.joinedate).toLocaleString("id-ID", {
-                              day: "numeric",
-                              month: "short",
-                              year: 'numeric'
-                            }) : '-' }
-                          </span>
-                        </p>
-                      </div>
-                    </Link>
-                    <Button asChild variant={'outline'}>
-                      <Link href={`groups/${lastGroup.id}`}>
-                      Show
-                      </Link>
-                    </Button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* Last seen */}
-                    <div className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted">
-                      <Clock className="w-6 h-6 mb-2 text-primary" />
-                      <span className="text-sm text-muted-foreground">Last seen</span>
-                      <span className="text-sm font-semibold">
-                        {lastGroup.last_seen_at ? new Date(lastGroup.last_seen_at).toLocaleString("id-ID", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          day: "numeric",
-                          month: "short",
-                        }) : '-'}
-                      </span>
-                    </div>
-
-                    {/* Unread messages */}
-                    <Link href={`groups/${lastGroup.id}/chat`} className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted">
-                      {
-                        lastGroup.unreadCount ?
-                        <MessageCircleQuestion className="w-6 h-6 mb-2 text-primary" />
-                        :
-                        <MessageCircle />
-                      }
-                      <span className="text-3xl font-bold text-primary">{lastGroup.unreadCount}</span>
-                      <span className="text-xs text-muted-foreground">Unread Messages</span>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            </Reveal>
+            <GroupBadgeProvider groupId={lastGroup.id}>
+              <LastGroupCard lastGroup={lastGroup} />
+            </GroupBadgeProvider>
           )}
         </div>
       </PageWrapper>
