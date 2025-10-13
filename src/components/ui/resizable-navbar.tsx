@@ -21,12 +21,13 @@ interface NavBodyProps {
   className?: string;
   visible?: boolean;
 }
-
+interface NavItem {
+  name: string
+  link: string
+  onItemClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void
+}
 interface NavItemsProps {
-  items: {
-    name: string;
-    link: string;
-  }[];
+  items: NavItem[];
   className?: string;
   onItemClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void
 }
@@ -126,16 +127,13 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
     >
       {items.map((item, idx) => (
         <a
-          onMouseEnter={() => setHovered(idx)}
-          onClick={(e) => {
-            // kalau ada handler custom, pakai itu
-            if (typeof (item as any).onItemClick === "function") {
-              (item as any).onItemClick(e)
-            }
-          }}
-          className="relative px-4 py-2 text-neutral-600 dark:text-neutral-300"
           key={`link-${idx}`}
           href={item.link}
+          onMouseEnter={() => setHovered(idx)}
+          onClick={(e) => {
+            item.onItemClick?.(e)
+          }}
+          className="relative px-4 py-2 text-neutral-600 dark:text-neutral-300"
         >
           {hovered === idx && (
             <motion.div
