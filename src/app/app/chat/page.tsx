@@ -75,7 +75,7 @@ export default function ChatPage() {
             </TabsList>
           </Tabs>
 
-          <div className="mt-4 relative overflow-hidden">
+          <div className="mt-4 relative">
             {/* Overlay indikator swipe */}
             {dragX !== 0 && (
               <div
@@ -125,8 +125,8 @@ export default function ChatPage() {
                   className="space-y-2 relative z-10"
                 >
                   {groupChats.map((chat, i) => (
-                    <Reveal delay={i * 0.1} animation="fadeInRight">
-                      <ChatListItem key={i} {...chat} index={i} />
+                    <Reveal key={i} delay={i * 0.1} animation="fadeInRight">
+                      <ChatListItem {...chat} index={i} />
                     </Reveal>
                   ))}
                 </motion.div>

@@ -23,7 +23,7 @@ export function ChatListItem({
     <div
       onClick={onClick}
       className="
-        flex items-center gap-3 p-3 rounded-lg cursor-pointer
+        flex items-center gap-3 p-3 rounded-2xl cursor-pointer
         hover:bg-muted/50
         transition-all duration-200 ease-out
         hover:scale-[1.01] active:scale-[0.99]
