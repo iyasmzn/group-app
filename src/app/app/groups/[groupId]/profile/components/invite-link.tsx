@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/lib/supabase/auth";
 import { longDate } from "@/lib/utils/format";
-import { copyToClipboard } from "@/lib/utils/helper";
+import { copyToClipboard } from "@/lib/utils/clipboard";
 import { createInvite } from "@/services/groupService/createInvite";
 import { GroupInvite } from "@/types/group";
 import { Copy, Link2, QrCode } from "lucide-react";
