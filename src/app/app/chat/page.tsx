@@ -9,8 +9,10 @@ import { ChatListItem } from "@/components/app/chat/ChatListItem"
 import { useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import Reveal from "@/components/animations/Reveal"
+import { useRouter } from "next/navigation"
 
 export default function ChatPage() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<"private" | "group">("private")
   const [dragX, setDragX] = useState(0) // untuk indikator swipe
 
@@ -102,8 +104,8 @@ export default function ChatPage() {
                   className="space-y-2 relative z-10"
                 >
                   {privateChats.map((chat, i) => (
-                    <Reveal delay={i * 0.1} animation="fadeInLeft">
-                      <ChatListItem key={i} {...chat} index={i} />
+                    <Reveal key={i} delay={i * 0.1} animation="fadeInLeft">
+                      <ChatListItem {...chat} index={i} onClick={() => router.push('/app/users/123/chat')} />
                     </Reveal>
                   ))}
                 </motion.div>
