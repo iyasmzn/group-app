@@ -30,9 +30,6 @@ export function LastGroupCard({ lastGroup }: { lastGroup: LastGroup }) {
     <Reveal delay={0.2}>
       <Card className="relative overflow-hidden">
         <ShineBorder shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]} />
-        <CardHeader>
-          <CardTitle>Last Group</CardTitle>
-        </CardHeader>
         <CardContent>
           <div className="flex flex-row justify-between items-center">
             <Link

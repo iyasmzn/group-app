@@ -5,14 +5,11 @@ import { useAuth } from "@/lib/supabase/auth"
 import PageWrapper from "@/components/page-wrapper"
 import Reveal from "@/components/animations/Reveal"
 import { AppBottombar } from "@/components/app/bottombar"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Clock, MessageCircle, MessageCircleQuestion } from "lucide-react"
-import { GroupAvatar } from "@/components/group-avatar"
-import Link from "next/link"
 import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
 import { GroupBadgeProvider } from "@/context/GroupBadgeContext"
 import { LastGroupCard } from "@/components/app/home/LastGroupCard"
+import { GroupAvatar } from "@/components/group-avatar"
+import { ClockFading } from "lucide-react"
 
 type LastGroup = {
   id: string
@@ -111,10 +108,15 @@ export default function UserHomePage() {
         <div className="p-4 max-w-4xl mx-auto space-y-6">
           <Reveal>
             <h1 className="text-2xl font-bold">Hello, {user.user_metadata.full_name || user.email}!</h1>
+            <GroupAvatar image={user.user_metadata.avatar_url} name={user.user_metadata.full_name} />
           </Reveal>
 
           {lastGroup && (
             <GroupBadgeProvider groupId={lastGroup.id}>
+              <h4>
+                <ClockFading className="inline-block mr-2" />
+                Last Group Activity
+              </h4>
               <LastGroupCard lastGroup={lastGroup} />
             </GroupBadgeProvider>
           )}
