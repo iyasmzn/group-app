@@ -106,7 +106,7 @@ export default function UserHomePage() {
       <AppBottombar />
       <PageWrapper>
         <div className="p-4 max-w-4xl mx-auto space-y-6">
-          <Reveal className="flex items-center gap-2" animation="fadeInDown">
+          <Reveal className="flex items-center gap-4" animation="fadeInDown">
             <GroupAvatar 
               size="xl" 
               image={user.user_metadata.avatar_url} 
