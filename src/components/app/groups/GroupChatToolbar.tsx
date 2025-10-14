@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils"
 import { useState } from "react"
 
 interface GroupChatTopbarProps {
+  groupId: string
   name: string
   avatar?: string
   membersCount?: number
@@ -40,6 +41,7 @@ interface GroupChatTopbarProps {
 }
 
 export function GroupChatTopbar({
+  groupId,
   name,
   avatar,
   membersCount,
@@ -97,7 +99,7 @@ export function GroupChatTopbar({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-44">
-            <DropdownMenuItem onClick={() => console.log("View Members")}>
+            <DropdownMenuItem onClick={() => router.push(`members`)}>
               <Users className="w-4 h-4 mr-2" />
               View Members
             </DropdownMenuItem>
