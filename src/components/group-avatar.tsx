@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { getInitials } from "@/lib/utils/format"
 
 interface GroupAvatarProps {
   name: string
@@ -20,13 +21,6 @@ interface GroupAvatarProps {
     icon?: React.ReactNode
     onClick?: () => void
   }
-}
-
-function getGroupInitials(name: string) {
-  if (!name) return "?"
-  const words = name.trim().split(" ").filter(Boolean)
-  if (words.length === 1) return words[0][0].toUpperCase()
-  return (words[0][0] + words[1][0]).toUpperCase()
 }
 
 function getAvatarColor(name: string) {
@@ -48,7 +42,7 @@ export function GroupAvatar({
   className,
   hoverAction,
 }: GroupAvatarProps) {
-  const initials = getGroupInitials(name)
+  const initials = getInitials(name)
   const bg = getAvatarColor(name)
   const [open, setOpen] = useState(false)
   const [showOverlay, setShowOverlay] = useState(false)

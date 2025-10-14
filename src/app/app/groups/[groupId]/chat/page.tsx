@@ -9,7 +9,7 @@ import { useRealtimeTable } from "@/lib/hooks/useRealtimeTable"
 import { toast } from "sonner"
 import ChatInput from "@/components/app/chat-input"
 import { GroupAvatar } from "@/components/group-avatar"
-import { formatDateDivider } from "@/lib/utils/helper"
+import { formatDateDivider } from "@/lib/utils/format"
 import { useMessageSeen } from "@/lib/hooks/useMessageSeen"
 import { ChatShell } from "./ChatShell"
 

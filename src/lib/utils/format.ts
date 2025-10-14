@@ -96,10 +96,24 @@ export function capitalize(str: string) {
 /**
  * Ambil inisial dari nama (contoh: "Group App" => "GA")
  */
-export function getInitials(name: string, max: number = 2) {
-  const words = name.trim().split(" ")
-  if (words.length === 1) return words[0][0]?.toUpperCase() || ""
-  return words.slice(0, max).map(w => w[0]?.toUpperCase()).join("")
+export function getInitials(name: string, max: number = 2): string {
+  if (!name) return "?" // fallback kalau kosong
+
+  const words = name
+    .trim()
+    .split(" ")
+    .filter(Boolean) // buang spasi ganda
+
+  if (words.length === 0) return "?"
+
+  if (words.length === 1) {
+    return words[0][0]?.toUpperCase() || "?"
+  }
+
+  return words
+    .slice(0, max) // ambil sesuai max
+    .map(w => w[0]?.toUpperCase())
+    .join("")
 }
 
 /**
@@ -124,3 +138,21 @@ export function timeAgo(date: Date | string, locale: string = "id-ID") {
   return formatDate(d, locale)
 }
 
+export function formatDateDivider(dateStr: string) {
+  const date = new Date(dateStr)
+  const today = new Date()
+  const yesterday = new Date()
+  yesterday.setDate(today.getDate() - 1)
+
+  const isToday = date.toDateString() === today.toDateString()
+  const isYesterday = date.toDateString() === yesterday.toDateString()
+
+  if (isToday) return "Hari ini"
+  if (isYesterday) return "Kemarin"
+  return date.toLocaleDateString("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  })
+}
