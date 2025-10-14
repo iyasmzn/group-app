@@ -4,9 +4,9 @@ import { motion } from "framer-motion"
 import {
   ArrowLeft,
   MoreVertical,
-  User,
+  Users,
   BellOff,
-  Trash2,
+  LogOut,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { GroupAvatar } from "@/components/group-avatar"
@@ -32,25 +32,25 @@ import {
 import { cn } from "@/lib/utils"
 import { useState } from "react"
 
-interface PrivateChatTopbarProps {
+interface GroupChatTopbarProps {
   name: string
   avatar?: string
-  status?: string
+  membersCount?: number
   className?: string
 }
 
-export function PrivateChatTopbar({
+export function GroupChatTopbar({
   name,
   avatar,
-  status,
+  membersCount,
   className,
-}: PrivateChatTopbarProps) {
+}: GroupChatTopbarProps) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
 
-  const handleDelete = () => {
+  const handleLeave = () => {
     setOpen(false)
-    console.log("Chat deleted!") // TODO: ganti dengan logic hapus chat
+    console.log("Left group!") // TODO: ganti dengan logic leave group
   }
 
   return (
@@ -78,16 +78,10 @@ export function PrivateChatTopbar({
 
         <div className="flex flex-col leading-tight">
           <span className="font-medium text-sm">{name}</span>
-          {status && (
-            <motion.span
-              key={status}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="text-xs text-muted-foreground"
-            >
-              {status}
-            </motion.span>
+          {membersCount !== undefined && (
+            <span className="text-xs text-muted-foreground">
+              {membersCount} members
+            </span>
           )}
         </div>
       </div>
@@ -102,42 +96,42 @@ export function PrivateChatTopbar({
               <MoreVertical className="w-5 h-5" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem onClick={() => console.log("View Profile")}>
-              <User className="w-4 h-4 mr-2" />
-              View Profile
+          <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuItem onClick={() => console.log("View Members")}>
+              <Users className="w-4 h-4 mr-2" />
+              View Members
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => console.log("Mute Chat")}>
+            <DropdownMenuItem onClick={() => console.log("Mute Group")}>
               <BellOff className="w-4 h-4 mr-2" />
-              Mute
+              Mute Group
             </DropdownMenuItem>
 
-            {/* Delete with AlertDialog */}
+            {/* Leave Group with AlertDialog */}
             <AlertDialog open={open} onOpenChange={setOpen}>
               <AlertDialogTrigger asChild>
                 <DropdownMenuItem
-                  onSelect={(e) => e.preventDefault()} // biar tidak langsung close
+                  onSelect={(e) => e.preventDefault()}
                   className="text-red-600 focus:text-red-600"
                 >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete Chat
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Leave Group
                 </DropdownMenuItem>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Delete this chat?</AlertDialogTitle>
+                  <AlertDialogTitle>Leave this group?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. All messages in this chat will
-                    be permanently removed.
+                    You will no longer receive messages or notifications from
+                    this group.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
-                    onClick={handleDelete}
+                    onClick={handleLeave}
                     className="bg-red-600 hover:bg-red-700"
                   >
-                    Delete
+                    Leave
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
