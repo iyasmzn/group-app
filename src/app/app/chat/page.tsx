@@ -26,12 +26,13 @@ export default function ChatPage() {
     { name: "Family", lastMessage: "Jangan lupa makan malam", time: "16:00", unread: 2 },
   ]
 
-  // arah dibalik: swipe kiri -> group, swipe kanan -> private
   const handleSwipe = (offsetX: number) => {
     if (offsetX < -50 && activeTab === "private") {
       setActiveTab("group")
+      if (navigator.vibrate) navigator.vibrate(30) // haptic feedback
     } else if (offsetX > 50 && activeTab === "group") {
       setActiveTab("private")
+      if (navigator.vibrate) navigator.vibrate(30)
     }
     setDragX(0)
   }
@@ -44,7 +45,14 @@ export default function ChatPage() {
       />
       <PageWrapper>
         <div className="max-w-4xl mx-auto p-4">
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
+          <Tabs
+            value={activeTab}
+            onValueChange={(v) => {
+              setActiveTab(v as any)
+              if (navigator.vibrate) navigator.vibrate(20)
+            }}
+            className="w-full"
+          >
             <TabsList className="grid grid-cols-2 w-full sm:max-w-sm">
               <TabsTrigger value="private" className="relative">
                 Pribadi
