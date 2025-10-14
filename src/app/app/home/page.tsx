@@ -106,18 +106,34 @@ export default function UserHomePage() {
       <AppBottombar />
       <PageWrapper>
         <div className="p-4 max-w-4xl mx-auto space-y-6">
-          <Reveal>
-            <h1 className="text-2xl font-bold">Hello, {user.user_metadata.full_name || user.email}!</h1>
-            <GroupAvatar image={user.user_metadata.avatar_url} name={user.user_metadata.full_name} />
+          <Reveal className="flex items-center gap-2" animation="fadeInDown">
+            <GroupAvatar 
+              size="xl" 
+              image={user.user_metadata.avatar_url} 
+              name={user.user_metadata.full_name} 
+              hoverAction={{
+                onClick: () => router.push('/app/profile')
+              }}
+            />
+            <div>
+              <h3 className="text-xl text-secondary-foreground">Welcome,</h3>
+              <h3 className="text-2xl font-bold">
+                {user.user_metadata.full_name || user.email}!
+              </h3>
+            </div>
           </Reveal>
 
           {lastGroup && (
             <GroupBadgeProvider groupId={lastGroup.id}>
-              <h4>
-                <ClockFading className="inline-block mr-2" />
-                Last Group Activity
-              </h4>
-              <LastGroupCard lastGroup={lastGroup} />
+              <Reveal>
+                <h4>
+                  <ClockFading className="inline-block mr-2" />
+                  Last Group Activity
+                </h4>
+              </Reveal>
+              <Reveal delay={0.1}>
+                <LastGroupCard lastGroup={lastGroup} />
+              </Reveal>
             </GroupBadgeProvider>
           )}
         </div>

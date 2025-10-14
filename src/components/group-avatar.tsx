@@ -3,12 +3,17 @@
 import React from "react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { Settings } from "lucide-react"
 
 interface GroupAvatarProps {
   name: string
   image?: string | null
   size?: "xs" | "sm" | "md" | "lg" | "xl" | "xxl"
   className?: string
+  hoverAction?: {
+    icon?: React.ReactNode
+    onClick?: () => void
+  }
 }
 
 // 🔹 ambil inisial
@@ -33,7 +38,13 @@ function getAvatarColor(name: string) {
   return palette[index]
 }
 
-export function GroupAvatar({ name, image, size = "md", className }: GroupAvatarProps) {
+export function GroupAvatar({
+  name,
+  image,
+  size = "md",
+  className,
+  hoverAction,
+}: GroupAvatarProps) {
   const initials = getGroupInitials(name)
   const bg = getAvatarColor(name)
 
@@ -49,9 +60,9 @@ export function GroupAvatar({ name, image, size = "md", className }: GroupAvatar
   return (
     <div
       className={cn(
-        "flex items-center justify-center rounded-full overflow-hidden",
+        "relative group flex items-center justify-center rounded-full overflow-hidden",
         sizeMap[size].box,
-        !image && bg, // hanya pakai bg kalau tidak ada image
+        !image && bg,
         className
       )}
     >
@@ -65,6 +76,17 @@ export function GroupAvatar({ name, image, size = "md", className }: GroupAvatar
         />
       ) : (
         <span className="font-bold text-white">{initials}</span>
+      )}
+
+      {/* Hover Action */}
+      {hoverAction && (
+        <button
+          type="button"
+          onClick={hoverAction.onClick}
+          className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          {hoverAction.icon ?? <Settings className="w-5 h-5 text-white" />}
+        </button>
       )}
     </div>
   )
