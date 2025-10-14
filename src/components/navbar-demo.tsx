@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { MobileNav, MobileNavHeader, MobileNavMenu, MobileNavToggle, Navbar, NavbarButton, NavbarLogo, NavBody, NavItems } from "./ui/resizable-navbar";
+import { ModeToggle } from "./mode-toggle";
 
 export function NavbarDemo() {
   const [isOpen, setIsOpen] = useState(false)
@@ -42,6 +43,7 @@ export function NavbarDemo() {
           <NavItems items={navItems} />
           <div className="flex items-center gap-4">
             <NavbarButton variant="secondary" href="/login">Login</NavbarButton>
+            <ModeToggle />
           </div>
         </NavBody>
  
@@ -78,6 +80,7 @@ export function NavbarDemo() {
               >
                 Login
               </NavbarButton>
+              <ModeToggle />
             </div>
           </MobileNavMenu>
         </MobileNav>
