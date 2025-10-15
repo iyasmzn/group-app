@@ -33,4 +33,15 @@ export const groupService = {
     if (error) throw error
     return data as GroupMember[]
   },
+
+  // get group by group member user id
+  async getByMember(userId: string) {
+    const { data, error } = await supabase
+      .from("groups")
+      .select("*, group_members!inner(*)")
+      .eq("group_members.user_id", userId)
+
+    if (error) throw error
+    return data as Group[]
+  }
 }

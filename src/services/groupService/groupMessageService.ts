@@ -9,16 +9,56 @@ export type GroupMessage = {
   createdat: string
 }
 
+export type GroupChatItem = {
+  id: string
+  name: string
+  lastMessage: string
+  lastCreatedAt: string
+  unread: number
+}
+
 export const groupMessageService = {
-  async getLatestByGroups(groupIds: string[]) {
+  async getLatestByGroups(groupIds: string[], userId: string) {
+    // ambil semua pesan terbaru per grup
     const { data, error } = await supabase
       .from("group_messages")
-      .select("group_id, content, createdat")
+      .select("group_id, content, createdat, sender_id")
       .in("group_id", groupIds)
       .order("createdat", { ascending: false })
 
     if (error) throw error
-    return data as GroupMessage[]
+
+    // ambil hanya pesan terbaru per grup
+    const latestMap = new Map<string, { content: string; createdat: string }>()
+    for (const msg of data ?? []) {
+      if (!latestMap.has(msg.group_id)) {
+        latestMap.set(msg.group_id, {
+          content: msg.content,
+          createdat: msg.createdat,
+        })
+      }
+    }
+
+    // hitung unread per grup
+    const result: GroupChatItem[] = []
+    for (const groupId of groupIds) {
+      const last = latestMap.get(groupId)
+      const unread = await groupMessageService.getUnreadCount(groupId, userId)
+      result.push({
+        id: groupId,
+        name: "", // bisa join ke tabel groups untuk ambil nama
+        lastMessage: last?.content ?? "Belum ada pesan",
+        lastCreatedAt: last?.createdat ?? "",
+        unread,
+      })
+    }
+
+    // sort berdasarkan lastCreatedAt terbaru
+    return result.sort(
+      (a, b) =>
+        new Date(b.lastCreatedAt).getTime() -
+        new Date(a.lastCreatedAt).getTime()
+    )
   },
   
   async getUnreadCount(groupId: string, userId: string) {

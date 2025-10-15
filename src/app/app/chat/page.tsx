@@ -20,6 +20,7 @@ type GroupChatItem = {
   name: string
   lastMessage: string
   time: string
+  lastCreatedAt: string
   unread: number
 }
 
@@ -27,73 +28,107 @@ export default function ChatPage() {
   const { user, supabase } = useAuth()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<"private" | "group">("private")
-  const [dragX, setDragX] = useState(0) // untuk indikator swipe
+  const [dragX, setDragX] = useState(0)
   const [groupChats, setGroupChats] = useState<GroupChatItem[]>([])
 
-  const unread = { private: 3, group: 7 }
-  // hitung total unread
+  const unread = { private: 3 } // dummy private
   const totalGroupUnread = groupChats.reduce((sum, g) => sum + g.unread, 0)
-
 
   const privateChats = [
     { name: "Alice", lastMessage: "Hey, apa kabar?", time: "19:45", unread: 2 },
     { name: "Bob", lastMessage: "Oke, besok ketemu ya", time: "18:20", unread: 1 },
   ]
 
-   useEffect(() => {
+  // fetch awal
+  useEffect(() => {
     async function fetchGroups() {
-      const userId = user?.id
-      if (!userId) return
-      const groups = await groupService.read()
-      const messages = await groupMessageService.getLatestByGroups(groups.map((g) => g.id))
+      if (!user) return
+      const groups = await groupService.getByMember(user.id)
 
-      const merged = await Promise.all(
-        groups.map(async (g) => {
-          const lastMsg = messages.find((m) => m.group_id === g.id)
-          const unread = await groupMessageService.getUnreadCount(g.id, userId)
-
-          return {
-            id: g.id,
-            name: g.name,
-            lastMessage: lastMsg?.content ?? "Belum ada pesan",
-            time: lastMsg?.createdat
-              ? new Date(lastMsg.createdat).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-              : "",
-            unread,
-          }
-        })
+      // lempar user.id ke service
+      const chats = await groupMessageService.getLatestByGroups(
+        groups.map((g) => g.id),
+        user.id
       )
 
-      setGroupChats(merged)
+      const merged = chats.map((c) => ({
+        ...c,
+        name: groups.find((g) => g.id === c.id)?.name ?? "Unknown",
+        time: c.lastCreatedAt
+          ? new Date(c.lastCreatedAt).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : "",
+      }))
+
+      setGroupChats(
+        merged.sort(
+          (a, b) =>
+            new Date(b.lastCreatedAt).getTime() -
+            new Date(a.lastCreatedAt).getTime()
+        )
+      )
     }
     fetchGroups()
-  }, [])
+  }, [user?.id])
 
 
-  // realtime update pesan baru
+  // realtime update
   useRealtimeTable<GroupMessage>({
     supabase,
     table: "group_messages",
-    onInsert: (msg) => {
-      setGroupChats((prev) =>
-        prev.map((chat) =>
+    onInsert: async (msg) => {
+      if (!user) return
+
+      // hitung ulang unread untuk grup ini
+      const unread = await groupMessageService.getUnreadCount(msg.group_id, user.id)
+
+      setGroupChats((prev) => {
+        let updated = prev.map((chat) =>
           chat.id === msg.group_id
             ? {
                 ...chat,
                 lastMessage: msg.content,
-                time: new Date(msg.createdat).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-                unread: chat.unread + 1,
+                time: new Date(msg.createdat).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }),
+                lastCreatedAt: msg.createdat,
+                unread, // pakai hasil getUnreadCount, bukan sekadar +1
               }
             : chat
         )
-      )
+
+        // kalau grup belum ada di list, tambahkan
+        if (!updated.find((c) => c.id === msg.group_id)) {
+          updated.push({
+            id: msg.group_id,
+            name: "Unknown",
+            lastMessage: msg.content,
+            time: new Date(msg.createdat).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            lastCreatedAt: msg.createdat,
+            unread,
+          })
+        }
+
+        // sort ulang berdasarkan lastCreatedAt
+        return [...updated].sort(
+          (a, b) =>
+            new Date(b.lastCreatedAt).getTime() -
+            new Date(a.lastCreatedAt).getTime()
+        )
+      })
     },
   })
 
   const handleSwipe = (offsetX: number) => {
     if (offsetX < -50 && activeTab === "private") {
       setActiveTab("group")
-      if (navigator.vibrate) navigator.vibrate(30) // haptic feedback
+      if (navigator.vibrate) navigator.vibrate(30)
     } else if (offsetX > 50 && activeTab === "group") {
       setActiveTab("private")
       if (navigator.vibrate) navigator.vibrate(30)
@@ -103,10 +138,7 @@ export default function ChatPage() {
 
   return (
     <>
-      <AppTopbar
-        title="Chat"
-        titleIcon={<MessageCircle className="w-6 h-6" />}
-      />
+      <AppTopbar title="Chat" titleIcon={<MessageCircle className="w-6 h-6" />} />
       <PageWrapper>
         <div className="max-w-4xl mx-auto p-4">
           <Tabs
@@ -138,15 +170,12 @@ export default function ChatPage() {
           </Tabs>
 
           <div className="mt-4 relative">
-            {/* Overlay indikator swipe */}
             {dragX !== 0 && (
               <div
                 className="absolute inset-0 pointer-events-none transition-colors"
                 style={{
                   backgroundColor:
-                    dragX > 0
-                      ? "rgba(59,130,246,0.1)" // biru muda saat swipe kanan
-                      : "rgba(239,68,68,0.1)", // merah muda saat swipe kiri
+                    dragX > 0 ? "rgba(59,130,246,0.1)" : "rgba(239,68,68,0.1)",
                 }}
               />
             )}
@@ -167,7 +196,7 @@ export default function ChatPage() {
                 >
                   {privateChats.map((chat, i) => (
                     <Reveal key={i} delay={i * 0.1} animation="fadeInLeft">
-                      <ChatListItem {...chat} index={i} onClick={() => router.push('/app/users/123/chat')} />
+                      <ChatListItem {...chat} index={i} onClick={() => router.push("/app/users/123/chat")} />
                     </Reveal>
                   ))}
                 </motion.div>
@@ -188,15 +217,20 @@ export default function ChatPage() {
                 >
                   {groupChats.map((chat, i) => (
                     <Reveal key={i} delay={i * 0.1} animation="fadeInRight">
-                      <ChatListItem 
-                        index={i} 
+                      <ChatListItem
+                        index={i}
                         {...chat}
                         onClick={async () => {
-                          // update last_seen
                           if (!user) return
-                          await groupMessageService.markAsRead(chat.id, user?.id, new Date().toISOString())
+                          await groupMessageService.markAsRead(chat.id, user.id, new Date().toISOString())
+                          // optimistic reset unread
+                          setGroupChats((prev) =>
+                            prev.map((c) =>
+                              c.id === chat.id ? { ...c, unread: 0 } : c
+                            )
+                          )
                           router.push(`/app/groups/${chat.id}/chat`)
-                        }} 
+                        }}
                       />
                     </Reveal>
                   ))}
