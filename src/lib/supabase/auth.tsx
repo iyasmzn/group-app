@@ -39,6 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
       setUser(session?.user ?? null)
+      setLoading(false)
     })
 
     return () => {
@@ -62,8 +63,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw new Error(error.message)
-    // tapi kalau mau langsung fetch juga bisa
-    refreshSession()
   }
 
   const signInWithGoogle = async () => {
@@ -84,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(null)
   }
 
-  const updateUserMeta = async (data: Record<string, Partial<User["user_metadata"]>>) => {
+  const updateUserMeta = async (data: Partial<User["user_metadata"]>) => {
     const { error } = await supabase.auth.updateUser({ data })
     if (error) throw new Error(error.message)
     
