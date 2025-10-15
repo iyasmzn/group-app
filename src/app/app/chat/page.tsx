@@ -85,7 +85,7 @@ export default function ChatPage() {
       const unread = await groupMessageService.getUnreadCount(msg.group_id, user.id)
 
       setGroupChats((prev) => {
-        let updated = prev.map((chat) =>
+        const updated = prev.map((chat) =>
           chat.id === msg.group_id
             ? {
                 ...chat,
