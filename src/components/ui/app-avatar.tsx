@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/avatar"
 import { PreviewImageDialog } from "../preview-image-dialog"
 import { getBlurThumbnailUrl } from "@/lib/cloudinary"
+import { getInitials } from "@/lib/utils/format"
 
 type AppAvatarProps = {
   name: string
@@ -50,9 +51,7 @@ export function AppAvatar({
   preview,
   status,
 }: AppAvatarProps) {
-  const initials = name
-    ? name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
-    : "U"
+  const initials = getInitials(name)
   const bg = getAvatarColor(name)
 
   return (
