@@ -24,7 +24,6 @@ const AppBadgeContext = createContext<AppBadgeContextType>({
 export function AppBadgeProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth()
   const [groupUnreadMap, setGroupUnreadMap] = useState<Record<string, number>>({})
-  const [chat, setChat] = useState(0)
 
   // fungsi fetch awal unread
   async function refresh() {
@@ -40,7 +39,6 @@ export function AppBadgeProvider({ children }: { children: React.ReactNode }) {
       total += count
     }
     setGroupUnreadMap(map)
-    setChat(total) // sementara chat = total group, nanti bisa ditambah private
   }
 
   useEffect(() => {
@@ -65,7 +63,6 @@ export function AppBadgeProvider({ children }: { children: React.ReactNode }) {
               const updated = { ...prev, [msg.group_id]: count }
               return updated
             })
-            setChat((prev) => prev + 1)
           }
         }
       )
@@ -87,6 +84,7 @@ export function AppBadgeProvider({ children }: { children: React.ReactNode }) {
 
   // total unread groups = sum dari map
   const groups = Object.values(groupUnreadMap).reduce((a, b) => a + b, 0)
+  const chat = groups // + privateUnread kalau ada
 
   return (
     <AppBadgeContext.Provider value={{ chat, groups, groupUnreadMap, refresh, resetGroupUnread }}>
