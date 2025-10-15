@@ -1,6 +1,7 @@
 // app/app/layout.tsx
 import type { Metadata } from "next"
 import { AuthGuard } from "./AuthGuard"
+import { AppBadgeProvider } from "@/context/AppBadgeContext"
 
 export const metadata: Metadata = {
   title: "App | Group App",
@@ -8,5 +9,11 @@ export const metadata: Metadata = {
 }
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  return <AuthGuard>{children}</AuthGuard>
+  return (
+    <AuthGuard>
+      <AppBadgeProvider>
+        {children}
+      </AppBadgeProvider>
+    </AuthGuard>
+  )
 }

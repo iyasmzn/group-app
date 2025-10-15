@@ -30,8 +30,10 @@ export default function ChatPage() {
   const [dragX, setDragX] = useState(0) // untuk indikator swipe
   const [groupChats, setGroupChats] = useState<GroupChatItem[]>([])
 
-
   const unread = { private: 3, group: 7 }
+  // hitung total unread
+  const totalGroupUnread = groupChats.reduce((sum, g) => sum + g.unread, 0)
+
 
   const privateChats = [
     { name: "Alice", lastMessage: "Hey, apa kabar?", time: "19:45", unread: 2 },
@@ -126,9 +128,9 @@ export default function ChatPage() {
               </TabsTrigger>
               <TabsTrigger value="group" className="relative">
                 Grup
-                {unread.group > 0 && (
+                {totalGroupUnread > 0 && (
                   <span className="absolute -top-1 -right-3 bg-red-500 text-white text-xs rounded-full px-1.5">
-                    {unread.group}
+                    {totalGroupUnread}
                   </span>
                 )}
               </TabsTrigger>
