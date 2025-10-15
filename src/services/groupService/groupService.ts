@@ -21,7 +21,9 @@ export type GroupMember = {
 // buat service khusus untuk groups
 export const groupService = {
   ...crudService<Group>("groups"),
+
   getByUser: (userId: string) => groupService.read({ owner_id: userId }),
+
   async getMembers(groupId: string) {
     const { data, error } = await supabase
       .from("group_members")
