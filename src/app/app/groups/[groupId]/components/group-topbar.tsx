@@ -1,7 +1,7 @@
 "use client"
 import Reveal from "@/components/animations/Reveal";
 import { AppTopbar } from "@/components/app/topbar";
-import { GroupAvatar } from "@/components/group-avatar";
+import { AppAvatar } from "@/components/ui/app-avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useGroupData } from "@/lib/hooks/useGroupData";
 import { EllipsisVertical } from "lucide-react";
@@ -27,7 +27,7 @@ export default function GroupTopbar({backHref = '/app/groups'}: GroupTopbarProps
       <div className="flex items-center gap-2" onClick={() => goToProfile()}>
         <div className="">
             <Reveal animation="fadeInRight" distance={10}>
-                <GroupAvatar name={groupData?.name} image={groupData?.image_url} size="md" />
+                <AppAvatar name={groupData?.name} image={groupData?.image_url} size="md" />
             </Reveal>
         </div>
         <Reveal animation="fadeInRight" delay={0.5} distance={10}>

@@ -19,8 +19,8 @@ import {
 import ConfirmRemoveModal from "./components/confirm-remove-modal";
 import { GroupMember, GroupRole } from "@/types/group";
 import BackButton from "@/components/back-button";
-import { GroupAvatar } from "@/components/group-avatar";
 import { formatDate } from "@/lib/utils/format";
+import { AppAvatar } from "@/components/ui/app-avatar";
 
 export default function ManageMembersPage() {
   const { supabase } = useAuth();
@@ -198,7 +198,7 @@ export default function ManageMembersPage() {
           >
             <li className="flex items-center justify-between p-4 hover:bg-accent">
               <div className="flex items-center gap-3">
-                <GroupAvatar image={m.profiles?.avatar_url} name={m.profiles?.full_name || "?"} />
+                <AppAvatar image={m.profiles?.avatar_url} name={m.profiles?.full_name || "?"} />
                 <div>
                   <p className="font-medium">{m.profiles?.full_name}</p>
                   <p className="text-xs text-muted-foreground">

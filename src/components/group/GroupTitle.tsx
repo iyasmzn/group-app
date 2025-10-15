@@ -1,15 +1,15 @@
 "use client"
 import Reveal from "@/components/animations/Reveal"
-import { GroupAvatar } from "@/components/group-avatar"
 import { GroupData } from "@/types/group"
 import { useRouter } from "next/navigation"
+import { AppAvatar } from "../ui/app-avatar"
 
 export function GroupTitle({ group }: { group: GroupData }) {
   const router = useRouter()
   return (
     <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push(`/app/groups/${group.id}/profile`)}>
       <Reveal animation="fadeIn">
-        <GroupAvatar name={group.name} image={group.image_url} size="md" />
+        <AppAvatar name={group.name} image={group.image_url} size="md" />
       </Reveal>
       <Reveal animation="fadeIn" delay={0.5}>
         <div className="flex flex-col leading-tight">

@@ -1,8 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useAuth } from "@/lib/supabase/auth"
-import { UserAvatar } from "@/components/user-avatar"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { uploadToCloudinary } from "@/lib/cloudinary"
@@ -12,26 +11,25 @@ import { AppTopbar } from "@/components/app/topbar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { UnifiedUploader } from "@/components/unified-uploader"
 import LoadingOverlay from "@/components/loading-overlay"
+import { useProfile } from "@/lib/hooks/useProfile"
+import { AppAvatar } from "@/components/ui/app-avatar"
 
 export default function ProfilePage() {
-  const { user, updateUserMeta, updateProfile, getProfile } = useAuth()
+  const { user, updateUserMeta, updateProfile } = useAuth()
+  const { profile, loading } = useProfile()
   const [fullName, setFullName] = useState<string>("")
-  const [loading, setLoading] = useState<boolean>(false)
+  const [saving, setSaving] = useState<boolean>(false)
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (user) {
-        const profile = await getProfile()
-        setFullName(profile?.full_name || "")
-      }
-    }
-    fetchProfile()
-  }, [user, getProfile])
+  // sinkronkan state fullName dengan profile
+  // (agar input langsung terisi saat profile sudah ada)
+  if (profile && fullName === "" && profile.full_name) {
+    setFullName(profile.full_name)
+  }
 
   // ✅ Update nama
   const handleUpdate = async (): Promise<void> => {
-    setLoading(true)
+    setSaving(true)
     try {
       await updateProfile({ full_name: fullName })
       await updateUserMeta({ full_name: fullName })
@@ -40,7 +38,7 @@ export default function ProfilePage() {
       toast.error("Failed to update profile")
       console.error(err)
     }
-    setLoading(false)
+    setSaving(false)
   }
 
   // ✅ Upload avatar
@@ -106,59 +104,70 @@ export default function ProfilePage() {
   return (
     <>
       <AppTopbar title="Profile" backButton hideAvatarUser />
-      {/* Loading Overlay */}
       <LoadingOverlay isLoading={isProcessing} />
       <PageWrapper>
         <div className="p-6 max-w-lg mx-auto space-y-8 relative">
           {/* Profile header */}
           <div className="flex flex-col items-center space-y-3">
-            <UserAvatar user={user} size={120} textSize={40} />
-
-            {fullName ? (
-              <h2 className="text-xl font-semibold">{fullName}</h2>
+            {loading ? (
+              <>
+                <Skeleton className="h-28 w-28 rounded-full" />
+                <Skeleton className="h-6 w-32" />
+                <Skeleton className="h-4 w-40" />
+              </>
             ) : (
-              <Skeleton className="h-6 w-32" />
-            )}
-            <p className="text-foreground text-sm">{user?.email}</p>
-            {user?.created_at && (
-              <p className="text-secondary-foreground text-xs">
-                Joined{" "}
-                {new Date(user.created_at).toLocaleDateString(undefined, {
-                  year: "numeric",
-                  month: "long",
-                })}
-              </p>
+              <>
+                <AppAvatar
+                  name={profile?.full_name || profile?.email || "Guest"}
+                  image={profile?.avatar_url}
+                  size="xl"
+                  preview
+                />
+                <h2 className="text-xl font-semibold">
+                  {profile?.full_name || "Guest"}
+                </h2>
+                <p className="text-foreground text-sm">{profile?.email}</p>
+                {user?.created_at && (
+                  <p className="text-secondary-foreground text-xs">
+                    Joined{" "}
+                    {new Date(user.created_at).toLocaleDateString(undefined, {
+                      year: "numeric",
+                      month: "long",
+                    })}
+                  </p>
+                )}
+              </>
             )}
           </div>
 
           {/* Edit form */}
-          <div className="space-y-4">
+          {!loading && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Avatar</label>
+                <UnifiedUploader
+                  accept="image/*"
+                  multiple={false}
+                  enableCrop={true}
+                  aspect={1}
+                  onUpload={handleUploadAvatar}
+                  onRemove={handleRemoveAvatar}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Full Name</label>
+                <Input
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Your name"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">Avatar</label>
-              {/* Avatar uploader */}
-              <UnifiedUploader
-                accept="image/*"
-                multiple={false}
-                enableCrop={true}
-                aspect={1}
-                onUpload={handleUploadAvatar}
-                onRemove={handleRemoveAvatar}
-              />
+              <Button onClick={handleUpdate} disabled={saving}>
+                {saving ? "Saving..." : "Save Changes"}
+              </Button>
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Full Name</label>
-              <Input
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Your name"
-              />
-            </div>
-
-            <Button onClick={handleUpdate} disabled={loading}>
-              {loading ? "Saving..." : "Save Changes"}
-            </Button>
-          </div>
+          )}
         </div>
       </PageWrapper>
     </>

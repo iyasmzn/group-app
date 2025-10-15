@@ -9,7 +9,6 @@ import {
   LogOut,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { GroupAvatar } from "@/components/group-avatar"
 import { ModeToggle } from "@/components/mode-toggle"
 import { Button } from "@/components/ui/button"
 import {
@@ -31,6 +30,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
+import { AppAvatar } from "@/components/ui/app-avatar"
 
 interface GroupChatTopbarProps {
   groupId: string
@@ -76,7 +76,7 @@ export function GroupChatTopbar({
           <ArrowLeft className="w-5 h-5" />
         </Button>
 
-        <GroupAvatar name={name} image={avatar} size="sm" />
+        <AppAvatar name={name} image={avatar} size="sm" />
 
         <div className="flex flex-col leading-tight">
           <span className="font-medium text-sm">{name}</span>

@@ -5,7 +5,6 @@ import Reveal from "@/components/animations/Reveal"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { attendanceService, GroupEventAttendance } from "@/services/eventService/attendanceService"
-import { GroupAvatar } from "@/components/group-avatar"
 import { toast } from "sonner"
 import { longDateTime } from "@/lib/utils/format"
 import LoadingOverlay from "@/components/loading-overlay"
@@ -18,6 +17,7 @@ import { AddParticipantDialog } from "@/components/app/events/AddParticipantDial
 import { useGroupMembers } from "@/lib/hooks/useGroupMembers"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { useAuth } from "@/lib/supabase/auth"
+import { AppAvatar } from "@/components/ui/app-avatar"
 
 export default function PesertaTab({
   eventId,
@@ -198,7 +198,7 @@ export default function PesertaTab({
               {/* Info peserta */}
               <div className="flex flex-col gap-1 min-w-0">
                 <div className="flex items-center gap-2 min-w-0">
-                  <GroupAvatar image={a.profiles?.avatar_url} name={name} size="sm" />
+                  <AppAvatar image={a.profiles?.avatar_url} name={name} size="sm" />
                   <span className="truncate">{name}</span>
                   {/* Badge ringkas */}
                   <span className="flex items-center gap-1 text-xs">

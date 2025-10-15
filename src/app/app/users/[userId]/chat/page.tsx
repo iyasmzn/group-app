@@ -7,10 +7,10 @@ import Reveal from "@/components/animations/Reveal"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import ChatInput from "@/components/app/chat-input"
-import { GroupAvatar } from "@/components/group-avatar"
 import { formatDateDivider } from "@/lib/utils/format"
 import { ChatShell } from "./ChatShell"
 import { AnimatePresence } from "framer-motion"
+import { AppAvatar } from "@/components/ui/app-avatar"
 
 type Message = {
   id: string
@@ -124,7 +124,7 @@ export default function PrivateChatPage() {
                     )}
                   >
                     {!isOwn && msg.sender?.full_name && (
-                      <GroupAvatar
+                      <AppAvatar
                         image={msg.sender?.avatar_url || ""}
                         name={msg.sender?.full_name}
                         size="sm"
@@ -162,7 +162,7 @@ export default function PrivateChatPage() {
           <AnimatePresence mode="wait">
             {isTyping && (
               <Reveal duration={0.3} distance={10} exit className="flex items-center gap-2 text-sm text-muted-foreground animate-pulse">
-                <GroupAvatar name="Alice" size="sm" />
+                <AppAvatar name="Alice" size="sm" />
                 <div className="bg-muted px-3 py-2 rounded-xl">
                   <span className="flex gap-1">
                     <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>

@@ -1,14 +1,14 @@
 "use client"
 
 import Link from "next/link"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Clock, MessageCircle, MessageCircleQuestion, MessageCircleWarning } from "lucide-react"
-import { GroupAvatar } from "@/components/group-avatar"
+import { Clock, MessageCircle, MessageCircleWarning } from "lucide-react"
 import { useGroupBadges } from "@/context/GroupBadgeContext"
 import { ShineBorder } from "@/components/ui/shine-border"
 import { useTheme } from "next-themes"
 import CountUp from "@/components/ui/count-up"
+import { AppAvatar } from "@/components/ui/app-avatar"
 
 type LastGroup = {
   id: string
@@ -34,7 +34,7 @@ export function LastGroupCard({ lastGroup }: { lastGroup: LastGroup }) {
             href={`groups/${lastGroup.id}`}
             className="flex items-center gap-2 mb-4"
           >
-            <GroupAvatar
+            <AppAvatar
               name={lastGroup.name}
               image={lastGroup.image_url ?? undefined}
               size="lg"

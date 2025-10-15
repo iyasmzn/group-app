@@ -13,10 +13,10 @@ import { toast } from "sonner"
 import { Input } from "@/components/ui/input"
 import { groupService } from "@/services/groupService/groupService"
 import { Skeleton } from "@/components/ui/skeleton"
-import { GroupAvatar } from "@/components/group-avatar"
 import InviteLink from "./components/invite-link"
 import { GroupData, GroupMember } from "@/types/group"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { AppAvatar } from "@/components/ui/app-avatar"
 
 
 export default function GroupProfilePage() {
@@ -112,7 +112,7 @@ export default function GroupProfilePage() {
       <div className="flex flex-col pb-10 px-2 md:px-6">
         {/* Header */}
         <div className="flex flex-col items-center py-8">
-          <GroupAvatar image={group.image_url} name={group.name} size="xxl" />
+          <AppAvatar image={group.image_url} name={group.name} size="xxl" />
           <div>
             {
               groupNameEdit ? (
@@ -200,7 +200,7 @@ export default function GroupProfilePage() {
               >
                 <div className="flex items-center gap-3">
                   {m?.profiles?.full_name && (
-                    <GroupAvatar 
+                    <AppAvatar 
                       name={m?.profiles?.full_name}
                       image={m?.profiles?.avatar_url}
                       size="md"

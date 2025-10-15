@@ -8,10 +8,10 @@ import { cn } from "@/lib/utils"
 import { useRealtimeTable } from "@/lib/hooks/useRealtimeTable"
 import { toast } from "sonner"
 import ChatInput from "@/components/app/chat-input"
-import { GroupAvatar } from "@/components/group-avatar"
 import { formatDateDivider } from "@/lib/utils/format"
 import { useMessageSeen } from "@/lib/hooks/useMessageSeen"
 import { ChatShell } from "./ChatShell"
+import { AppAvatar } from "@/components/ui/app-avatar"
 
 type Message = {
   id: string
@@ -210,7 +210,7 @@ export default function GroupChatPage() {
                     )}
                   >
                     {!isOwn && msg.sender?.full_name && (
-                      <GroupAvatar
+                      <AppAvatar
                         image={msg.sender?.avatar_url || ""}
                         name={msg.sender?.full_name}
                         size="sm"

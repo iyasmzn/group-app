@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { Check, Users } from "lucide-react"
 import {
   Command,
   CommandEmpty,
@@ -12,8 +11,8 @@ import {
 } from "@/components/ui/command"
 import { Button } from "@/components/ui/button"
 import { Profile } from "@/types/profile"
-import { GroupAvatar } from "@/components/group-avatar"
 import Reveal from "@/components/animations/Reveal"
+import { AppAvatar } from "@/components/ui/app-avatar"
 
 export type MemberOption = {
   user_id: string | null
@@ -55,7 +54,7 @@ export function MemberMultiSelect({
                 className="flex items-center justify-between"
               >
                 <span className="flex items-center gap-2">
-                  <GroupAvatar image={m.profiles?.avatar_url} name={m?.full_name || 'Member'} size="xs" />
+                  <AppAvatar image={m.profiles?.avatar_url} name={m?.full_name || 'Member'} size="xs" />
                   {m?.full_name}
                 </span>
               </CommandItem>
@@ -80,7 +79,7 @@ export function MemberMultiSelect({
                       variant="outline"
                       onClick={() => toggle(id)}
                     >
-                      <GroupAvatar
+                      <AppAvatar
                         image={member?.profiles?.avatar_url}
                         name={member?.full_name || "Member"}
                         size="xs"

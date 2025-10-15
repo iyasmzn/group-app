@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { ModeToggle } from "../mode-toggle"
-import { UserAvatar } from "../user-avatar"
 import { useAuth } from "@/lib/supabase/auth"
 import { usePathname } from "next/navigation"
 import { ChevronLeft } from "lucide-react"
@@ -10,6 +9,8 @@ import React from "react"
 import Reveal from "../animations/Reveal"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import BackButton from "../back-button"
+import { AppAvatar } from "../ui/app-avatar"
+import { useProfile } from "@/lib/hooks/useProfile"
 
 type MobileTopbarProps = {
   titleSlot?: React.ReactNode // slot untuk menerima component dari props
@@ -24,6 +25,7 @@ type MobileTopbarProps = {
 export function AppTopbar({ titleSlot, title, backButton, backHref, hideAvatarUser = false, titleIcon, endSlot }: MobileTopbarProps) {
   const { user, signOut } = useAuth()
   const pathname = usePathname()
+  const {profile} = useProfile()
 
   const getDefaultTitle = () => {
     if (pathname.startsWith("/app/home")) return "Home"
@@ -41,7 +43,7 @@ export function AppTopbar({ titleSlot, title, backButton, backHref, hideAvatarUs
         <div className="relative">
           <DropdownMenu>
             <DropdownMenuTrigger>
-              <UserAvatar user={user} size={32} status="online" />
+              <AppAvatar name={profile?.full_name || "No Name"} status="online" />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}

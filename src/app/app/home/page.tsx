@@ -5,15 +5,13 @@ import { useAuth } from "@/lib/supabase/auth"
 import PageWrapper from "@/components/page-wrapper"
 import Reveal from "@/components/animations/Reveal"
 import { AppBottombar } from "@/components/app/bottombar"
-import { toast } from "sonner"
 import { GroupBadgeProvider } from "@/context/GroupBadgeContext"
 import { LastGroupCard } from "@/components/app/home/LastGroupCard"
-import { GroupAvatar } from "@/components/group-avatar"
 import { ClockFading } from "lucide-react"
 import { useProfile } from "@/lib/hooks/useProfile"
-import LoadingOverlay from "@/components/loading-overlay"
 import { ProfileSkeleton } from "@/components/ui/profile-skeleton"
 import { LastGroupSkeleton } from "@/components/app/home/LastGroupSkeleton"
+import { AppAvatar } from "@/components/ui/app-avatar"
 
 type LastGroup = {
   id: string
@@ -108,7 +106,7 @@ export default function UserHomePage() {
               <ProfileSkeleton />
             ) : (
               <>
-                <GroupAvatar
+                <AppAvatar
                   size="xl"
                   image={profile.avatar_url}
                   name={profile.full_name || "No Name"}

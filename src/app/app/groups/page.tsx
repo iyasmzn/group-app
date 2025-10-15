@@ -6,7 +6,6 @@ import PageWrapper from "@/components/page-wrapper"
 import { AppTopbar } from "@/components/app/topbar"
 import { ArrowDownZA, ArrowUpAZ, BellDot, CalendarArrowDown, CalendarArrowUp, Home, MessageCircle, MessageCircleQuestion, RefreshCw, Settings2 } from "lucide-react"
 import { AppBottombar } from "@/components/app/bottombar"
-import { GroupAvatar } from "@/components/group-avatar"
 import { useAuth } from "@/lib/supabase/auth"
 import { motion } from "framer-motion"
 import { AddGroupDialog } from "./components/addGroupDialog"
@@ -18,6 +17,7 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import { Badge } from "@/components/ui/badge"
 import { GroupData } from "@/types/group"
 import Reveal from "@/components/animations/Reveal"
+import { AppAvatar } from "@/components/ui/app-avatar"
 
 const motionUl = {
   hidden: { opacity: 0 },
@@ -183,7 +183,7 @@ function GroupsPage({ userId }: { userId: string }) {
                 <div className="flex-1 flex items-center gap-3">
                   {/* Avatar inisial */} 
                   <Link href={`groups/${group.id}`}>
-                    <GroupAvatar 
+                    <AppAvatar 
                       name={group.name} 
                       image={group.image_url} // kalau ada, tampil gambar
                       size="md" 

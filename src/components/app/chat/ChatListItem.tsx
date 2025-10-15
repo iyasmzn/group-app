@@ -1,5 +1,4 @@
-import Reveal from "@/components/animations/Reveal"
-import { GroupAvatar } from "@/components/group-avatar"
+import { AppAvatar } from "@/components/ui/app-avatar"
 
 interface ChatListItemProps {
   name: string
@@ -30,7 +29,7 @@ export function ChatListItem({
         animate-in fade-in slide-in-from-bottom-2
       "
     >
-      <GroupAvatar name={name} image={avatar} size="lg" />
+      <AppAvatar name={name} image={avatar} size="lg" />
 
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-center">
