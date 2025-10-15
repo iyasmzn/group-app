@@ -3,6 +3,7 @@ import React from "react"
 import { AppAvatar } from "@/components/ui/app-avatar"
 import { render, screen } from "@testing-library/react"
 import { describe, it, expect } from "vitest"
+import { renderWithProviders } from "./utils"
 
 describe("AppAvatar", () => {
   it("renders initials when no image provided", () => {
@@ -27,4 +28,10 @@ describe("AppAvatar", () => {
     const status = screen.getByRole("status")
     expect(status).toHaveClass("bg-green-500")
   })
+
+  it("renders avatar with theme context", () => {
+    renderWithProviders(<AppAvatar name="Alice" image="https://example.com/a.png" />)
+    expect(screen.getByAltText("Alice")).toBeInTheDocument()
+  })
+
 })
