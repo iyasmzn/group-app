@@ -59,7 +59,7 @@ export function AppAvatar({
     <div className="relative inline-block">
       <UiAvatar
         className={cn(
-          "relative flex items-center justify-center overflow-hidden rounded-full",
+          "relative flex items-center justify-center overflow-hidden rounded-full bg-transparent",
           sizeMap[size],
           !image && bg,
           className
@@ -68,7 +68,7 @@ export function AppAvatar({
         {image ? (
           <AvatarImage src={image} alt={name} />
         ) : (
-          <AvatarFallback className="text-white font-bold">
+          <AvatarFallback className={cn("text-white font-bold", bg)}>
             {initials}
           </AvatarFallback>
         )}
