@@ -1,9 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import {
-  SupabaseClient,
-} from "@supabase/supabase-js"
+import { SupabaseClient } from "@supabase/supabase-js"
 
 type Options<T> = {
   supabase: SupabaseClient
@@ -26,13 +24,14 @@ export function useRealtimeTable<T>({
 }: Options<T>) {
   useEffect(() => {
     if (!supabase) return
-    
-    const channels = supabase.channel('custom-all-channel')
+
+    const channel = supabase
+      .channel(`realtime:${schema}.${table}`)
       .on(
-        'postgres_changes',
-        { event: '*', schema: schema, table: table, filter: filter },
+        "postgres_changes",
+        { event: "*", schema, table, filter },
         (payload) => {
-          console.log('Change received!', payload)
+          console.log("[Realtime] Change received:", payload)
 
           if (payload.eventType === "INSERT" && onInsert) {
             onInsert(payload.new as T)
@@ -43,19 +42,16 @@ export function useRealtimeTable<T>({
           if (payload.eventType === "DELETE" && onDelete) {
             onDelete(payload.old as T)
           }
-
         }
       )
-      .subscribe()
-
-    channels.subscribe((status) => {
-      if (status === "SUBSCRIBED") {
-        console.log(`[Realtime] Subscribed to ${table}`)
-      }
-    })
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          console.log(`[Realtime] Subscribed to ${table}`)
+        }
+      })
 
     return () => {
-      supabase.removeChannel(channels)
+      supabase.removeChannel(channel)
     }
   }, [supabase, table, schema, filter, onInsert, onUpdate, onDelete])
 }

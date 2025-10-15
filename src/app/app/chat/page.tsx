@@ -6,15 +6,30 @@ import PageWrapper from "@/components/page-wrapper"
 import { MessageCircle } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ChatListItem } from "@/components/app/chat/ChatListItem"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import Reveal from "@/components/animations/Reveal"
 import { useRouter } from "next/navigation"
+import { groupService } from "@/services/groupService/groupService"
+import { GroupMessage, groupMessageService } from "@/services/groupService/groupMessageService"
+import { useRealtimeTable } from "@/lib/hooks/useRealtimeTable"
+import { useAuth } from "@/lib/supabase/auth"
+
+type GroupChatItem = {
+  id: string
+  name: string
+  lastMessage: string
+  time: string
+  unread: number
+}
 
 export default function ChatPage() {
+  const { user, supabase } = useAuth()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<"private" | "group">("private")
   const [dragX, setDragX] = useState(0) // untuk indikator swipe
+  const [groupChats, setGroupChats] = useState<GroupChatItem[]>([])
+
 
   const unread = { private: 3, group: 7 }
 
@@ -23,10 +38,55 @@ export default function ChatPage() {
     { name: "Bob", lastMessage: "Oke, besok ketemu ya", time: "18:20", unread: 1 },
   ]
 
-  const groupChats = [
-    { name: "Frontend Squad", lastMessage: "Push terakhir udah di-merge", time: "17:10", unread: 5 },
-    { name: "Family", lastMessage: "Jangan lupa makan malam", time: "16:00", unread: 2 },
-  ]
+   useEffect(() => {
+    async function fetchGroups() {
+      const userId = user?.id
+      if (!userId) return
+      const groups = await groupService.read()
+      const messages = await groupMessageService.getLatestByGroups(groups.map((g) => g.id))
+
+      const merged = await Promise.all(
+        groups.map(async (g) => {
+          const lastMsg = messages.find((m) => m.group_id === g.id)
+          const unread = await groupMessageService.getUnreadCount(g.id, userId)
+
+          return {
+            id: g.id,
+            name: g.name,
+            lastMessage: lastMsg?.content ?? "Belum ada pesan",
+            time: lastMsg?.createdat
+              ? new Date(lastMsg.createdat).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+              : "",
+            unread,
+          }
+        })
+      )
+
+      setGroupChats(merged)
+    }
+    fetchGroups()
+  }, [])
+
+
+  // realtime update pesan baru
+  useRealtimeTable<GroupMessage>({
+    supabase,
+    table: "group_messages",
+    onInsert: (msg) => {
+      setGroupChats((prev) =>
+        prev.map((chat) =>
+          chat.id === msg.group_id
+            ? {
+                ...chat,
+                lastMessage: msg.content,
+                time: new Date(msg.createdat).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                unread: chat.unread + 1,
+              }
+            : chat
+        )
+      )
+    },
+  })
 
   const handleSwipe = (offsetX: number) => {
     if (offsetX < -50 && activeTab === "private") {
@@ -126,7 +186,16 @@ export default function ChatPage() {
                 >
                   {groupChats.map((chat, i) => (
                     <Reveal key={i} delay={i * 0.1} animation="fadeInRight">
-                      <ChatListItem {...chat} index={i} />
+                      <ChatListItem 
+                        index={i} 
+                        {...chat}
+                        onClick={async () => {
+                          // update last_seen
+                          if (!user) return
+                          await groupMessageService.markAsRead(chat.id, user?.id, new Date().toISOString())
+                          router.push(`/app/groups/${chat.id}/chat`)
+                        }} 
+                      />
                     </Reveal>
                   ))}
                 </motion.div>
