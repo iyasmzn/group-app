@@ -11,12 +11,12 @@ import { AppTopbar } from "@/components/app/topbar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { UnifiedUploader } from "@/components/unified-uploader"
 import LoadingOverlay from "@/components/loading-overlay"
-import { useProfile } from "@/lib/hooks/useProfile"
 import { AppAvatar } from "@/components/ui/app-avatar"
+import { useAppBadges } from "@/context/AppBadgeContext"
 
 export default function ProfilePage() {
   const { user, updateUserMeta, updateProfile } = useAuth()
-  const { profile, loading } = useProfile()
+  const { profile, profileLoading: loading } = useAppBadges()
   const [fullName, setFullName] = useState<string>("")
   const [saving, setSaving] = useState<boolean>(false)
   const [isProcessing, setIsProcessing] = useState<boolean>(false)

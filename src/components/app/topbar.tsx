@@ -10,7 +10,7 @@ import Reveal from "../animations/Reveal"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import BackButton from "../back-button"
 import { AppAvatar } from "../ui/app-avatar"
-import { useProfile } from "@/lib/hooks/useProfile"
+import { useAppBadges } from "@/context/AppBadgeContext"
 
 type MobileTopbarProps = {
   titleSlot?: React.ReactNode // slot untuk menerima component dari props
@@ -25,7 +25,7 @@ type MobileTopbarProps = {
 export function AppTopbar({ titleSlot, title, backButton, backHref, hideAvatarUser = false, titleIcon, endSlot }: MobileTopbarProps) {
   const { user, signOut } = useAuth()
   const pathname = usePathname()
-  const {profile} = useProfile()
+  const {profile} = useAppBadges()
 
   const getDefaultTitle = () => {
     if (pathname.startsWith("/app/home")) return "Home"

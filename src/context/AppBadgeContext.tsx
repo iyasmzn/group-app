@@ -1,34 +1,46 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect } from "react"
-import { supabase } from "@/lib/supabase/client"
 import { groupMessageService } from "@/services/groupService/groupMessageService"
-import { useAuth } from "@/lib/supabase/auth"
+import { Profile } from "@/types/profile"
+import { useProfile } from "@/lib/hooks/useProfile"
+import { User } from "@supabase/supabase-js"
+import { supabase } from "@/lib/supabase/client"
 
 type AppBadgeContextType = {
+  supabase: typeof supabase,
+  user: User | null
   chat: number
   groups: number
   groupUnreadMap: Record<string, number>
   refresh: () => Promise<void>
   resetGroupUnread: (groupId: string) => void 
+  profile: Profile | null
+  profileLoading: boolean
 }
 
 const AppBadgeContext = createContext<AppBadgeContextType>({
+  supabase,
+  user: null,
   chat: 0,
   groups: 0,
   groupUnreadMap: {},
   refresh: async () => {},
   resetGroupUnread: () => {},
+  profile: null,
+  profileLoading: false
 })
 
 export function AppBadgeProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth()
+  const { user, profile, loading: profileLoading } = useProfile()
   const [groupUnreadMap, setGroupUnreadMap] = useState<Record<string, number>>({})
 
   // fungsi fetch awal unread
   async function refresh() {
     if (!user) return
-    const { data: groupList } = await supabase.from("groups").select("id")
+    const { data: groupList } = await supabase.from("groups")
+      .select("id, group_members!inner(user_id)")
+      .eq("group_members.user_id", user.id)
     if (!groupList) return
 
     const map: Record<string, number> = {}
@@ -87,7 +99,17 @@ export function AppBadgeProvider({ children }: { children: React.ReactNode }) {
   const chat = groups // + privateUnread kalau ada
 
   return (
-    <AppBadgeContext.Provider value={{ chat, groups, groupUnreadMap, refresh, resetGroupUnread }}>
+    <AppBadgeContext.Provider value={{ 
+      supabase,
+      user,
+      chat, 
+      groups, 
+      groupUnreadMap, 
+      refresh, 
+      resetGroupUnread,
+      profile,
+      profileLoading
+    }}>
       {children}
     </AppBadgeContext.Provider>
   )

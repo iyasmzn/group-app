@@ -51,5 +51,5 @@ export function useProfile() {
     onDelete: () => setProfile(null),
   })
 
-  return { profile, loading, error }
+  return { supabase, user, profile, loading, error }
 }

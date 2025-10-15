@@ -46,7 +46,7 @@ export function useRealtimeTable<T>({
       )
       .subscribe((status) => {
         if (status === "SUBSCRIBED") {
-          console.log(`[Realtime] Subscribed to ${table}`)
+          console.log(`[Realtime] Subscribed to ${table}`, { schema, table, filter })
         }
       })
 

@@ -6,13 +6,13 @@ import { LogOut, Bell, Shield, Info, Palette, User } from "lucide-react"
 import { motion } from "framer-motion"
 import PageWrapper from "@/components/page-wrapper"
 import { AppBottombar } from "@/components/app/bottombar"
-import { useProfile } from "@/lib/hooks/useProfile"
 import { Skeleton } from "@/components/ui/skeleton"
 import { AppAvatar } from "@/components/ui/app-avatar"
+import { useAppBadges } from "@/context/AppBadgeContext"
 
 export default function SettingsPage() {
   const { signOut } = useAuth()
-  const { profile, loading } = useProfile()
+  const { profile, profileLoading: loading } = useAppBadges()
 
   const menuItems = [
     {

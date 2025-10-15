@@ -1,17 +1,16 @@
 "use client"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/lib/supabase/auth"
 import PageWrapper from "@/components/page-wrapper"
 import Reveal from "@/components/animations/Reveal"
 import { AppBottombar } from "@/components/app/bottombar"
 import { GroupBadgeProvider } from "@/context/GroupBadgeContext"
 import { LastGroupCard } from "@/components/app/home/LastGroupCard"
 import { ClockFading } from "lucide-react"
-import { useProfile } from "@/lib/hooks/useProfile"
 import { ProfileSkeleton } from "@/components/ui/profile-skeleton"
 import { LastGroupSkeleton } from "@/components/app/home/LastGroupSkeleton"
 import { AppAvatar } from "@/components/ui/app-avatar"
+import { useAppBadges } from "@/context/AppBadgeContext"
 
 type LastGroup = {
   id: string
@@ -24,8 +23,7 @@ type LastGroup = {
 }
 
 export default function UserHomePage() {
-  const { supabase, user } = useAuth()
-  const { profile, loading } = useProfile()
+  const { supabase, user, profile, profileLoading: loading } = useAppBadges()
   const router = useRouter()
   const [lastGroup, setLastGroup] = useState<LastGroup | null>(null)
   const [loadingGroup, setLoadingGroup] = useState(true)
