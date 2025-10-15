@@ -56,7 +56,6 @@ export function AppAvatar({
     ? name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
     : "U"
   const bg = getAvatarColor(name)
-  const [loadingImage, setLoadingImage] = useState(true)
 
   return (
     <div className="relative inline-block">
