@@ -43,7 +43,7 @@ export function AppTopbar({ titleSlot, title, backButton, backHref, hideAvatarUs
         <div className="relative">
           <DropdownMenu>
             <DropdownMenuTrigger>
-              <AppAvatar name={profile?.full_name || "No Name"} status="online" />
+              <AppAvatar name={profile?.full_name || "No Name"} image={profile?.avatar_url} status="online" />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
