@@ -1,17 +1,13 @@
-"use client"
+'use client'
 
-import { useEffect, useRef, useState } from "react"
-import { redirect, useParams } from "next/navigation"
-import { useAuth } from "@/lib/supabase/auth"
-import Reveal from "@/components/animations/Reveal"
-import { cn } from "@/lib/utils"
-import { useRealtimeTable } from "@/lib/hooks/useRealtimeTable"
-import { toast } from "sonner"
-import ChatInput from "@/components/app/chat-input"
-import { formatDateDivider } from "@/lib/utils/format"
-import { useMessageSeen } from "@/lib/hooks/useMessageSeen"
-import { ChatShell } from "./ChatShell"
-import { AppAvatar } from "@/components/ui/app-avatar"
+import { useEffect, useState } from 'react'
+import { useAuth } from '@/lib/supabase/auth'
+import { supabase } from '@/lib/supabase/client'
+import { useParams } from 'next/navigation'
+import { ChatShell } from './ChatShell'
+import ChatInput from '@/components/app/chat-input'
+import { MessageList } from '@/components/ui/message-list'
+import { generateId } from '@/lib/utils/helper'
 
 type Message = {
   id: string
@@ -26,100 +22,77 @@ type Message = {
 }
 
 export default function GroupChatPage() {
-  const { supabase, user } = useAuth()
+  const { user } = useAuth()
   const { groupId } = useParams()
   const [messages, setMessages] = useState<Message[]>([])
-  const [newMessage, setNewMessage] = useState("")
-  const messagesEndRef = useRef<HTMLDivElement | null>(null)
+  const [newMessage, setNewMessage] = useState('')
 
+  if (!groupId) return null // ✅ fallback jika groupId belum ada
 
-  if (!user) {
-    toast.error('User invalid. Please re-Login.')
-    redirect('/')
-  }
-
+  // ✅ Fetch pesan awal
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
-    }
-  }, [messages])
-
-  // ✅ update message_last_seen_at hanya di chat page
-  useMessageSeen(groupId as string, messagesEndRef)
-
-  // fetch messages awal
-  useEffect(() => {
-    if (!groupId) return
     const fetchMessages = async () => {
       const { data, error } = await supabase
-        .from("group_messages")
-        .select(`
-          id,
-          content,
-          createdat,
-          sender_id,
-          sender:profiles!group_messages_sender_id_fkey (
-            id,
-            full_name,
-            avatar_url
-          )
-        `)
-        .eq("group_id", groupId)
-        .order("createdat", { ascending: true })
-
-      if (!error && Array.isArray(data)) setMessages(data as unknown as Message[])
+        .rpc('get_group_messages', { gid: groupId })
+        .select('id, content, createdat, sender_id, sender')
+      if (error) {
+        console.log('Fetch messages error:', error)
+      } else if (data) {
+        setMessages(data as Message[])
+      }
     }
 
     fetchMessages()
-  }, [groupId, supabase])
+  }, [groupId])
 
-  // subscribe realtime pakai hook
-  useRealtimeTable<Message>({
-    supabase,
-    table: "group_messages",
-    filter: `group_id=eq.${groupId}`,
+  // ✅ Realtime listener
+  useEffect(() => {
+    const channel = supabase
+      .channel(`group_messages:${groupId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'group_messages',
+          filter: `group_id=eq.${groupId}`,
+        },
+        async (payload) => {
+          // Skip pesan dari user sendiri (sudah ditangani optimistic + RPC di handleSend)
+          if (payload.new.sender_id === user?.id) return
 
-    onInsert: async (msg) => {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("id, full_name, avatar_url")
-        .eq("id", msg.sender_id)
-        .single()
+          // Ambil pesan baru via RPC agar sudah include profil
+          const { data, error } = await supabase.rpc('get_group_messages', {
+            gid: groupId,
+            msg_id: payload.new.id,
+          })
 
-      if (!profile) return
+          if (error) {
+            console.error('RPC error:', error)
+            return
+          }
 
-      const messageWithProfile = { ...msg, sender: profile }
-
-      setMessages((prev) => {
-        // cek apakah sudah ada pesan sementara dengan content sama
-        const exists = prev.some(
-          (m) => m.id === msg.id
-        )
-        if (exists) {
-          return prev.map((m) => (m.id === msg.id ? messageWithProfile : m))
+          if (data && data.length > 0) {
+            const msg = data[0] as Message
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === msg.id)) return prev
+              return [...prev, msg]
+            })
+          }
         }
-        return [...prev, messageWithProfile].sort(
-          (a, b) => new Date(a.createdat).getTime() - new Date(b.createdat).getTime()
-        )
-      })
-    },
-    onUpdate: (msg) => {
-      setMessages((prev) =>
-        prev.map((m) => (m.id === msg.id ? { ...m, ...msg } : m))
       )
-    },
-    onDelete: (msg) => {
-      setMessages((prev) => prev.filter((m) => m.id !== msg.id))
-    },
-  })
+      .subscribe()
 
-  // kirim pesan
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [groupId, user?.id])
+
+  // ✅ Send message
   const handleSend = async () => {
-    if (!newMessage.trim()) return
+    if (!newMessage.trim() || !user?.id || !groupId) return
 
-    const tempId = crypto.randomUUID()
-
-    // buat pesan sementara
+    const tempId = generateId()
     const tempMessage: Message = {
       id: tempId,
       content: newMessage,
@@ -127,126 +100,68 @@ export default function GroupChatPage() {
       sender_id: user.id,
       sender: {
         id: user.id,
-        full_name: user?.user_metadata?.full_name || "You",
-        avatar_url: user?.user_metadata?.avatar_url || null,
+        full_name: user.user_metadata?.full_name || 'You',
+        avatar_url: user.user_metadata?.avatar_url || null,
       },
     }
 
-    // update state dulu
     setMessages((prev) => [...prev, tempMessage])
-    setNewMessage("")
+    setNewMessage('')
 
-    // kirim ke supabase
-    const { data, error } = await supabase
-      .from("group_messages")
+    // 1. Insert pesan baru (cukup ambil id saja)
+    const { data: inserted, error } = await supabase
+      .from('group_messages')
       .insert({
         content: newMessage,
         group_id: groupId,
-        sender_id: user?.id,
+        sender_id: user.id,
       })
-      .select(
-        `
-        id,
-        content,
-        createdat,
-        sender_id,
-        sender:profiles!group_messages_sender_id_fkey (
-          id,
-          full_name,
-          avatar_url
-        )
-      `
-      )
+      .select('id')
       .single()
 
     if (error) {
       console.error(error)
-      // rollback kalau gagal
+      // rollback temp message
       setMessages((prev) => prev.filter((m) => m.id !== tempId))
-    } else if (data) {
-      // replace pesan sementara dengan pesan asli dari supabase
-      setMessages((prev) =>
-        prev.map((m) => (m.id === tempId ? (data as unknown as Message) : m))
-      )
+      return
+    }
+
+    // 2. Ambil pesan lengkap via RPC (sudah include profil)
+    if (inserted) {
+      const { data: enriched, error: rpcError } = await supabase.rpc('get_group_messages', {
+        gid: groupId,
+        msg_id: inserted.id,
+      })
+
+      if (rpcError) {
+        console.error('RPC error:', rpcError)
+        return
+      }
+
+      if (enriched && enriched.length > 0) {
+        const fullMsg = enriched[0] as Message
+        setMessages((prev) => prev.map((m) => (m.id === tempId ? fullMsg : m)))
+      }
     }
   }
 
+  // ✅ Sort messages sebelum render
+  const sortedMessages = [...messages].sort(
+    (a, b) => new Date(a.createdat).getTime() - new Date(b.createdat).getTime()
+  )
+  console.log('sortedMessages', sortedMessages)
+
   return (
     <ChatShell
-      footer={
-        <ChatInput
-          value={newMessage}
-          onChange={setNewMessage}
-          onSend={handleSend}
-        />
-      }
+      footer={<ChatInput value={newMessage} onChange={setNewMessage} onSend={handleSend} />}
     >
-      <div className="flex flex-col p-2 md:p-6">
-        {/* Chat messages */}
-        <div className="flex-1 space-y-4">
-          {messages.map((msg, idx) => {
-            const isOwn = msg.sender_id === user?.id
-            const prevMsg = messages[idx - 1]
-            const showDivider =
-              !prevMsg ||
-              new Date(prevMsg.createdat).toDateString() !==
-                new Date(msg.createdat).toDateString()
-
-            return (
-              <div key={msg.id}>
-                {showDivider && (
-                  <div className="flex justify-center my-4">
-                    <span className="px-3 py-1 text-xs rounded-full bg-muted text-muted-foreground">
-                      {formatDateDivider(msg.createdat)}
-                    </span>
-                  </div>
-                )}
-
-                <Reveal delay={0.1}>
-                  <div
-                    className={cn(
-                      "flex items-start gap-2",
-                      isOwn ? "justify-end" : "justify-start"
-                    )}
-                  >
-                    {!isOwn && msg.sender?.full_name && (
-                      <AppAvatar
-                        image={msg.sender?.avatar_url || ""}
-                        name={msg.sender?.full_name}
-                        size="sm"
-                      />
-                    )}
-
-                    <div
-                      className={cn(
-                        "max-w-[70%] px-4 py-2 rounded-xl text-sm shadow",
-                        isOwn
-                          ? "bg-primary text-primary-foreground rounded-tr-none"
-                          : "bg-muted text-foreground rounded-tl-none"
-                      )}
-                    >
-                      {!isOwn && (
-                        <p className="text-xs text-secondary-foreground mb-2">
-                          {msg.sender?.full_name}
-                        </p>
-                      )}
-                      <p>{msg.content}</p>
-                      <span className="block text-[10px] text-muted-foreground mt-1 text-right">
-                        {new Date(msg.createdat).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                    </div>
-                  </div>
-                </Reveal>
-              </div>
-            )
-          })}
-
-          <div className="h-14"></div>
-          <div ref={messagesEndRef} /> {/* auto scroll anchor */}
-        </div>
+      <div className="w-full">
+        <MessageList
+          messages={sortedMessages}
+          currentUserId={user?.id}
+          height="100%"
+          width="100%"
+        />
       </div>
     </ChatShell>
   )

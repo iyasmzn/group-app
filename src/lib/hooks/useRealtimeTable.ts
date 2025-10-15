@@ -1,7 +1,7 @@
-"use client"
+'use client'
 
-import { useEffect } from "react"
-import { SupabaseClient } from "@supabase/supabase-js"
+import { useEffect } from 'react'
+import { SupabaseClient } from '@supabase/supabase-js'
 
 type Options<T> = {
   supabase: SupabaseClient
@@ -16,7 +16,7 @@ type Options<T> = {
 export function useRealtimeTable<T>({
   supabase,
   table,
-  schema = "public",
+  schema = 'public',
   filter,
   onInsert,
   onUpdate,
@@ -25,27 +25,28 @@ export function useRealtimeTable<T>({
   useEffect(() => {
     if (!supabase) return
 
-    const channel = supabase
-      .channel(`realtime:${schema}.${table}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema, table, filter },
-        (payload) => {
-          console.log("[Realtime] Change received:", payload)
+    // bikin nama channel unik biar tidak bentrok
+    const channelName = `realtime:${schema}.${table}${filter ? `:${filter}` : ''}`
 
-          if (payload.eventType === "INSERT" && onInsert) {
-            onInsert(payload.new as T)
-          }
-          if (payload.eventType === "UPDATE" && onUpdate) {
-            onUpdate(payload.new as T)
-          }
-          if (payload.eventType === "DELETE" && onDelete) {
-            onDelete(payload.old as T)
-          }
+    const channel = supabase
+      .channel(channelName)
+      .on('postgres_changes', { event: '*', schema, table, filter }, (payload) => {
+        console.log('[Realtime] Change received:', payload)
+
+        switch (payload.eventType) {
+          case 'INSERT':
+            onInsert?.(payload.new as T)
+            break
+          case 'UPDATE':
+            onUpdate?.(payload.new as T)
+            break
+          case 'DELETE':
+            onDelete?.(payload.old as T)
+            break
         }
-      )
+      })
       .subscribe((status) => {
-        if (status === "SUBSCRIBED") {
+        if (status === 'SUBSCRIBED') {
           console.log(`[Realtime] Subscribed to ${table}`, { schema, table, filter })
         }
       })
