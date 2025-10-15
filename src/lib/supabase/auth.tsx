@@ -1,6 +1,12 @@
 "use client"
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react"
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react"
 import { supabase } from "@/lib/supabase/client"
 import type { User, Session, SupabaseClient } from "@supabase/supabase-js"
 import { Profile } from "@/types/profile"
@@ -28,35 +34,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const initAuth = async () => {
-      const { data } = await supabase.auth.getSession()
+    // initial session
+    supabase.auth.getSession().then(({ data }) => {
       setSession(data.session)
       setUser(data.session?.user ?? null)
       setLoading(false)
-    }
-    initAuth()
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
     })
 
+    // subscribe to auth changes
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session)
+        setUser(session?.user ?? null)
+        setLoading(false)
+      }
+    )
+
     return () => {
-      listener?.subscription.unsubscribe()
+      listener.subscription.unsubscribe()
     }
   }, [])
 
   const signUp = async (email: string, password: string, name: string) => {
-    const { error } = await supabase.auth.signUp({ 
-      email, 
-      password, 
-      options: 
-        { 
-          data: { full_name: name }, 
-          emailRedirectTo: `${window.location.origin}/login`
-        } 
-      })
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: name },
+        emailRedirectTo: `${window.location.origin}/login`,
+      },
+    })
     if (error) throw new Error(error.message)
   }
 
@@ -68,8 +75,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { 
-        redirectTo: `${window.location.origin}/auth/callback` 
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     })
     if (error) throw new Error(error.message)
@@ -78,16 +85,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     const { error } = await supabase.auth.signOut()
     if (error) throw new Error(error.message)
-    window.location.href = "/"
     setUser(null)
     setSession(null)
+    window.location.href = "/"
   }
 
   const updateUserMeta = async (data: Partial<User["user_metadata"]>) => {
     const { error } = await supabase.auth.updateUser({ data })
     if (error) throw new Error(error.message)
-    
-    refreshSession()
   }
 
   const getProfile = async () => {
@@ -97,7 +102,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .select("*")
       .eq("id", user.id)
       .single()
-
     if (error) throw new Error(error.message)
     return data
   }
@@ -108,11 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .from("profiles")
       .update(data)
       .eq("id", user.id)
-
     if (error) throw new Error(error.message)
-
-    // refresh user session juga
-    refreshSession()
   }
 
   const updateProfileHybrid = async (data: { full_name?: string; avatar_url?: string }) => {
@@ -122,33 +122,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (data.full_name !== undefined) updates.full_name = data.full_name
     if (data.avatar_url !== undefined) updates.avatar_url = data.avatar_url
 
-    // 1. Update ke profiles
     const { error: profileError } = await supabase
       .from("profiles")
       .update(updates)
       .eq("id", user.id)
-
     if (profileError) throw new Error(profileError.message)
 
-    // 2. Update ke auth.user.user_metadata
     const { error: metaError } = await supabase.auth.updateUser({
       data: {
         ...(data.full_name ? { full_name: data.full_name } : {}),
         ...(data.avatar_url !== undefined ? { avatar_url: data.avatar_url } : {}),
       },
     })
-
     if (metaError) throw new Error(metaError.message)
-
-    // refresh session biar data auth.user langsung terupdate
-    refreshSession()
-  }
-
-  const refreshSession = async () => {
-    const { data, error } = await supabase.auth.getSession()
-    if (error) throw new Error(error.message)
-    setSession(data.session)
-    setUser(data.session?.user ?? null)
   }
 
   return (
