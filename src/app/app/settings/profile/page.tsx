@@ -1,29 +1,29 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { useAuth } from "@/lib/supabase/auth"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { uploadToCloudinary } from "@/lib/cloudinary"
-import { toast } from "sonner"
-import PageWrapper from "@/components/page-wrapper"
-import { AppTopbar } from "@/components/app/topbar"
-import { Skeleton } from "@/components/ui/skeleton"
-import { UnifiedUploader } from "@/components/unified-uploader"
-import LoadingOverlay from "@/components/loading-overlay"
-import { AppAvatar } from "@/components/ui/app-avatar"
-import { useAppBadges } from "@/context/AppBadgeContext"
+import { useState } from 'react'
+import { useAuth } from '@/lib/supabase/auth'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { uploadToCloudinary } from '@/lib/cloudinary'
+import { toast } from 'sonner'
+import PageWrapper from '@/components/page-wrapper'
+import { AppTopbar } from '@/components/app/topbar'
+import { Skeleton } from '@/components/ui/skeleton'
+import { UnifiedUploader } from '@/components/unified-uploader'
+import LoadingOverlay from '@/components/loading-overlay'
+import { AppAvatar } from '@/components/ui/app-avatar'
+import { useAppBadges } from '@/context/AppBadgeContext'
 
 export default function ProfilePage() {
-  const { user, updateUserMeta, updateProfile } = useAuth()
-  const { profile, profileLoading: loading } = useAppBadges()
-  const [fullName, setFullName] = useState<string>("")
+  const { user, updateUserMeta, updateProfile, loading } = useAuth()
+  const { profile, profileLoading } = useAppBadges()
+  const [fullName, setFullName] = useState<string>('')
   const [saving, setSaving] = useState<boolean>(false)
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
 
   // sinkronkan state fullName dengan profile
   // (agar input langsung terisi saat profile sudah ada)
-  if (profile && fullName === "" && profile.full_name) {
+  if (profile && fullName === '' && profile.full_name) {
     setFullName(profile.full_name)
   }
 
@@ -33,9 +33,9 @@ export default function ProfilePage() {
     try {
       await updateProfile({ full_name: fullName })
       await updateUserMeta({ full_name: fullName })
-      toast.success("Profile updated")
+      toast.success('Profile updated')
     } catch (err) {
-      toast.error("Failed to update profile")
+      toast.error('Failed to update profile')
       console.error(err)
     }
     setSaving(false)
@@ -52,9 +52,9 @@ export default function ProfilePage() {
       if (result) {
         const oldPublicId = user?.user_metadata?.avatar_public_id as string | undefined
         if (oldPublicId) {
-          await fetch("/api/cloudinary/delete", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+          await fetch('/api/cloudinary/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ public_id: oldPublicId }),
           })
         }
@@ -68,10 +68,10 @@ export default function ProfilePage() {
           avatar_public_id: result.public_id,
         })
 
-        toast.success("Avatar updated")
+        toast.success('Avatar updated')
       }
     } catch (err) {
-      toast.error("Failed to upload avatar")
+      toast.error('Failed to upload avatar')
       console.error(err)
     }
     setIsProcessing(false)
@@ -83,9 +83,9 @@ export default function ProfilePage() {
     try {
       const oldPublicId = user?.user_metadata?.avatar_public_id as string | undefined
       if (oldPublicId) {
-        await fetch("/api/cloudinary/delete", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        await fetch('/api/cloudinary/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ public_id: oldPublicId }),
         })
       }
@@ -93,9 +93,9 @@ export default function ProfilePage() {
       await updateProfile({ avatar_url: null, avatar_public_id: null })
       await updateUserMeta({ avatar_url: null, avatar_public_id: null })
 
-      toast.success("Avatar removed")
+      toast.success('Avatar removed')
     } catch (err) {
-      toast.error("Failed to remove avatar")
+      toast.error('Failed to remove avatar')
       console.error(err)
     }
     setIsProcessing(false)
@@ -109,7 +109,7 @@ export default function ProfilePage() {
         <div className="p-6 max-w-lg mx-auto space-y-8 relative">
           {/* Profile header */}
           <div className="flex flex-col items-center space-y-3">
-            {loading ? (
+            {profileLoading || loading ? (
               <>
                 <Skeleton className="h-28 w-28 rounded-full" />
                 <Skeleton className="h-6 w-32" />
@@ -118,21 +118,19 @@ export default function ProfilePage() {
             ) : (
               <>
                 <AppAvatar
-                  name={profile?.full_name || profile?.email || "Guest"}
+                  name={profile?.full_name || profile?.email || 'Guest'}
                   image={profile?.avatar_url}
                   size="xl"
                   preview
                 />
-                <h2 className="text-xl font-semibold">
-                  {profile?.full_name || "Guest"}
-                </h2>
+                <h2 className="text-xl font-semibold">{profile?.full_name || 'Guest'}</h2>
                 <p className="text-foreground text-sm">{profile?.email}</p>
                 {user?.created_at && (
                   <p className="text-secondary-foreground text-xs">
-                    Joined{" "}
+                    Joined{' '}
                     {new Date(user.created_at).toLocaleDateString(undefined, {
-                      year: "numeric",
-                      month: "long",
+                      year: 'numeric',
+                      month: 'long',
                     })}
                   </p>
                 )}
@@ -164,7 +162,7 @@ export default function ProfilePage() {
               </div>
 
               <Button onClick={handleUpdate} disabled={saving}>
-                {saving ? "Saving..." : "Save Changes"}
+                {saving ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>
           )}

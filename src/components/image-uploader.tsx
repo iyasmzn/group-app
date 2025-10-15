@@ -1,12 +1,12 @@
-"use client"
+'use client'
 
-import { useState, DragEvent, useCallback, useRef } from "react"
-import Cropper, { Area } from "react-easy-crop"
-import { Button } from "@/components/ui/button"
-import { Upload, Loader2, X, Edit2, Eye, Camera } from "lucide-react"
-import { toast } from "sonner"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog"
-import Reveal from "./animations/Reveal"
+import { useState, DragEvent, useCallback, useRef } from 'react'
+import Cropper, { Area } from 'react-easy-crop'
+import { Button } from '@/components/ui/button'
+import { Upload, Loader2, X, Edit2, Eye, Camera } from 'lucide-react'
+import { toast } from 'sonner'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog'
+import Reveal from './animations/Reveal'
 
 export interface ImageUploaderProps {
   multiple?: boolean
@@ -89,10 +89,10 @@ export function ImageUploader({
     image.src = imageSrc
     await new Promise((resolve) => (image.onload = resolve))
 
-    const canvas = document.createElement("canvas")
+    const canvas = document.createElement('canvas')
     canvas.width = pixels.width
     canvas.height = pixels.height
-    const ctx = canvas.getContext("2d")!
+    const ctx = canvas.getContext('2d')!
     ctx.drawImage(
       image,
       pixels.x,
@@ -108,9 +108,9 @@ export function ImageUploader({
     return new Promise((resolve) => {
       canvas.toBlob((blob) => {
         if (!blob) return
-        const file = new File([blob], cropFile?.name || "cropped.jpg", { type: "image/jpeg" })
+        const file = new File([blob], cropFile?.name || 'cropped.jpg', { type: 'image/jpeg' })
         resolve(file)
-      }, "image/jpeg")
+      }, 'image/jpeg')
     })
   }
 
@@ -144,12 +144,12 @@ export function ImageUploader({
     setIsProcessing(true)
     try {
       await onUpload(selectedFiles)
-      toast.success("Upload success ✅")
+      toast.success('Upload success ✅')
       setOriginalFiles([])
       setSelectedFiles([])
     } catch (err) {
       console.error(err)
-      toast.error("Upload failed ❌")
+      toast.error('Upload failed ❌')
     }
     setIsProcessing(false)
   }
@@ -159,7 +159,7 @@ export function ImageUploader({
       {/* Dropzone */}
       <div
         className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
-          isDragging ? "border-primary bg-primary/10" : "border-muted-foreground/30"
+          isDragging ? 'border-primary bg-primary/10' : 'border-muted-foreground/30'
         }`}
         onDragOver={(e) => {
           e.preventDefault()
@@ -180,8 +180,8 @@ export function ImageUploader({
           <Upload className="w-6 h-6 text-muted-foreground" />
           <span className="text-sm text-muted-foreground">
             {multiple
-              ? "Drag & drop images here or click to select"
-              : "Drag & drop an image here or click to select"}
+              ? 'Drag & drop images here or click to select'
+              : 'Drag & drop an image here or click to select'}
           </span>
         </label>
       </div>
@@ -200,7 +200,6 @@ export function ImageUploader({
           onChange={handleFileSelect}
         />
       </div>
-
 
       {/* Crop overlay */}
       {cropping && previewUrl && (
@@ -232,15 +231,18 @@ export function ImageUploader({
           </div>
 
           <div className="flex gap-4 mt-4">
-            <Button onClick={() => {
-              if (previewUrl) URL.revokeObjectURL(previewUrl)
-              setCropping(false)
-              setPreviewUrl(null)
-              setCropTargetIndex(null)
-              setCroppedAreaPixels(null)
-              setCrop({ x: 0, y: 0 })
-              setZoom(1)
-            }} variant="outline">
+            <Button
+              onClick={() => {
+                if (previewUrl) URL.revokeObjectURL(previewUrl)
+                setCropping(false)
+                setPreviewUrl(null)
+                setCropTargetIndex(null)
+                setCroppedAreaPixels(null)
+                setCrop({ x: 0, y: 0 })
+                setZoom(1)
+              }}
+              variant="outline"
+            >
               Cancel
             </Button>
             <Button onClick={handleConfirmCrop}>Confirm</Button>
@@ -250,7 +252,7 @@ export function ImageUploader({
 
       {/* Preview thumbnails */}
       {selectedFiles.length > 0 && (
-        <div className={`${multiple ? "grid grid-cols-3 gap-3" : "flex justify-center"}`}>
+        <div className={`${multiple ? 'grid grid-cols-3 gap-3' : 'flex justify-center'}`}>
           {selectedFiles.map((file, idx) => (
             <Reveal key={idx + 'thumbnail' + URL.createObjectURL(file)} animation="fadeIn">
               <div
@@ -308,24 +310,24 @@ export function ImageUploader({
 
       {/* Mobile bottom sheet actions */}
       <Dialog open={showActions} onOpenChange={setShowActions}>
-        <DialogContent
-          showCloseButton={false}
-        >
+        <DialogContent showCloseButton={false}>
           <DialogHeader>
             <DialogTitle>Actions</DialogTitle>
             <DialogDescription>Pilih aksi untuk gambar ini</DialogDescription>
           </DialogHeader>
 
-          <Button
-            variant="ghost"
-            className="w-full justify-start"
-            onClick={() => {
-              if (actionIndex !== null) startCrop(actionIndex)
-              setShowActions(false)
-            }}
-          >
-            <Edit2 className="w-4 h-4 mr-2" /> Crop
-          </Button>
+          {enableCrop && (
+            <Button
+              variant="ghost"
+              className="w-full justify-start"
+              onClick={() => {
+                if (actionIndex !== null) startCrop(actionIndex)
+                setShowActions(false)
+              }}
+            >
+              <Edit2 className="w-4 h-4 mr-2" /> Crop
+            </Button>
+          )}
 
           <Button
             variant="ghost"
@@ -346,7 +348,7 @@ export function ImageUploader({
                 const file = selectedFiles[actionIndex]
                 if (file) {
                   const url = URL.createObjectURL(file)
-                  window.open(url, "_blank")
+                  window.open(url, '_blank')
                 }
               }
               setShowActions(false)
