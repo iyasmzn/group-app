@@ -30,11 +30,6 @@ const motionUl = {
   },
 }
 
-const motionLi = {
-  hidden: { opacity: 0, x: -40 },
-  show: { opacity: 1, x: 0 },
-}
-
 export default function GroupsPageWrapper() {
   const { user } = useAuth()
 
@@ -178,10 +173,11 @@ function GroupsPage({ userId }: { userId: string }) {
             variants={motionUl}
           >
             {groups.length ? groups.map((group, gIndex) => (
-              <motion.li 
-                key={group.id} 
-                variants={motionLi}
-                transition={{ delay: gIndex * 0.15, duration: 0.5, ease: "backOut" }}
+              <Reveal 
+                key={gIndex} 
+                animation="fadeInRight"
+                delay={gIndex * 0.1}
+                distance={10}
                 className="flex items-center justify-between py-2 px-4 border rounded-lg hover:bg-muted"
               >
                 <div className="flex-1 flex items-center gap-3">
@@ -241,7 +237,7 @@ function GroupsPage({ userId }: { userId: string }) {
                 >
                   <Settings2 />
                 </Link>
-              </motion.li>
+              </Reveal>
             )) 
             : 
             (<div>
