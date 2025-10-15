@@ -87,8 +87,6 @@ export function AppAvatar({
             />
           )}
 
-
-
           {hoverAction && (
             <button
               type="button"
