@@ -10,6 +10,9 @@ import { GroupBadgeProvider } from "@/context/GroupBadgeContext"
 import { LastGroupCard } from "@/components/app/home/LastGroupCard"
 import { GroupAvatar } from "@/components/group-avatar"
 import { ClockFading } from "lucide-react"
+import { useProfile } from "@/lib/hooks/useProfile"
+import LoadingOverlay from "@/components/loading-overlay"
+import { ProfileSkeleton } from "@/components/ui/profile-skeleton"
 
 type LastGroup = {
   id: string
@@ -23,26 +26,19 @@ type LastGroup = {
 
 export default function UserHomePage() {
   const { supabase, user } = useAuth()
+  const { profile, loading } = useProfile()
   const router = useRouter()
   const [lastGroup, setLastGroup] = useState<LastGroup | null>(null)
 
   useEffect(() => {
-    if (!user) {
-      toast.error('Please Login.')
-      router.push("/login")
-      return
+    if (user) {
+      fetchLastGroup()
     }
-
-
-    fetchLastGroup()
-  }, [user, supabase, router])
+  }, [user, supabase])
 
   const fetchLastGroup = async () => {
-    if (!user) {
-      toast.error('Please Login.')
-      router.push("/login")
-      return
-    }
+    if (!user) return
+
     // coba ambil group terakhir dibuka
     const { data: groups } = await supabase
       .from("groups")
@@ -99,28 +95,31 @@ export default function UserHomePage() {
     }
   }
 
-  if (!user) return null
-
   return (
     <>
       <AppBottombar />
       <PageWrapper>
         <div className="p-4 max-w-4xl mx-auto space-y-6">
           <Reveal className="flex items-center gap-4" animation="fadeInDown">
-            <GroupAvatar 
-              size="xl" 
-              image={user.user_metadata.avatar_url} 
-              name={user.user_metadata.full_name} 
-              hoverAction={{
-                onClick: () => router.push('/app/profile')
-              }}
-            />
-            <div>
-              <h3 className="text-xl text-secondary-foreground">Welcome,</h3>
-              <h3 className="text-2xl font-bold">
-                {user.user_metadata.full_name || user.email}!
-              </h3>
-            </div>
+            {loading || !profile ? (
+              <ProfileSkeleton />
+            ) : (
+              <>
+                <GroupAvatar
+                  size="xl"
+                  image={profile.avatar_url}
+                  name={profile.full_name || "No Name"}
+                  hoverAction={{ onClick: () => router.push("/app/profile") }}
+                />
+                <div>
+                  <h3 className="text-xl text-secondary-foreground">Welcome,</h3>
+                  <h3 className="text-2xl font-bold">
+                    {profile.full_name || profile.email}!
+                  </h3>
+                </div>
+              </>
+            )}
+
           </Reveal>
 
           {lastGroup && (
