@@ -177,7 +177,7 @@ function GroupsPage({ userId }: { userId: string }) {
                 key={gIndex} 
                 animation="fadeInRight"
                 delay={gIndex * 0.1}
-                distance={10}
+                distance={25}
                 className="flex items-center justify-between py-2 px-4 border rounded-lg hover:bg-muted"
               >
                 <div className="flex-1 flex items-center gap-3">
