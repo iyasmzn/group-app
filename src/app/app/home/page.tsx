@@ -109,6 +109,7 @@ export default function UserHomePage() {
                   image={profile.avatar_url}
                   name={profile.full_name || "No Name"}
                   hoverAction={{ onClick: () => router.push("/app/profile") }}
+                  preview
                 />
                 <div>
                   <h3 className="text-xl text-secondary-foreground">Welcome,</h3>
