@@ -24,3 +24,14 @@ export async function uploadToCloudinary(file: File): Promise<{ secure_url: stri
   const data = await res.json()
   return { secure_url: data.secure_url, public_id: data.public_id }
 }
+
+export function getBlurThumbnailUrl(url: string, size = 20) {
+  if (!url) return ""
+
+  // Cloudinary URL biasanya: https://res.cloudinary.com/<cloud_name>/image/upload/v12345/filename.jpg
+  // Kita sisipkan transformasi setelah "upload/"
+  return url.replace(
+    "/upload/",
+    `/upload/w_${size},q_auto:low,e_blur:200/`
+  )
+}

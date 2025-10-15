@@ -1,20 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import Image from "next/image"
-import { Eye, Settings } from "lucide-react"
+import { Settings } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
   Avatar as UiAvatar,
   AvatarImage,
   AvatarFallback,
 } from "@/components/ui/avatar"
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import { PreviewImageDialog } from "../preview-image-dialog"
+import { getBlurThumbnailUrl } from "@/lib/cloudinary"
 
 type AppAvatarProps = {
   name: string
@@ -61,6 +56,7 @@ export function AppAvatar({
     ? name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
     : "U"
   const bg = getAvatarColor(name)
+  const [loadingImage, setLoadingImage] = useState(true)
 
   return (
     <div className="relative inline-block">
@@ -85,24 +81,14 @@ export function AppAvatar({
       {(preview || hoverAction) && (
         <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/40 opacity-0 hover:opacity-100 transition">
           {preview && image && (
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild>
-                <button className="p-2 rounded-full bg-white/20 hover:bg-white/40">
-                  <Eye className="w-5 h-5 text-white" />
-                </button>
-              </DialogTrigger>
-              <DialogContent className="max-w-lg">
-                <DialogTitle>Preview Image</DialogTitle>
-                <Image
-                  src={image}
-                  alt={name}
-                  width={400}
-                  height={400}
-                  className="w-full h-auto rounded-lg object-cover"
-                />
-              </DialogContent>
-            </Dialog>
+            <PreviewImageDialog
+              name={name}
+              image={image}
+              thumb={getBlurThumbnailUrl(image)} // contoh generate blur thumbnail
+            />
           )}
+
+
 
           {hoverAction && (
             <button

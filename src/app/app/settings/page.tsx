@@ -16,7 +16,7 @@ export default function SettingsPage() {
 
   const menuItems = [
     {
-      href: "/app/profile",
+      href: "/app/settings/profile",
       icon: <User className="h-5 w-5 text-gray-500" />,
       label: "Account",
       desc: "Profile, Email, Password",
@@ -57,6 +57,7 @@ export default function SettingsPage() {
                   name={profile?.full_name || profile?.email || "Guest"}
                   image={profile?.avatar_url}
                   size="xxl"
+                  preview
                 />
                 <div className="text-center">
                   <h2 className="text-xl font-semibold">
