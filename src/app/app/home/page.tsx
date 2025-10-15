@@ -13,6 +13,7 @@ import { ClockFading } from "lucide-react"
 import { useProfile } from "@/lib/hooks/useProfile"
 import LoadingOverlay from "@/components/loading-overlay"
 import { ProfileSkeleton } from "@/components/ui/profile-skeleton"
+import { LastGroupSkeleton } from "@/components/app/home/LastGroupSkeleton"
 
 type LastGroup = {
   id: string
@@ -29,6 +30,7 @@ export default function UserHomePage() {
   const { profile, loading } = useProfile()
   const router = useRouter()
   const [lastGroup, setLastGroup] = useState<LastGroup | null>(null)
+  const [loadingGroup, setLoadingGroup] = useState(true)
 
   useEffect(() => {
     if (user) {
@@ -38,7 +40,7 @@ export default function UserHomePage() {
 
   const fetchLastGroup = async () => {
     if (!user) return
-
+    setLoadingGroup(true)
     // coba ambil group terakhir dibuka
     const { data: groups } = await supabase
       .from("groups")
@@ -93,6 +95,7 @@ export default function UserHomePage() {
         joinedate: g.group_members[0].joinedat
       })
     }
+    setLoadingGroup(false)
   }
 
   return (
@@ -122,19 +125,25 @@ export default function UserHomePage() {
 
           </Reveal>
 
-          {lastGroup && (
-            <GroupBadgeProvider groupId={lastGroup.id}>
-              <Reveal>
-                <h4>
-                  <ClockFading className="inline-block mr-2" />
-                  Last Group Activity
-                </h4>
-              </Reveal>
-              <Reveal delay={0.1}>
-                <LastGroupCard lastGroup={lastGroup} />
-              </Reveal>
-            </GroupBadgeProvider>
+          <Reveal>
+            <h4>
+              <ClockFading className="inline-block mr-2" />
+              Last Group Activity
+            </h4>
+          </Reveal>
+
+          {loadingGroup ? (
+            <LastGroupSkeleton />
+          ) : (
+            lastGroup && (
+              <GroupBadgeProvider groupId={lastGroup.id}>
+                <Reveal delay={0.1}>
+                  <LastGroupCard lastGroup={lastGroup} />
+                </Reveal>
+              </GroupBadgeProvider>
+            )
           )}
+
         </div>
       </PageWrapper>
     </>
