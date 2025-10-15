@@ -45,6 +45,7 @@ export const groupMessageService = {
       .from("group_messages")
       .select("id", { count: "exact", head: true })
       .eq("group_id", groupId)
+      .neq("sender_id", userId)
       .gt("createdat", seenRow.message_last_seen_at)
 
     if (error) throw error

@@ -98,6 +98,7 @@ function GroupsPage({ userId }: { userId: string }) {
             .from("group_messages")
             .select("id", { count: "exact", head: true })
             .eq("group_id", g.id)
+            .neq("sender_id", userId)
             .gt("createdat", lastSeenAt)
 
           return {
