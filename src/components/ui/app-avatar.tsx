@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { Settings } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
@@ -51,7 +50,6 @@ export function AppAvatar({
   preview,
   status,
 }: AppAvatarProps) {
-  const [open, setOpen] = useState(false)
   const initials = name
     ? name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
     : "U"
