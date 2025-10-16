@@ -27,10 +27,9 @@ export default function GroupChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')
 
-  if (!groupId) return null // ✅ fallback jika groupId belum ada
-
-  // ✅ Fetch pesan awal
+  // ✅ Fetch pesan awal (tetap dipanggil walau groupId belum siap)
   useEffect(() => {
+    if (!groupId) return
     const fetchMessages = async () => {
       const { data, error } = await supabase
         .rpc('get_group_messages', { gid: groupId })
@@ -41,12 +40,13 @@ export default function GroupChatPage() {
         setMessages(data as Message[])
       }
     }
-
     fetchMessages()
   }, [groupId])
 
   // ✅ Realtime listener
   useEffect(() => {
+    if (!groupId || !user?.id) return
+
     const channel = supabase
       .channel(`group_messages:${groupId}`)
       .on(
@@ -58,10 +58,10 @@ export default function GroupChatPage() {
           filter: `group_id=eq.${groupId}`,
         },
         async (payload) => {
-          // Skip pesan dari user sendiri (sudah ditangani optimistic + RPC di handleSend)
-          if (payload.new.sender_id === user?.id) return
+          // Skip pesan dari user sendiri
+          if (payload.new.sender_id === user.id) return
 
-          // Ambil pesan baru via RPC agar sudah include profil
+          // Ambil pesan baru via RPC
           const { data, error } = await supabase.rpc('get_group_messages', {
             gid: groupId,
             msg_id: payload.new.id,
@@ -88,7 +88,7 @@ export default function GroupChatPage() {
     }
   }, [groupId, user?.id])
 
-  // ✅ Send message
+  // ✅ Kirim pesan
   const handleSend = async () => {
     if (!newMessage.trim() || !user?.id || !groupId) return
 
@@ -105,10 +105,10 @@ export default function GroupChatPage() {
       },
     }
 
+    // Optimistic UI
     setMessages((prev) => [...prev, tempMessage])
     setNewMessage('')
 
-    // 1. Insert pesan baru (cukup ambil id saja)
     const { data: inserted, error } = await supabase
       .from('group_messages')
       .insert({
@@ -121,12 +121,12 @@ export default function GroupChatPage() {
 
     if (error) {
       console.error(error)
-      // rollback temp message
+      // rollback jika gagal
       setMessages((prev) => prev.filter((m) => m.id !== tempId))
       return
     }
 
-    // 2. Ambil pesan lengkap via RPC (sudah include profil)
+    // Ambil data lengkap via RPC
     if (inserted) {
       const { data: enriched, error: rpcError } = await supabase.rpc('get_group_messages', {
         gid: groupId,
@@ -145,12 +145,21 @@ export default function GroupChatPage() {
     }
   }
 
-  // ✅ Sort messages sebelum render
+  // ✅ Sort pesan
   const sortedMessages = useMemo(() => {
     return [...messages].sort(
       (a, b) => new Date(a.createdat).getTime() - new Date(b.createdat).getTime()
     )
   }, [messages])
+
+  // ✅ Render hanya setelah groupId siap
+  if (!groupId) {
+    return (
+      <div className="flex h-full items-center justify-center text-muted-foreground">
+        Loading chat...
+      </div>
+    )
+  }
 
   return (
     <ChatShell
