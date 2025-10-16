@@ -1,19 +1,20 @@
-"use client"
+'use client'
 
-import { AppBottombar } from "@/components/app/bottombar"
-import { AppTopbar } from "@/components/app/topbar"
-import PageWrapper from "@/components/page-wrapper"
-import { MessageCircle } from "lucide-react"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChatListItem } from "@/components/app/chat/ChatListItem"
-import { useEffect, useState } from "react"
-import { AnimatePresence, motion } from "framer-motion"
-import Reveal from "@/components/animations/Reveal"
-import { useRouter } from "next/navigation"
-import { groupService } from "@/services/groupService/groupService"
-import { GroupMessage, groupMessageService } from "@/services/groupService/groupMessageService"
-import { useRealtimeTable } from "@/lib/hooks/useRealtimeTable"
-import { useAuth } from "@/lib/supabase/auth"
+import { AppBottombar } from '@/components/app/bottombar'
+import { AppTopbar } from '@/components/app/topbar'
+import PageWrapper from '@/components/page-wrapper'
+import { MessageCircle } from 'lucide-react'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ChatListItem } from '@/components/app/chat/ChatListItem'
+import { useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import Reveal from '@/components/animations/Reveal'
+import { useRouter } from 'next/navigation'
+import { groupService } from '@/services/groupService/groupService'
+import { GroupMessage, groupMessageService } from '@/services/groupService/groupMessageService'
+import { useRealtimeTable } from '@/lib/hooks/useRealtimeTable'
+import { useAuth } from '@/lib/supabase/auth'
+import { Skeleton } from '@/components/ui/skeleton'
 
 type GroupChatItem = {
   id: string
@@ -27,61 +28,61 @@ type GroupChatItem = {
 export default function ChatPage() {
   const { user, supabase } = useAuth()
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<"private" | "group">("private")
+  const [activeTab, setActiveTab] = useState<'private' | 'group'>('private')
   const [dragX, setDragX] = useState(0)
   const [groupChats, setGroupChats] = useState<GroupChatItem[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   const unread = { private: 3 } // dummy private
   const totalGroupUnread = groupChats.reduce((sum, g) => sum + g.unread, 0)
 
   const privateChats = [
-    { name: "Alice", lastMessage: "Hey, apa kabar?", time: "19:45", unread: 2 },
-    { name: "Bob", lastMessage: "Oke, besok ketemu ya", time: "18:20", unread: 1 },
+    { name: 'Alice', lastMessage: 'Hey, apa kabar?', time: '19:45', unread: 2 },
+    { name: 'Bob', lastMessage: 'Oke, besok ketemu ya', time: '18:20', unread: 1 },
   ]
 
-  // fetch awal
+  // Fetch awal
   useEffect(() => {
     async function fetchGroups() {
       if (!user) return
-      const groups = await groupService.getByMember(user.id)
-
-      // lempar user.id ke service
-      const chats = await groupMessageService.getLatestByGroups(
-        groups.map((g) => g.id),
-        user.id
-      )
-
-      const merged = chats.map((c) => ({
-        ...c,
-        name: groups.find((g) => g.id === c.id)?.name ?? "Unknown",
-        time: c.lastCreatedAt
-          ? new Date(c.lastCreatedAt).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })
-          : "",
-      }))
-
-      setGroupChats(
-        merged.sort(
-          (a, b) =>
-            new Date(b.lastCreatedAt).getTime() -
-            new Date(a.lastCreatedAt).getTime()
+      setIsLoading(true)
+      try {
+        const groups = await groupService.getByMember(user.id)
+        const chats = await groupMessageService.getLatestByGroups(
+          groups.map((g) => g.id),
+          user.id
         )
-      )
+
+        const merged = chats.map((c) => ({
+          ...c,
+          name: groups.find((g) => g.id === c.id)?.name ?? 'Unknown',
+          time: c.lastCreatedAt
+            ? new Date(c.lastCreatedAt).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+            : '',
+        }))
+
+        setGroupChats(
+          merged.sort(
+            (a, b) => new Date(b.lastCreatedAt).getTime() - new Date(a.lastCreatedAt).getTime()
+          )
+        )
+      } finally {
+        setIsLoading(false)
+      }
     }
     fetchGroups()
   }, [user?.id])
 
-
-  // realtime update
+  // Realtime update
   useRealtimeTable<GroupMessage>({
     supabase,
-    table: "group_messages",
+    table: 'group_messages',
     onInsert: async (msg) => {
       if (!user) return
 
-      // hitung ulang unread untuk grup ini
       const unread = await groupMessageService.getUnreadCount(msg.group_id, user.id)
 
       setGroupChats((prev) => {
@@ -91,46 +92,42 @@ export default function ChatPage() {
                 ...chat,
                 lastMessage: msg.content,
                 time: new Date(msg.createdat).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
+                  hour: '2-digit',
+                  minute: '2-digit',
                 }),
                 lastCreatedAt: msg.createdat,
-                unread, // pakai hasil getUnreadCount, bukan sekadar +1
+                unread,
               }
             : chat
         )
 
-        // kalau grup belum ada di list, tambahkan
         if (!updated.find((c) => c.id === msg.group_id)) {
           updated.push({
             id: msg.group_id,
-            name: "Unknown",
+            name: 'Unknown',
             lastMessage: msg.content,
             time: new Date(msg.createdat).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
+              hour: '2-digit',
+              minute: '2-digit',
             }),
             lastCreatedAt: msg.createdat,
             unread,
           })
         }
 
-        // sort ulang berdasarkan lastCreatedAt
         return [...updated].sort(
-          (a, b) =>
-            new Date(b.lastCreatedAt).getTime() -
-            new Date(a.lastCreatedAt).getTime()
+          (a, b) => new Date(b.lastCreatedAt).getTime() - new Date(a.lastCreatedAt).getTime()
         )
       })
     },
   })
 
   const handleSwipe = (offsetX: number) => {
-    if (offsetX < -50 && activeTab === "private") {
-      setActiveTab("group")
+    if (offsetX < -50 && activeTab === 'private') {
+      setActiveTab('group')
       if (navigator.vibrate) navigator.vibrate(30)
-    } else if (offsetX > 50 && activeTab === "group") {
-      setActiveTab("private")
+    } else if (offsetX > 50 && activeTab === 'group') {
+      setActiveTab('private')
       if (navigator.vibrate) navigator.vibrate(30)
     }
     setDragX(0)
@@ -141,6 +138,7 @@ export default function ChatPage() {
       <AppTopbar title="Chat" titleIcon={<MessageCircle className="w-6 h-6" />} />
       <PageWrapper>
         <div className="max-w-4xl mx-auto p-4">
+          {/* Tabs */}
           <Tabs
             value={activeTab}
             onValueChange={(v) => {
@@ -169,19 +167,19 @@ export default function ChatPage() {
             </TabsList>
           </Tabs>
 
+          {/* List */}
           <div className="mt-4 relative">
             {dragX !== 0 && (
               <div
                 className="absolute inset-0 pointer-events-none transition-colors"
                 style={{
-                  backgroundColor:
-                    dragX > 0 ? "rgba(59,130,246,0.1)" : "rgba(239,68,68,0.1)",
+                  backgroundColor: dragX > 0 ? 'rgba(59,130,246,0.1)' : 'rgba(239,68,68,0.1)',
                 }}
               />
             )}
 
             <AnimatePresence mode="wait" initial={false}>
-              {activeTab === "private" && (
+              {activeTab === 'private' && (
                 <motion.div
                   key="private"
                   initial={{ opacity: 0, x: 40 }}
@@ -196,13 +194,17 @@ export default function ChatPage() {
                 >
                   {privateChats.map((chat, i) => (
                     <Reveal key={i} delay={i * 0.1} animation="fadeInLeft">
-                      <ChatListItem {...chat} index={i} onClick={() => router.push("/app/users/123/chat")} />
+                      <ChatListItem
+                        {...chat}
+                        index={i}
+                        onClick={() => router.push('/app/users/123/chat')}
+                      />
                     </Reveal>
                   ))}
                 </motion.div>
               )}
 
-              {activeTab === "group" && (
+              {activeTab === 'group' && (
                 <motion.div
                   key="group"
                   initial={{ opacity: 0, x: -40 }}
@@ -215,25 +217,43 @@ export default function ChatPage() {
                   onDragEnd={(_, info) => handleSwipe(info.offset.x)}
                   className="space-y-2 relative z-10"
                 >
-                  {groupChats.map((chat, i) => (
-                    <Reveal key={i} delay={i * 0.1} animation="fadeInRight">
-                      <ChatListItem
-                        index={i}
-                        {...chat}
-                        onClick={async () => {
-                          if (!user) return
-                          await groupMessageService.markAsRead(chat.id, user.id, new Date().toISOString())
-                          // optimistic reset unread
-                          setGroupChats((prev) =>
-                            prev.map((c) =>
-                              c.id === chat.id ? { ...c, unread: 0 } : c
+                  {isLoading ? (
+                    // 🟡 Skeleton loading
+                    [...Array(4)].map((_, i) => (
+                      <div key={i} className="flex items-center gap-3 p-3 border rounded-xl">
+                        <Skeleton className="w-12 h-12 rounded-full" />
+                        <div className="flex-1">
+                          <Skeleton className="h-4 w-2/3 mb-2" />
+                          <Skeleton className="h-3 w-1/2" />
+                        </div>
+                      </div>
+                    ))
+                  ) : groupChats.length === 0 ? (
+                    <div className="text-center text-muted-foreground mt-10">
+                      Belum ada grup yang aktif.
+                    </div>
+                  ) : (
+                    groupChats.map((chat, i) => (
+                      <Reveal key={i} delay={i * 0.1} animation="fadeInRight">
+                        <ChatListItem
+                          index={i}
+                          {...chat}
+                          onClick={async () => {
+                            if (!user) return
+                            await groupMessageService.markAsRead(
+                              chat.id,
+                              user.id,
+                              new Date().toISOString()
                             )
-                          )
-                          router.push(`/app/groups/${chat.id}/chat`)
-                        }}
-                      />
-                    </Reveal>
-                  ))}
+                            setGroupChats((prev) =>
+                              prev.map((c) => (c.id === chat.id ? { ...c, unread: 0 } : c))
+                            )
+                            router.push(`/app/groups/${chat.id}/chat`)
+                          }}
+                        />
+                      </Reveal>
+                    ))
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
