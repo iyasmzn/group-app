@@ -4,11 +4,11 @@
 import { ReactNode } from 'react'
 import { GroupChatTopbar } from '@/components/app/groups/GroupChatToolbar'
 import { useParams } from 'next/navigation'
-import { useGroupData } from '@/lib/hooks/useGroupData'
+import { useGroupBadges } from '@/context/GroupBadgeContext'
 
 export function ChatShell({ children, footer }: { children: ReactNode; footer: ReactNode }) {
   const params = useParams()
-  const groupData = useGroupData(params?.groupId as string)
+  const { groupData } = useGroupBadges()
 
   return (
     <div className="flex flex-col min-h-screen">
