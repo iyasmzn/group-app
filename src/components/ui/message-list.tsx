@@ -1,13 +1,13 @@
 'use client'
 
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso'
-import { AppAvatar } from '@/components/ui/app-avatar'
 import { cn } from '@/lib/utils'
 import { formatDateDivider } from '@/lib/utils/format'
 import React, { useRef, useEffect, useState } from 'react'
 import { ArrowDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAppBadges } from '@/context/AppBadgeContext'
+import { MessageBubble } from '@/components/ui/message-bubble'
 
 type Message = {
   id: string
@@ -40,11 +40,10 @@ export function MessageList({ messages, currentUserId, height, width, groupId }:
   const prevIsBottomRef = useRef<boolean>(true)
   const { resetGroupUnread, refresh } = useAppBadges()
 
-  // scroll langsung ke bawah saat pertama kali
+  // Scroll ke bawah pada load pertama
   useEffect(() => {
     if (firstLoad && messages.length > 0) {
       setFirstLoad(false)
-      // delay satu frame agar Virtuoso sudah siap
       requestAnimationFrame(() => {
         setTimeout(() => {
           virtuosoRef.current?.scrollToIndex({
@@ -53,17 +52,16 @@ export function MessageList({ messages, currentUserId, height, width, groupId }:
             behavior: 'auto',
           })
           resetGroupUnread(groupId)
-        }, 50) // delay kecil biar aman
+        }, 50)
       })
     }
   }, [firstLoad, messages.length, groupId, resetGroupUnread])
 
-  // handle pesan baru
+  // Deteksi pesan baru
   useEffect(() => {
     const prevLen = prevMessagesRef.current
     const currLen = messages.length
     if (currLen === prevLen) return
-
     prevMessagesRef.current = currLen
     if (currLen === 0) return
 
@@ -71,12 +69,10 @@ export function MessageList({ messages, currentUserId, height, width, groupId }:
     const isOwn = lastMsg.sender_id === currentUserId
 
     if (isOwn || atBottom) {
-      requestAnimationFrame(() => {
-        virtuosoRef.current?.scrollToIndex({
-          index: currLen - 1,
-          align: 'end',
-          behavior: 'smooth',
-        })
+      virtuosoRef.current?.scrollToIndex({
+        index: currLen - 1,
+        align: 'end',
+        behavior: 'smooth',
       })
       setUnreadCount(0)
       unreadRef.current = 0
@@ -87,7 +83,6 @@ export function MessageList({ messages, currentUserId, height, width, groupId }:
     }
   }, [messages.length])
 
-  // update sticky date
   const handleRangeChange = (range: { startIndex: number }) => {
     const msg = messages[range.startIndex]
     if (!msg) return
@@ -95,7 +90,6 @@ export function MessageList({ messages, currentUserId, height, width, groupId }:
     if (newDate !== stickyDate) setStickyDate(newDate)
   }
 
-  // handle perubahan posisi scroll
   const handleAtBottomChange = (isBottom: boolean) => {
     if (prevIsBottomRef.current !== isBottom) {
       prevIsBottomRef.current = isBottom
@@ -108,7 +102,6 @@ export function MessageList({ messages, currentUserId, height, width, groupId }:
     }
   }
 
-  // mark unread lagi kalau user keluar dari chat sebelum scroll bawah
   useEffect(() => {
     return () => {
       if (!atBottom) refresh()
@@ -135,7 +128,7 @@ export function MessageList({ messages, currentUserId, height, width, groupId }:
 
       <Virtuoso
         ref={virtuosoRef}
-        style={{ height: '100%', width: '100%' }}
+        style={{ height: '100%', width: '100%', overflowX: 'hidden' }}
         data={messages}
         followOutput={false}
         overscan={200}
@@ -157,44 +150,13 @@ export function MessageList({ messages, currentUserId, height, width, groupId }:
                   </span>
                 </div>
               )}
-              <div
-                className={cn('flex items-start gap-2', isOwn ? 'justify-end' : 'justify-start')}
-              >
-                {!isOwn && msg.sender?.full_name && (
-                  <AppAvatar
-                    image={msg.sender?.avatar_url || ''}
-                    name={msg.sender?.full_name}
-                    size="sm"
-                  />
-                )}
-                <div
-                  className={cn(
-                    'max-w-[70%] px-4 py-2 rounded-xl text-sm shadow',
-                    isOwn
-                      ? 'bg-primary text-primary-foreground rounded-tr-none'
-                      : 'bg-muted text-foreground rounded-tl-none'
-                  )}
-                >
-                  {!isOwn && (
-                    <p className="text-xs text-secondary-foreground mb-1 font-medium">
-                      {msg.sender?.full_name}
-                    </p>
-                  )}
-                  <p>{msg.content}</p>
-                  <span className="block text-[10px] text-muted-foreground mt-1 text-right">
-                    {new Date(msg.createdat).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </span>
-                </div>
-              </div>
+              <MessageBubble msg={msg} isOwn={isOwn} />
             </div>
           )
         }}
       />
 
-      {/* Scroll Button */}
+      {/* Tombol scroll ke bawah */}
       <AnimatePresence>
         {!atBottom && (
           <motion.button
