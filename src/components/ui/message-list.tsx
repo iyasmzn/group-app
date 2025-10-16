@@ -62,35 +62,77 @@ export function MessageList({ messages, currentUserId, height, width }: Props) {
   const [atBottom, setAtBottom] = useState(true)
   const [unreadCount, setUnreadCount] = useState(0)
   const unreadCountRef = useRef(0)
+  const prevMessagesLengthRef = useRef(messages.length)
   const [bounce, setBounce] = useState(false)
 
+  // keep unread ref in sync with state
   useEffect(() => {
     unreadCountRef.current = unreadCount
   }, [unreadCount])
 
-  // Hybrid auto-scroll + unread logic
+  // Initialize prevMessagesLengthRef on mount / when messages prop replaced
   useEffect(() => {
-    if (messages.length === 0) return
-    const lastMsg = messages[messages.length - 1]
+    prevMessagesLengthRef.current = messages.length
+  }, []) // only on mount
+
+  /**
+   * Effect that reacts ONLY when messages.length changes (new messages).
+   * - If the new last message is from current user -> auto-scroll to bottom and reset unread.
+   * - If message count increased, last message is NOT own, and user is not at bottom -> increment unread.
+   */
+  useEffect(() => {
+    const prevLen = prevMessagesLengthRef.current
+    const currLen = messages.length
+
+    // No change in length -> ignore (this avoids reacting to atBottom changes)
+    if (currLen === prevLen) return
+
+    // Update prev length at the end of this effect
+    prevMessagesLengthRef.current = currLen
+
+    if (currLen === 0) {
+      // nothing to do
+      setUnreadCount(0)
+      unreadCountRef.current = 0
+      return
+    }
+
+    const lastMsg = messages[currLen - 1]
     const isOwn = lastMsg.sender_id === currentUserId
 
     if (isOwn) {
+      // If the last message is ours, always scroll to bottom and clear unread
       virtuosoRef.current?.scrollToIndex({
-        index: messages.length - 1,
+        index: currLen - 1,
         align: 'end',
         behavior: 'smooth',
       })
       setAtBottom(true)
       setUnreadCount(0)
       unreadCountRef.current = 0
-    } else if (!atBottom) {
+      return
+    }
+
+    // New message from others
+    if (!atBottom) {
+      // only increment if user NOT at bottom (i.e., truly unread)
       const newCount = unreadCountRef.current + 1
       unreadCountRef.current = newCount
       setUnreadCount(newCount)
       setBounce(true)
       setTimeout(() => setBounce(false), 400)
+    } else {
+      // If user is at bottom, auto-scroll to show the new incoming message
+      virtuosoRef.current?.scrollToIndex({
+        index: currLen - 1,
+        align: 'end',
+        behavior: 'smooth',
+      })
+      // keep unread at 0
+      setUnreadCount(0)
+      unreadCountRef.current = 0
     }
-  }, [messages, currentUserId, atBottom])
+  }, [messages, currentUserId, atBottom]) // note: effect triggers when messages changes (we guard by length)
 
   return (
     <div className="relative" style={{ height, width }}>
