@@ -11,7 +11,7 @@ interface ChatInputProps {
   value: string
   onChange: (val: string) => void
   onSend: () => void
-  onFileSelect?: (file: File) => void
+  onFileSelect?: (files: File[]) => void
 }
 
 export default function ChatInput({ value, onChange, onSend, onFileSelect }: ChatInputProps) {
@@ -21,10 +21,9 @@ export default function ChatInput({ value, onChange, onSend, onFileSelect }: Cha
 
   const [showEmoji, setShowEmoji] = useState(false)
   const [showUploadMenu, setShowUploadMenu] = useState(false)
-  const [previewFile, setPreviewFile] = useState<File | null>(null)
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [previewFiles, setPreviewFiles] = useState<File[]>([])
+  const [previewUrls, setPreviewUrls] = useState<{ [key: string]: string | null }>({})
 
-  // Ambil tema dari next-themes
   const { theme: appTheme } = useTheme()
   const emojiTheme: Theme = appTheme === 'dark' ? Theme.DARK : Theme.LIGHT
 
@@ -37,14 +36,6 @@ export default function ChatInput({ value, onChange, onSend, onFileSelect }: Cha
       el.style.overflowY = el.scrollHeight > 150 ? 'auto' : 'hidden'
     }
   }, [value])
-
-  // Kirim pesan (Enter)
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
-    }
-  }
 
   // Emoji select
   const handleEmojiSelect = (emojiData: EmojiClickData) => {
@@ -61,78 +52,103 @@ export default function ChatInput({ value, onChange, onSend, onFileSelect }: Cha
     }, 0)
   }
 
-  // Handle file change
+  // File handling (multiple)
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = Array.from(e.target.files || [])
+    if (!files.length) return
 
-    setPreviewFile(file)
-    if (file.type.startsWith('image/')) {
-      const url = URL.createObjectURL(file)
-      setPreviewUrl(url)
-    } else {
-      setPreviewUrl(null)
-    }
+    setPreviewFiles((prev) => [...prev, ...files])
+    const newUrls: { [key: string]: string | null } = {}
+    files.forEach((f) => {
+      if (f.type.startsWith('image/')) newUrls[f.name] = URL.createObjectURL(f)
+      else newUrls[f.name] = null
+    })
+    setPreviewUrls((prev) => ({ ...prev, ...newUrls }))
 
     setShowUploadMenu(false)
     e.target.value = ''
   }
 
-  // Handle send
+  // Send message or files
   const handleSend = () => {
-    if (previewFile && onFileSelect) {
-      onFileSelect(previewFile)
-      setPreviewFile(null)
-      setPreviewUrl(null)
+    if (previewFiles.length && onFileSelect) {
+      onFileSelect(previewFiles)
+      setPreviewFiles([])
+      setPreviewUrls({})
     }
     if (value.trim()) onSend()
     setShowEmoji(false)
   }
 
+  // Remove single preview
+  const removeFile = (name: string) => {
+    setPreviewFiles((prev) => prev.filter((f) => f.name !== name))
+    setPreviewUrls((prev) => {
+      const newUrls = { ...prev }
+      delete newUrls[name]
+      return newUrls
+    })
+  }
+
   return (
-    <div className="relative border-t border-secondary p-2 w-full overflow-visible">
-      {/* Preview File */}
+    <div className="relative border-t border-secondary p-2 sm:p-3 w-full overflow-visible">
+      {/* Multiple Preview Files */}
       <AnimatePresence>
-        {previewFile && (
+        {previewFiles.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.2 }}
-            className="flex items-center gap-3 p-2 border rounded-lg mb-2 bg-muted/40 max-w-4xl mx-auto"
+            transition={{ duration: 0.25 }}
+            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 p-2 mb-3 bg-muted/40 border rounded-lg max-w-full sm:max-w-4xl mx-auto"
           >
-            {previewUrl ? (
-              <img
-                src={previewUrl}
-                alt="preview"
-                className="w-16 h-16 object-cover rounded-md border"
-              />
-            ) : (
-              <div className="flex items-center justify-center w-16 h-16 bg-muted rounded-md">
-                <FileText className="w-8 h-8 text-muted-foreground" />
-              </div>
-            )}
-            <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-medium truncate">{previewFile.name}</p>
-              <p className="text-xs text-muted-foreground">
-                {(previewFile.size / 1024).toFixed(1)} KB
-              </p>
-            </div>
-            <button
-              className="text-muted-foreground hover:text-foreground transition-colors"
-              onClick={() => {
-                setPreviewFile(null)
-                setPreviewUrl(null)
-              }}
-            >
-              <X size={18} />
-            </button>
+            {previewFiles.map((file) => (
+              <motion.div
+                key={file.name}
+                layout
+                className="relative rounded-lg overflow-hidden group border bg-background"
+              >
+                {previewUrls[file.name] ? (
+                  <div className="flex flex-col items-center">
+                    <img
+                      src={previewUrls[file.name]!}
+                      alt={file.name}
+                      className="w-full h-40 sm:h-48 object-cover rounded-t-md"
+                    />
+                    <div className="p-2 w-full text-center text-xs sm:text-sm border-t bg-card truncate">
+                      <p className="truncate font-medium">{file.name}</p>
+                      <p className="text-muted-foreground">
+                        {file.size > 1024 * 1024
+                          ? `${(file.size / (1024 * 1024)).toFixed(2)} MB`
+                          : `${(file.size / 1024).toFixed(1)} KB`}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-40 bg-muted rounded-md p-2 text-center">
+                    <FileText className="w-8 h-8 text-muted-foreground mb-1" />
+                    <p className="text-xs truncate">{file.name}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {(file.size / 1024).toFixed(1)} KB
+                    </p>
+                  </div>
+                )}
+
+                <button
+                  onClick={() => removeFile(file.name)}
+                  className="absolute top-1 right-1 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition"
+                >
+                  <X size={14} />
+                </button>
+              </motion.div>
+            ))}
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="flex items-end gap-2 max-w-4xl mx-auto relative">
-        {/* Emoji Picker toggle */}
+      {/* Input Bar */}
+      <div className="flex items-end gap-2 max-w-full sm:max-w-4xl mx-auto relative">
+        {/* Emoji toggle */}
         <div className="relative">
           <button
             type="button"
@@ -158,7 +174,7 @@ export default function ChatInput({ value, onChange, onSend, onFileSelect }: Cha
                   onEmojiClick={handleEmojiSelect}
                   autoFocusSearch={false}
                   theme={emojiTheme}
-                  width={300}
+                  width={280}
                   height={350}
                 />
               </motion.div>
@@ -166,7 +182,7 @@ export default function ChatInput({ value, onChange, onSend, onFileSelect }: Cha
           </AnimatePresence>
         </div>
 
-        {/* File Upload Menu */}
+        {/* Upload menu */}
         <div className="relative">
           <button
             type="button"
@@ -205,11 +221,12 @@ export default function ChatInput({ value, onChange, onSend, onFileSelect }: Cha
           </AnimatePresence>
         </div>
 
-        {/* Hidden inputs */}
+        {/* Hidden file inputs */}
         <input
           ref={imageInputRef}
           type="file"
           accept="image/*"
+          multiple
           hidden
           onChange={handleFileChange}
         />
@@ -217,6 +234,7 @@ export default function ChatInput({ value, onChange, onSend, onFileSelect }: Cha
           ref={docInputRef}
           type="file"
           accept=".pdf,.doc,.docx,.txt"
+          multiple
           hidden
           onChange={handleFileChange}
         />
@@ -226,7 +244,12 @@ export default function ChatInput({ value, onChange, onSend, onFileSelect }: Cha
           ref={textareaRef}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          onKeyDown={handleKeyDown}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault()
+              handleSend()
+            }
+          }}
           placeholder="Tulis pesan..."
           rows={1}
           spellCheck={false}
@@ -234,9 +257,9 @@ export default function ChatInput({ value, onChange, onSend, onFileSelect }: Cha
           className="flex-1 resize-none overflow-y-auto max-h-[150px] rounded-xl border border-input bg-card p-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
         />
 
-        {/* Tombol kirim */}
+        {/* Send button */}
         <AnimatePresence>
-          {(value.trim() || previewFile) && (
+          {(value.trim() || previewFiles.length > 0) && (
             <motion.button
               key="send-btn"
               initial={{ opacity: 0, scale: 0.8 }}
@@ -245,7 +268,7 @@ export default function ChatInput({ value, onChange, onSend, onFileSelect }: Cha
               transition={{ type: 'spring', stiffness: 250, damping: 15 }}
               onClick={handleSend}
               className={cn(
-                'flex items-center justify-center rounded-full p-2 transition-colors',
+                'flex items-center justify-center rounded-full p-2 transition-colors shrink-0',
                 'bg-primary text-primary-foreground hover:bg-primary/90'
               )}
             >
