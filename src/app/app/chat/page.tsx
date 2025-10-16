@@ -186,9 +186,46 @@ export default function ChatPage() {
 
           {/* ✅ Loading State */}
           {loading ? (
-            <div className="flex flex-col items-center justify-center h-[60vh] text-muted-foreground">
-              <div className="animate-pulse">Memuat percakapan...</div>
-            </div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+              className="flex flex-col items-center justify-start pt-10 h-[60vh] text-muted-foreground"
+            >
+              <div className="space-y-4 w-full max-w-md px-4">
+                {/* Skeleton chat list */}
+                {[...Array(3)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="flex items-center gap-3"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-muted animate-pulse" />
+                    <div className="flex-1 space-y-1">
+                      <div className="h-3 w-3/4 bg-muted rounded animate-pulse" />
+                      <div className="h-3 w-1/2 bg-muted rounded animate-pulse" />
+                    </div>
+                  </motion.div>
+                ))}
+
+                {/* Loading text */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.6 }}
+                  transition={{
+                    delay: 0.5,
+                    duration: 0.6,
+                    repeat: Infinity,
+                    repeatType: 'reverse',
+                  }}
+                  className="text-sm text-center pt-6"
+                >
+                  Memuat percakapan...
+                </motion.div>
+              </div>
+            </motion.div>
           ) : (
             <div className="mt-4 relative">
               {' '}
