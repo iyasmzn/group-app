@@ -292,14 +292,6 @@ export default function ChatPage() {
                             onClick={async () => {
                               if (!userId) return
                               setLoadingOpenChat(true)
-                              await groupMessageService.markAsRead(
-                                chat.id,
-                                userId,
-                                new Date().toISOString()
-                              )
-                              setGroupChats((prev) =>
-                                prev.map((c) => (c.id === chat.id ? { ...c, unread: 0 } : c))
-                              )
                               router.push(`/app/groups/${chat.id}/chat`)
                             }}
                           />

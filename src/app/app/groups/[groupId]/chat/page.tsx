@@ -8,6 +8,8 @@ import { ChatShell } from './ChatShell'
 import ChatInput from '@/components/app/chat-input'
 import { MessageList } from '@/components/ui/message-list'
 import { generateId } from '@/lib/utils/helper'
+import { groupMessageService } from '@/services/groupService/groupMessageService'
+import { useAppBadges } from '@/context/AppBadgeContext'
 
 type Message = {
   id: string
@@ -23,6 +25,7 @@ type Message = {
 
 export default function GroupChatPage() {
   const { user } = useAuth()
+  const { resetGroupUnread } = useAppBadges()
   const { groupId } = useParams()
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')
@@ -171,7 +174,7 @@ export default function GroupChatPage() {
           currentUserId={user?.id}
           height="100%"
           width="100%"
-          groupId={groupId as string} // ✅ penting!
+          groupId={groupId as string}
         />
       </div>
     </ChatShell>

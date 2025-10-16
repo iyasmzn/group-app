@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, useMemo } from 'react'
+import { createContext, useContext, useState, useEffect, useMemo, useRef } from 'react'
 import { groupMessageService } from '@/services/groupService/groupMessageService'
 import { Profile } from '@/types/profile'
 import { useProfile } from '@/lib/hooks/useProfile'
@@ -36,12 +36,13 @@ export function AppBadgeProvider({ children }: { children: React.ReactNode }) {
   const [groupUnreadMap, setGroupUnreadMap] = useState<Record<string, number>>({})
 
   // TTL untuk refresh
-  let lastRefresh = 0
+  const lastRefreshRef = useRef(0)
+
   async function refresh() {
     if (!user) return
     const now = Date.now()
-    if (now - lastRefresh < 10000) return
-    lastRefresh = now
+    if (now - lastRefreshRef.current < 10000) return
+    lastRefreshRef.current = now
 
     const { data: unreadList } = await supabase.rpc('get_unread_counts', { uid: user.id })
     type UnreadEntry = { group_id: string; unread_count: number }

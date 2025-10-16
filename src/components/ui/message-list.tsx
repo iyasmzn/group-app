@@ -8,6 +8,7 @@ import { ArrowDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAppBadges } from '@/context/AppBadgeContext'
 import { MessageBubble } from '@/components/ui/message-bubble'
+import { groupMessageService } from '@/services/groupService/groupMessageService'
 
 type Message = {
   id: string
@@ -107,9 +108,13 @@ export function MessageList({ messages, currentUserId, height, width, groupId }:
 
   useEffect(() => {
     return () => {
-      if (!atBottom) refresh()
+      console.log('MessageList unmount → refresh badge state')
+      groupMessageService.markAsRead(groupId, currentUserId!, new Date().toISOString())
+      setTimeout(() => {
+        refresh() // aman, hanya sekali saat unmount
+      }, 1000)
     }
-  }, [atBottom, refresh])
+  }, []) // kosong → tidak rerun saat atBottom berubah
 
   return (
     <div className="relative" style={{ height, width }}>
