@@ -99,7 +99,12 @@ export const MessageBubble = React.memo(({ msg, isOwn }: Props) => {
         </p>
 
         {!isEmojiOnly && (
-          <span className="block text-[10px] text-muted-foreground mt-1 text-right">
+          <span
+            className={cn(
+              'block text-[10px] text-muted-foreground mt-1 text-right',
+              isOwn ? 'text-primary-foreground' : 'text-muted-foreground'
+            )}
+          >
             {new Date(msg.createdat).toLocaleTimeString([], {
               hour: '2-digit',
               minute: '2-digit',
