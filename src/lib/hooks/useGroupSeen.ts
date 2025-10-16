@@ -1,23 +1,37 @@
-import { useEffect } from "react"
-import { useAuth } from "../supabase/auth"
+import { useEffect, useRef } from 'react'
+import { useAuth } from '../supabase/auth'
 
 export function useGroupSeen(groupId: string) {
   const { supabase, user } = useAuth()
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const isUnmountingRef = useRef(false)
 
   useEffect(() => {
-    if (!groupId || !user) return
-    const update = async () => {
-      await supabase.from("group_last_seen").upsert({
-        user_id: user.id,
-        group_id: groupId,
-        last_seen_at: new Date().toISOString(),
-      })
+    if (!groupId || !user?.id) return
+
+    const updateSeen = async () => {
+      if (isUnmountingRef.current) return
+      try {
+        await supabase.from('group_last_seen').upsert({
+          user_id: user.id,
+          group_id: groupId,
+          last_seen_at: new Date().toISOString(),
+        })
+      } catch (err) {
+        console.error('Failed to update group_last_seen:', err)
+      }
     }
-    update()
-    const interval = setInterval(update, 60000)
+
+    // Initial update
+    updateSeen()
+
+    // Set interval every 60s
+    intervalRef.current = setInterval(updateSeen, 60000)
+
     return () => {
-      clearInterval(interval)
-      update()
+      isUnmountingRef.current = true
+      if (intervalRef.current) clearInterval(intervalRef.current)
+      updateSeen() // final update on unmount
     }
-  }, [groupId, user])
+  }, [groupId, user?.id])
 }
