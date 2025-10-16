@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react'
-import { motion, type Variants } from 'framer-motion'
 import { AppAvatar } from '@/components/ui/app-avatar'
 import { cn } from '@/lib/utils'
 import { isOnlyEmojis, getEmojiCount } from '@/lib/utils/helper'
@@ -34,28 +33,13 @@ export const MessageBubble = React.memo(({ msg, isOwn }: Props) => {
   if (emojiCount >= 6) emojiSize = 'text-3xl'
   if (emojiCount >= 10) emojiSize = 'text-2xl'
 
-  // Animasi
-  const textVariants: Variants = { hidden: {}, visible: {} }
-  const emojiVariants: Variants = {
-    hidden: { opacity: 0, scale: 0.8, y: 10 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition: { duration: 0.1, ease: 'easeOut' },
-    },
-  }
-
   return (
     <div className={cn('flex items-start gap-2', isOwn ? 'justify-end' : 'justify-start')}>
       {!isOwn && msg.sender?.full_name && (
         <AppAvatar image={msg.sender?.avatar_url || ''} name={msg.sender?.full_name} size="sm" />
       )}
 
-      <motion.div
-        variants={isEmojiOnly ? emojiVariants : textVariants}
-        initial="hidden"
-        animate="visible"
+      <div
         className={cn(
           'max-w-[75%] px-4 py-2 rounded-xl shadow transition-all',
           isEmojiOnly
@@ -80,7 +64,6 @@ export const MessageBubble = React.memo(({ msg, isOwn }: Props) => {
           {msg.content}
         </p>
 
-        {/* Timestamp selalu tampil, termasuk untuk emoji-only */}
         <span
           className={cn(
             'block text-[10px] mt-1 text-right',
@@ -96,7 +79,7 @@ export const MessageBubble = React.memo(({ msg, isOwn }: Props) => {
             minute: '2-digit',
           })}
         </span>
-      </motion.div>
+      </div>
     </div>
   )
 })
