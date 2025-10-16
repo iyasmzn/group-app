@@ -11,6 +11,7 @@ import { ProfileSkeleton } from '@/components/ui/profile-skeleton'
 import { LastGroupSkeleton } from '@/components/app/home/LastGroupSkeleton'
 import { AppAvatar } from '@/components/ui/app-avatar'
 import { useAppBadges } from '@/context/AppBadgeContext'
+import { EmptyGroupCard } from '@/components/app/home/EmptyGroupCard'
 
 type LastGroup = {
   id: string
@@ -122,21 +123,18 @@ export default function UserHomePage() {
             </h4>
           </Reveal>
 
-          {loadingGroup ? (
-            <LastGroupSkeleton />
-          ) : (
-            lastGroup && (
-              <GroupBadgeProvider groupId={lastGroup.id}>
-                <Reveal delay={0.1}>
+          <Reveal delay={0.1}>
+            {loadingGroup ? (
+              <LastGroupSkeleton />
+            ) : (
+              lastGroup && (
+                <GroupBadgeProvider groupId={lastGroup.id}>
                   <LastGroupCard lastGroup={lastGroup} />
-                </Reveal>
-              </GroupBadgeProvider>
-            )
-          )}
-
-          {!loadingGroup && !lastGroup && (
-            <p className="text-muted-foreground text-sm">You haven't joined any groups yet.</p>
-          )}
+                </GroupBadgeProvider>
+              )
+            )}
+            {!loadingGroup && !lastGroup && <EmptyGroupCard />}
+          </Reveal>
         </div>
       </PageWrapper>
     </>
