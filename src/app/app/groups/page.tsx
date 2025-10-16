@@ -1,5 +1,6 @@
 'use client'
-import { useState, useEffect } from 'react'
+
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
 import PageWrapper from '@/components/page-wrapper'
@@ -7,7 +8,6 @@ import { AppTopbar } from '@/components/app/topbar'
 import {
   ArrowDownZA,
   ArrowUpAZ,
-  BellDot,
   CalendarArrowDown,
   CalendarArrowUp,
   Home,
@@ -18,7 +18,6 @@ import {
 } from 'lucide-react'
 import { AppBottombar } from '@/components/app/bottombar'
 import { useAuth } from '@/lib/supabase/auth'
-import { motion } from 'framer-motion'
 import { AddGroupDialog } from './components/addGroupDialog'
 import LoadingOverlay from '@/components/loading-overlay'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
@@ -36,21 +35,12 @@ import { Badge } from '@/components/ui/badge'
 import { GroupData } from '@/types/group'
 import Reveal from '@/components/animations/Reveal'
 import { AppAvatar } from '@/components/ui/app-avatar'
+import { useAppBadges } from '@/context/AppBadgeContext'
 
-const motionUl = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15, // delay antar anak
-      delayChildren: 0.1, // jeda awal sebelum mulai
-    },
-  },
-}
+const PAGE_LIMIT = 6
 
 export default function GroupsPageWrapper() {
   const { user } = useAuth()
-
   if (!user) {
     return (
       <PageWrapper>
@@ -66,11 +56,11 @@ export default function GroupsPageWrapper() {
       </PageWrapper>
     )
   }
-
   return <GroupsPage userId={user.id} />
 }
 
 function GroupsPage({ userId }: { userId: string }) {
+  const { groupUnreadMap } = useAppBadges()
   const [groups, setGroups] = useState<GroupData[]>([])
   const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState<'name' | 'createdat'>('createdat')
@@ -78,63 +68,61 @@ function GroupsPage({ userId }: { userId: string }) {
   const [offset, setOffset] = useState(0)
   const [searchGroupName, setSearchGroupName] = useState('')
   const [totalRow, setTotalRow] = useState(0)
-  const limit = 3
-  const totalPages = Math.ceil(totalRow / limit)
+
+  const limit = PAGE_LIMIT
+  const totalPages = Math.max(1, Math.ceil(totalRow / limit))
   const currentPage = Math.floor(offset / limit) + 1
 
-  useEffect(() => {
-    fetchGroups()
-  }, [userId, sortBy, ascending, searchGroupName, offset])
-
-  // ✅ Fetch groups where user is a member and get total group members
-  const fetchGroups = async () => {
+  const fetchGroups = useCallback(async () => {
+    if (!userId) return
     setLoading(true)
-    const query = supabase
-      .from('groups')
-      .select(
-        `
-        *,
-        group_members!inner(*),
-        group_last_seen(last_seen_at, message_last_seen_at)
-      `
-      )
-      .eq('group_members.user_id', userId)
-      .eq('group_last_seen.user_id', userId)
-      .ilike('name', `%${searchGroupName}%`)
-      .order(sortBy, { ascending: ascending })
+    try {
+      const { data, error } = await supabase.rpc('get_user_groups', {
+        uid: userId,
+        q: searchGroupName || '',
+        sort_by: sortBy, // 'createdat' | 'name'
+        is_asc: ascending, // boolean
+        limit_rows: limit,
+        offset_rows: offset,
+      })
 
-    const { data: totalData } = await query
-    setTotalRow(totalData ? totalData.length : 0)
-    console.log('totalData', totalData)
-    const { data, error } = await query.range(offset, offset + limit - 1) // pagination
-    console.log('groups', data)
+      if (error) throw error
 
-    if (error) {
-      console.error('Error fetching groups:', error)
-      setLoading(false)
-    } else {
-      setGroups(data || [])
-      const groupsWithUnread = await Promise.all(
-        (data || []).map(async (g) => {
-          const lastSeenAt = g.group_last_seen?.[0]?.message_last_seen_at || '1970-01-01'
+      const enriched = (data || []).map((g: any) => ({
+        id: g.id,
+        name: g.name,
+        image_url: g.image_url,
+        createdat: g.createdat,
+        last_seen_at: g.last_seen_at,
+        message_last_seen_at: g.message_last_seen_at,
+        member_count: g.member_count,
+        unreadCount: groupUnreadMap[g.id] ?? 0,
+      }))
 
-          const { count } = await supabase
-            .from('group_messages')
-            .select('id', { count: 'exact', head: true })
-            .eq('group_id', g.id)
-            .neq('sender_id', userId)
-            .gt('createdat', lastSeenAt)
+      setGroups(enriched)
 
-          return {
-            ...g,
-            unreadCount: count || 0,
-          }
-        })
-      )
-      setGroups(groupsWithUnread)
+      // total_count sudah dikirim di setiap row (window function)
+      const total = data && data.length > 0 ? data[0].total_count : 0
+      setTotalRow(total)
+    } catch (err) {
+      console.error('Error fetching groups via RPC:', err)
+    } finally {
       setLoading(false)
     }
-  }
+  }, [userId, searchGroupName, sortBy, ascending, limit, offset, groupUnreadMap])
+
+  // reset offset kalau search berubah
+  useEffect(() => {
+    setOffset(0)
+  }, [searchGroupName])
+
+  // fetch data saat filter berubah
+  useEffect(() => {
+    fetchGroups()
+  }, [fetchGroups])
+
+  const handleRefresh = () => fetchGroups()
+  const handlePageClick = (pageIndex: number) => setOffset(pageIndex * limit)
 
   return (
     <>
@@ -142,6 +130,7 @@ function GroupsPage({ userId }: { userId: string }) {
       <AppTopbar title="Groups" titleIcon={<Home className="h-6 w-6" />} />
       <PageWrapper>
         <div className="max-w-4xl mx-auto py-4 px-2 md:px-6">
+          {/* Search + Add */}
           <div className="flex items-center justify-between mb-4 gap-2">
             <div className="flex-1">
               <Input
@@ -151,21 +140,16 @@ function GroupsPage({ userId }: { userId: string }) {
                 onChange={(e) => setSearchGroupName(e.target.value)}
               />
             </div>
-            {/* Button Create Group */}
             <AddGroupDialog setLoading={setLoading} />
           </div>
 
-          {/* filter */}
+          {/* Sort + Refresh */}
           <div className="flex gap-4 items-center justify-center md:justify-end mb-4 flex-wrap">
-            {/* filter */}
             <div className="flex items-center gap-2">
               <label htmlFor="sortBy" className="text-sm font-medium">
                 Sort by:
               </label>
-              <Select
-                defaultValue="createdat"
-                onValueChange={(value: 'name' | 'createdat') => setSortBy(value)}
-              >
+              <Select defaultValue="createdat" onValueChange={(v: any) => setSortBy(v)}>
                 <SelectTrigger id="sortBy" className="w-[150px]">
                   {sortBy === 'name' ? 'Name' : 'Creation Date'}
                 </SelectTrigger>
@@ -174,102 +158,108 @@ function GroupsPage({ userId }: { userId: string }) {
                   <SelectItem value="createdat">Creation Date</SelectItem>
                 </SelectContent>
               </Select>
+
               <Button
-                onClick={() => setAscending(!ascending)}
+                onClick={() => setAscending((s) => !s)}
+                variant="outline"
                 className="border px-2 py-1 text-sm"
-                variant={'outline'}
               >
                 {sortBy === 'name' ? (
                   ascending ? (
-                    <ArrowUpAZ className={`inline-block mr-1 w-4 h-4`} />
+                    <ArrowUpAZ className="inline-block mr-1 w-4 h-4" />
                   ) : (
-                    <ArrowDownZA className={`inline-block mr-1 w-4 h-4`} />
+                    <ArrowDownZA className="inline-block mr-1 w-4 h-4" />
                   )
                 ) : ascending ? (
-                  <CalendarArrowUp className={`inline-block mr-1 w-4 h-4`} />
+                  <CalendarArrowUp className="inline-block mr-1 w-4 h-4" />
                 ) : (
-                  <CalendarArrowDown className={`inline-block mr-1 w-4 h-4`} />
+                  <CalendarArrowDown className="inline-block mr-1 w-4 h-4" />
                 )}
                 {ascending ? 'Asc' : 'Desc'}
               </Button>
-              <Button onClick={fetchGroups} variant={'outline'}>
+
+              <Button onClick={handleRefresh} variant="outline">
                 <RefreshCw className={loading ? 'animate-spin' : ''} />
               </Button>
             </div>
           </div>
 
-          {/* List groups */}
-          <motion.ul className="space-y-2" initial="hidden" animate="show" variants={motionUl}>
-            {groups.length ? (
-              groups.map((group, gIndex) => (
+          {/* List */}
+          <ul className="space-y-2">
+            {loading ? (
+              // Skeleton loader saat masih fetch
+              Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={`skeleton-${i}`}
+                  className="animate-pulse flex items-center justify-between py-2 px-4 border rounded-lg"
+                >
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className="w-10 h-10 rounded-full bg-muted" />
+                    <div className="flex flex-col gap-2 flex-1">
+                      <div className="h-4 w-1/3 bg-muted rounded" />
+                      <div className="h-3 w-1/4 bg-muted rounded" />
+                    </div>
+                  </div>
+                  <div className="w-6 h-6 bg-muted rounded" />
+                </div>
+              ))
+            ) : groups.length ? (
+              groups.map((group) => (
                 <Reveal
-                  key={gIndex}
+                  key={group.id}
                   animation="fadeInRight"
-                  delay={gIndex * 0.1}
                   distance={25}
                   className="flex items-center justify-between py-2 px-4 border rounded-lg hover:bg-muted"
                 >
                   <div className="flex-1 flex items-center gap-3">
-                    {/* Avatar inisial */}
                     <Link href={`groups/${group.id}`}>
-                      <AppAvatar
-                        name={group.name}
-                        image={group.image_url} // kalau ada, tampil gambar
-                        size="md"
-                      />
+                      <AppAvatar name={group.name} image={group.image_url} size="md" />
                     </Link>
                     <div className="flex flex-col">
-                      {/* group name */}
                       <Link href={`groups/${group.id}`} className="font-medium">
                         {group.name}
                       </Link>
                       <span className="text-xs text-secondary-foreground">
-                        {/* group createdat */}
                         Since{' '}
                         {new Date(group.createdat).toLocaleDateString(undefined, {
                           year: 'numeric',
                           month: 'short',
                         })}
                         {' • '}
-                        {/* group member total */}
-                        {group?.group_members?.length} member
-                        {group?.group_members?.length !== 1 ? 's' : ''}
+                        {group?.member_count ?? 0} member
+                        {(group?.member_count ?? 0) !== 1 ? 's' : ''}
                       </span>
-                      <div className="flex items-center gap-4">
-                        {/* message */}
-                        <Reveal animation="fadeInDown" distance={5}>
-                          <Link
-                            href={`groups/${group.id}/chat`}
-                            className="pt-2 flex items-center gap-2"
+
+                      <div className="flex items-center gap-4 mt-1">
+                        <Link
+                          href={`groups/${group.id}/chat`}
+                          className="pt-2 flex items-center gap-2"
+                        >
+                          {group.unreadCount ? (
+                            <MessageCircleQuestion className="text-warning w-5 h-5" />
+                          ) : (
+                            <MessageCircle />
+                          )}
+                          <Badge
+                            variant={group.unreadCount ? 'warning' : 'secondary'}
+                            className="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums text-gray-500"
                           >
-                            {group.unreadCount ? (
-                              <MessageCircleQuestion className="text-warning w-5 h-5" />
-                            ) : (
-                              <MessageCircle />
-                            )}
-                            <Badge
-                              variant={group.unreadCount ? 'warning' : 'secondary'}
-                              className="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums text-gray-500"
-                            >
-                              {group.unreadCount}
-                            </Badge>
-                          </Link>
-                        </Reveal>
-                        {/* info */}
-                        <Reveal animation="fadeInDown" distance={5} delay={0.3}>
-                          <span className="pt-2 flex items-center gap-2">
-                            <BellDot className="text-info w-5 h-5" />
-                            <Badge
-                              className="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums bg-info text-white"
-                              variant="outline"
-                            >
-                              5+
-                            </Badge>
-                          </span>
-                        </Reveal>
+                            {group.unreadCount}
+                          </Badge>
+                        </Link>
+
+                        <span className="pt-2 flex items-center gap-2">
+                          <Badge
+                            className="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums bg-info text-white"
+                            variant="outline"
+                          >
+                            5+
+                          </Badge>
+                        </span>
                       </div>
                     </div>
                   </div>
+
                   <Link
                     href={`groups/${group.id}/profile`}
                     className="text-sm text-muted-foreground hover:text-warning border rounded-lg p-2"
@@ -285,16 +275,16 @@ function GroupsPage({ userId }: { userId: string }) {
                 </p>
               </div>
             )}
-          </motion.ul>
+          </ul>
 
+          {/* Pagination + total */}
           <div className="flex items-center justify-between flex-wrap mt-4">
-            {/* total group */}
             {totalRow > 0 && (
               <span className="text-sm text-muted-foreground">
                 {totalRow} group{totalRow !== 1 ? 's' : ''}
               </span>
             )}
-            {/* Pagination */}
+
             {totalRow > limit && (
               <Pagination className="flex-1 justify-end">
                 <PaginationContent>
@@ -303,16 +293,18 @@ function GroupsPage({ userId }: { userId: string }) {
                       <PaginationPrevious onClick={() => setOffset((currentPage - 2) * limit)} />
                     </PaginationItem>
                   )}
+
                   {Array.from({ length: totalPages }).map((_, i) => (
-                    <PaginationItem key={i + 'pagination'}>
+                    <PaginationItem key={`pg-${i}`}>
                       <PaginationLink
-                        onClick={() => setOffset(i * limit)}
-                        isActive={currentPage == i + 1}
+                        onClick={() => handlePageClick(i)}
+                        isActive={currentPage === i + 1}
                       >
                         {i + 1}
                       </PaginationLink>
                     </PaginationItem>
                   ))}
+
                   {currentPage < totalPages && (
                     <PaginationItem>
                       <PaginationNext onClick={() => setOffset(currentPage * limit)} />

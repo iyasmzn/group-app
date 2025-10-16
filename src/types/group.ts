@@ -1,4 +1,4 @@
-import { Profile } from "./profile"
+import { Profile } from './profile'
 
 export interface GroupData {
   id: string
@@ -9,9 +9,10 @@ export interface GroupData {
   description_updatedat: Date
   description_updatedby: Date
   group_members?: GroupMember[]
-  owner?:Partial<Profile> | null
-  desc_updatedby?:Partial<Profile> | null
+  owner?: Partial<Profile> | null
+  desc_updatedby?: Partial<Profile> | null
   unreadCount?: number | null
+  member_count?: number | null
 }
 
 export interface GroupMember {
