@@ -19,29 +19,34 @@ export default function ChatInput({ value, onChange, onSend }: ChatInputProps) {
     const el = textareaRef.current
     if (el) {
       el.style.height = 'auto'
-      el.style.height = Math.min(el.scrollHeight, 150) + 'px' // max 150px
+      el.style.height = Math.min(el.scrollHeight, 150) + 'px'
+      el.style.overflowY = el.scrollHeight > 150 ? 'auto' : 'hidden'
     }
   }, [value])
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && e.ctrlKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       onSend()
     }
   }
 
   return (
-    <div className="relative border-t-1 border-secondary p-2 max-w-100vw overflow-hidden">
+    <div className="relative border-t border-secondary p-2 w-full overflow-hidden">
       <div className="flex items-end gap-2 max-w-4xl mx-auto">
-        {/* Tombol emoji */}
+        {/* Emoji picker (belum dihubungkan) */}
         <button className="p-2 text-muted-foreground hover:text-foreground transition-colors">
           <Smile size={22} />
         </button>
 
         {/* Tombol lampiran */}
-        <button className="p-2 text-muted-foreground hover:text-foreground transition-colors">
+        <label
+          htmlFor="file-upload"
+          className="p-2 text-muted-foreground hover:text-foreground cursor-pointer"
+        >
           <Paperclip size={22} />
-        </button>
+        </label>
+        <input id="file-upload" type="file" hidden />
 
         {/* Textarea adaptif */}
         <textarea
@@ -51,19 +56,20 @@ export default function ChatInput({ value, onChange, onSend }: ChatInputProps) {
           onKeyDown={handleKeyDown}
           placeholder="Tulis pesan..."
           rows={1}
+          spellCheck={false}
+          autoComplete="off"
           className="flex-1 resize-none overflow-y-auto max-h-[150px] rounded-xl border border-input bg-card p-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          style={{ overflowY: 'auto' }} // pastikan auto, bukan scroll
         />
 
-        {/* Tombol kirim dengan animasi */}
+        {/* Tombol kirim */}
         <AnimatePresence>
           {value.trim() && (
             <motion.button
               key="send-btn"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.2 }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ type: 'tween', stiffness: 250, damping: 15 }}
               onClick={onSend}
               className={cn(
                 'flex items-center justify-center rounded-full p-2 transition-colors',
