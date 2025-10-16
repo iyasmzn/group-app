@@ -1,16 +1,16 @@
-"use client"
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import PageWrapper from "@/components/page-wrapper"
-import Reveal from "@/components/animations/Reveal"
-import { AppBottombar } from "@/components/app/bottombar"
-import { GroupBadgeProvider } from "@/context/GroupBadgeContext"
-import { LastGroupCard } from "@/components/app/home/LastGroupCard"
-import { ClockFading } from "lucide-react"
-import { ProfileSkeleton } from "@/components/ui/profile-skeleton"
-import { LastGroupSkeleton } from "@/components/app/home/LastGroupSkeleton"
-import { AppAvatar } from "@/components/ui/app-avatar"
-import { useAppBadges } from "@/context/AppBadgeContext"
+'use client'
+import { useCallback, useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import PageWrapper from '@/components/page-wrapper'
+import Reveal from '@/components/animations/Reveal'
+import { AppBottombar } from '@/components/app/bottombar'
+import { GroupBadgeProvider } from '@/context/GroupBadgeContext'
+import { LastGroupCard } from '@/components/app/home/LastGroupCard'
+import { ClockFading } from 'lucide-react'
+import { ProfileSkeleton } from '@/components/ui/profile-skeleton'
+import { LastGroupSkeleton } from '@/components/app/home/LastGroupSkeleton'
+import { AppAvatar } from '@/components/ui/app-avatar'
+import { useAppBadges } from '@/context/AppBadgeContext'
 
 type LastGroup = {
   id: string
@@ -27,27 +27,31 @@ export default function UserHomePage() {
   const router = useRouter()
   const [lastGroup, setLastGroup] = useState<LastGroup | null>(null)
   const [loadingGroup, setLoadingGroup] = useState(true)
+  const { groupUnreadMap } = useAppBadges()
 
   useEffect(() => {
     if (user) {
       fetchLastGroup()
     }
-  }, [user, supabase])
+  }, [user?.id])
 
-  const fetchLastGroup = async () => {
-    if (!user) return
+  const fetchLastGroup = useCallback(async () => {
+    if (!user?.id) return
+
     setLoadingGroup(true)
     // coba ambil group terakhir dibuka
     const { data: groups } = await supabase
-      .from("groups")
-      .select(`
+      .from('groups')
+      .select(
+        `
         *,
         group_members!inner(*),
         group_last_seen(last_seen_at, message_last_seen_at)
-      `)
-      .eq("group_members.user_id", user.id)
-      .eq("group_last_seen.user_id", user.id)
-      .order("last_seen_at", { referencedTable: "group_last_seen", ascending: false })
+      `
+      )
+      .eq('group_members.user_id', user.id)
+      .eq('group_last_seen.user_id', user.id)
+      .order('last_seen_at', { referencedTable: 'group_last_seen', ascending: false })
       .limit(1)
 
     let g = groups?.[0]
@@ -55,13 +59,15 @@ export default function UserHomePage() {
     // kalau belum ada last_seen, fallback ke group terbaru yang di-join
     if (!g || !g.group_last_seen?.length) {
       const { data: fallbackGroups } = await supabase
-        .from("groups")
-        .select(`
+        .from('groups')
+        .select(
+          `
           *,
           group_members!inner(joinedat)
-        `)
-        .eq("group_members.user_id", user.id)
-        .order("joinedat", { referencedTable: "group_members", ascending: false })
+        `
+        )
+        .eq('group_members.user_id', user.id)
+        .order('joinedat', { referencedTable: 'group_members', ascending: false })
         .limit(1)
 
       g = fallbackGroups?.[0]
@@ -69,17 +75,7 @@ export default function UserHomePage() {
 
     if (g) {
       const lastSeenAt = g.group_last_seen?.[0]?.message_last_seen_at || null
-      console.log('g',g)
-      const queryCount = supabase
-        .from("group_messages")
-        .select("id", { count: "exact", head: true })
-        .eq("group_id", g.id)
-        .neq("sender_id", user.id)
-
-      if (lastSeenAt)
-        queryCount.gt("createdat", lastSeenAt)
-      
-      const { count } = await queryCount
+      const unreadCount = groupUnreadMap[g.id] ?? 0
 
       setLastGroup({
         id: g.id,
@@ -87,12 +83,12 @@ export default function UserHomePage() {
         image_url: g.image_url,
         last_seen_at: g.group_last_seen?.[0]?.last_seen_at || null,
         message_last_seen_at: lastSeenAt,
-        unreadCount: count || 0,
-        joinedate: g.group_members[0].joinedat
+        unreadCount: unreadCount,
+        joinedate: g.group_members[0].joinedat,
       })
     }
     setLoadingGroup(false)
-  }
+  }, [user?.id, groupUnreadMap])
 
   return (
     <>
@@ -107,19 +103,16 @@ export default function UserHomePage() {
                 <AppAvatar
                   size="xl"
                   image={profile.avatar_url}
-                  name={profile.full_name || "No Name"}
-                  hoverAction={{ onClick: () => router.push("/app/profile") }}
+                  name={profile.full_name || 'No Name'}
+                  hoverAction={{ onClick: () => router.push('/app/profile') }}
                   preview
                 />
                 <div>
                   <h3 className="text-xl text-secondary-foreground">Welcome,</h3>
-                  <h3 className="text-2xl font-bold">
-                    {profile.full_name || profile.email}!
-                  </h3>
+                  <h3 className="text-2xl font-bold">{profile.full_name || profile.email}!</h3>
                 </div>
               </>
             )}
-
           </Reveal>
 
           <Reveal>
@@ -141,6 +134,9 @@ export default function UserHomePage() {
             )
           )}
 
+          {!loadingGroup && !lastGroup && (
+            <p className="text-muted-foreground text-sm">You haven't joined any groups yet.</p>
+          )}
         </div>
       </PageWrapper>
     </>
