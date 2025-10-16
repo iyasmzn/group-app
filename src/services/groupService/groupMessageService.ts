@@ -115,11 +115,10 @@ export const groupMessageService = {
   },
 
   async markAsRead(groupId: string, userId: string, lastMessageAt: string) {
-    const { error } = await supabase.from('group_last_seen').upsert({
-      group_id: groupId,
-      user_id: userId,
-      last_seen_at: new Date().toISOString(),
-      message_last_seen_at: lastMessageAt,
+    const { error } = await supabase.rpc('mark_group_as_read', {
+      gid: groupId,
+      uid: userId,
+      last_msg_at: lastMessageAt,
     })
     if (error) throw error
     return true
