@@ -171,6 +171,7 @@ export default function GroupChatPage() {
           currentUserId={user?.id}
           height="100%"
           width="100%"
+          groupId={groupId as string} // ✅ penting!
         />
       </div>
     </ChatShell>
