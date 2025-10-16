@@ -76,6 +76,7 @@ export function MessageList({ messages, currentUserId, height, width }: Props) {
   const unreadCountRef = useRef(0)
   const prevMessagesLengthRef = useRef(messages.length)
   const [bounce, setBounce] = useState(false)
+  const [stickyDate, setStickyDate] = useState<string | null>(null)
 
   // keep unread ref synced
   useEffect(() => {
@@ -84,6 +85,19 @@ export function MessageList({ messages, currentUserId, height, width }: Props) {
 
   // Debounced bounce reset
   const triggerBounce = useDebounce(() => setBounce(false), 300)
+
+  // scroll langsung ke bottom saat pertama render
+  useEffect(() => {
+    if (messages.length > 0) {
+      setTimeout(() => {
+        virtuosoRef.current?.scrollToIndex({
+          index: messages.length - 1,
+          align: 'end',
+          behavior: 'auto', // langsung tanpa animasi
+        })
+      }, 100)
+    }
+  }, [])
 
   // React only when new messages come
   useEffect(() => {
@@ -144,6 +158,10 @@ export function MessageList({ messages, currentUserId, height, width }: Props) {
             unreadCountRef.current = 0
           }
         }}
+        rangeChanged={(range) => {
+          const firstMsg = messages[range.startIndex]
+          if (firstMsg) setStickyDate(firstMsg.createdat)
+        }}
         itemContent={(index, msg) => {
           const isOwn = msg.sender_id === currentUserId
           const prevMsg = messages[index - 1]
@@ -165,6 +183,22 @@ export function MessageList({ messages, currentUserId, height, width }: Props) {
           )
         }}
       />
+
+      {/* Sticky Date Divider */}
+      <AnimatePresence>
+        {stickyDate && (
+          <motion.div
+            key={stickyDate}
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-2 left-1/2 -translate-x-1/2 bg-muted text-muted-foreground text-xs px-3 py-1 rounded-full shadow-sm"
+          >
+            {formatDateDivider(stickyDate)}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Scroll Button */}
       <AnimatePresence>
