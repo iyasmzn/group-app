@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '@/lib/supabase/auth'
 import { supabase } from '@/lib/supabase/client'
 import { useParams } from 'next/navigation'
@@ -146,10 +146,11 @@ export default function GroupChatPage() {
   }
 
   // ✅ Sort messages sebelum render
-  const sortedMessages = [...messages].sort(
-    (a, b) => new Date(a.createdat).getTime() - new Date(b.createdat).getTime()
-  )
-  console.log('sortedMessages', sortedMessages)
+  const sortedMessages = useMemo(() => {
+    return [...messages].sort(
+      (a, b) => new Date(a.createdat).getTime() - new Date(b.createdat).getTime()
+    )
+  }, [messages])
 
   return (
     <ChatShell
