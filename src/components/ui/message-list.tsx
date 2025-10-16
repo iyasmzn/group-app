@@ -8,6 +8,7 @@ import React, { useRef, useEffect, useState } from 'react'
 import { ArrowDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
+// ---------- Types ----------
 type Message = {
   id: string
   content: string
@@ -27,6 +28,16 @@ type Props = {
   width: number | string
 }
 
+// ---------- Debounce Helper ----------
+function useDebounce(callback: (...args: any[]) => void, delay: number) {
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  return (...args: any[]) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    timeoutRef.current = setTimeout(() => callback(...args), delay)
+  }
+}
+
+// ---------- Bubble ----------
 const MessageBubble = React.memo(({ msg, isOwn }: { msg: Message; isOwn: boolean }) => (
   <div className={cn('flex items-start gap-2', isOwn ? 'justify-end' : 'justify-start')}>
     {!isOwn && msg.sender?.full_name && (
@@ -57,6 +68,7 @@ const MessageBubble = React.memo(({ msg, isOwn }: { msg: Message; isOwn: boolean
 ))
 MessageBubble.displayName = 'MessageBubble'
 
+// ---------- MessageList ----------
 export function MessageList({ messages, currentUserId, height, width }: Props) {
   const virtuosoRef = useRef<VirtuosoHandle>(null)
   const [atBottom, setAtBottom] = useState(true)
@@ -65,43 +77,28 @@ export function MessageList({ messages, currentUserId, height, width }: Props) {
   const prevMessagesLengthRef = useRef(messages.length)
   const [bounce, setBounce] = useState(false)
 
-  // keep unread ref in sync with state
+  // keep unread ref synced
   useEffect(() => {
     unreadCountRef.current = unreadCount
   }, [unreadCount])
 
-  // Initialize prevMessagesLengthRef on mount / when messages prop replaced
-  useEffect(() => {
-    prevMessagesLengthRef.current = messages.length
-  }, []) // only on mount
+  // Debounced bounce reset
+  const triggerBounce = useDebounce(() => setBounce(false), 300)
 
-  /**
-   * Effect that reacts ONLY when messages.length changes (new messages).
-   * - If the new last message is from current user -> auto-scroll to bottom and reset unread.
-   * - If message count increased, last message is NOT own, and user is not at bottom -> increment unread.
-   */
+  // React only when new messages come
   useEffect(() => {
     const prevLen = prevMessagesLengthRef.current
     const currLen = messages.length
-
-    // No change in length -> ignore (this avoids reacting to atBottom changes)
     if (currLen === prevLen) return
 
-    // Update prev length at the end of this effect
     prevMessagesLengthRef.current = currLen
-
-    if (currLen === 0) {
-      // nothing to do
-      setUnreadCount(0)
-      unreadCountRef.current = 0
-      return
-    }
+    if (currLen === 0) return
 
     const lastMsg = messages[currLen - 1]
     const isOwn = lastMsg.sender_id === currentUserId
 
     if (isOwn) {
-      // If the last message is ours, always scroll to bottom and clear unread
+      // scroll ke bawah langsung kalau pesan sendiri
       virtuosoRef.current?.scrollToIndex({
         index: currLen - 1,
         align: 'end',
@@ -113,26 +110,24 @@ export function MessageList({ messages, currentUserId, height, width }: Props) {
       return
     }
 
-    // New message from others
     if (!atBottom) {
-      // only increment if user NOT at bottom (i.e., truly unread)
+      // unread naik hanya kalau user scroll ke atas
       const newCount = unreadCountRef.current + 1
       unreadCountRef.current = newCount
       setUnreadCount(newCount)
       setBounce(true)
-      setTimeout(() => setBounce(false), 400)
+      triggerBounce()
     } else {
-      // If user is at bottom, auto-scroll to show the new incoming message
+      // kalau user di bawah, langsung scroll otomatis
       virtuosoRef.current?.scrollToIndex({
         index: currLen - 1,
         align: 'end',
         behavior: 'smooth',
       })
-      // keep unread at 0
       setUnreadCount(0)
       unreadCountRef.current = 0
     }
-  }, [messages, currentUserId, atBottom]) // note: effect triggers when messages changes (we guard by length)
+  }, [messages, currentUserId, atBottom, triggerBounce])
 
   return (
     <div className="relative" style={{ height, width }}>
@@ -171,14 +166,14 @@ export function MessageList({ messages, currentUserId, height, width }: Props) {
         }}
       />
 
-      {/* Animated Scroll Button */}
+      {/* Scroll Button */}
       <AnimatePresence>
         {!atBottom && (
           <motion.button
             key="scroll-btn"
-            initial={{ opacity: 0, scale: 0.8, y: 30 }}
+            initial={{ opacity: 0, scale: 0.8, y: 40 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 30 }}
+            exit={{ opacity: 0, scale: 0.8, y: 40 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
             onClick={() => {
               virtuosoRef.current?.scrollToIndex({
@@ -200,7 +195,7 @@ export function MessageList({ messages, currentUserId, height, width }: Props) {
           >
             <ArrowDown className="w-5 h-5" />
 
-            {/* Badge animasi */}
+            {/* Unread Badge */}
             <AnimatePresence>
               {unreadCount > 0 && (
                 <motion.span
@@ -211,7 +206,7 @@ export function MessageList({ messages, currentUserId, height, width }: Props) {
                     opacity: 1,
                   }}
                   exit={{ scale: 0, opacity: 0 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+                  transition={{ type: 'spring', stiffness: 260, damping: 20 }}
                   className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5"
                 >
                   {unreadCount}
