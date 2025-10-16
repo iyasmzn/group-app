@@ -245,7 +245,7 @@ export default function ChatInput({ value, onChange, onSend, onFileSelect }: Cha
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
+            if (e.key === 'Enter' && e.ctrlKey) {
               e.preventDefault()
               handleSend()
             }
