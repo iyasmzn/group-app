@@ -67,13 +67,16 @@ export function MessageList({ messages, currentUserId, height, width, groupId }:
 
     const lastMsg = messages[currLen - 1]
     const isOwn = lastMsg.sender_id === currentUserId
-
+    console.log('New message detected. isOwn:', isOwn, 'atBottom:', atBottom)
     if (isOwn || atBottom) {
-      virtuosoRef.current?.scrollToIndex({
-        index: currLen - 1,
-        align: 'end',
-        behavior: 'smooth',
-      })
+      setTimeout(() => {
+        virtuosoRef.current?.scrollToIndex({
+          index: currLen - 1,
+          align: 'end',
+          behavior: 'smooth',
+        })
+      }, 50)
+      console.log('Auto-scrolling to bottom')
       setUnreadCount(0)
       unreadRef.current = 0
       resetGroupUnread(groupId)
