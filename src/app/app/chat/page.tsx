@@ -16,6 +16,7 @@ import { groupService } from '@/services/groupService/groupService'
 import { GroupMessage, groupMessageService } from '@/services/groupService/groupMessageService'
 import { useRealtimeTable } from '@/lib/hooks/useRealtimeTable'
 import { cn } from '@/lib/utils'
+import LoadingOverlay from '@/components/loading-overlay'
 
 type GroupChatItem = {
   id: string
@@ -33,6 +34,7 @@ export default function ChatPage() {
   const [dragX, setDragX] = useState(0)
   const [groupChats, setGroupChats] = useState<GroupChatItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingOpenChat, setLoadingOpenChat] = useState(false)
 
   const userId = useMemo(() => user?.id, [user?.id])
   const unreadPrivate = 3 // dummy private
@@ -155,6 +157,7 @@ export default function ChatPage() {
     <>
       <AppTopbar title="Chat" titleIcon={<MessageCircle className="w-6 h-6" />} />
       <PageWrapper>
+        <LoadingOverlay isLoading={loadingOpenChat} />
         <div className="max-w-4xl mx-auto p-4">
           <Tabs
             value={activeTab}
@@ -288,6 +291,7 @@ export default function ChatPage() {
                             {...chat}
                             onClick={async () => {
                               if (!userId) return
+                              setLoadingOpenChat(true)
                               await groupMessageService.markAsRead(
                                 chat.id,
                                 userId,
