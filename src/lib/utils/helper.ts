@@ -11,8 +11,30 @@ export function generateId(): string {
   })
 }
 
+/**
+ * Mengecek apakah string hanya berisi emoji (Extended Pictographic) + spasi
+ */
 export function isOnlyEmojis(text: string): boolean {
-  const emojiRegex = /\p{Extended_Pictographic}/u
-  const nonEmojiRegex = /[^\p{Extended_Pictographic}\s]/u
-  return emojiRegex.test(text) && !nonEmojiRegex.test(text)
+  if (!text) return false
+
+  const trimmed = text.trim()
+  if (!trimmed) return false
+
+  // Harus ada minimal satu emoji
+  const hasEmoji = /\p{Extended_Pictographic}/u.test(trimmed)
+
+  // Tidak boleh ada karakter selain emoji atau spasi
+  const hasNonEmoji = /[^\p{Extended_Pictographic}\s]/u.test(trimmed)
+
+  return hasEmoji && !hasNonEmoji
+}
+
+/**
+ * Menghitung jumlah emoji dalam string
+ */
+export function getEmojiCount(text: string): number {
+  if (!text) return 0
+
+  const matches = text.match(/\p{Extended_Pictographic}/gu)
+  return matches ? matches.length : 0
 }

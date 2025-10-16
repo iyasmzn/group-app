@@ -4,6 +4,7 @@ import React from 'react'
 import { motion, type Variants } from 'framer-motion'
 import { AppAvatar } from '@/components/ui/app-avatar'
 import { cn } from '@/lib/utils'
+import { isOnlyEmojis, getEmojiCount } from '@/lib/utils/helper'
 
 type Message = {
   id: string
@@ -22,17 +23,10 @@ type Props = {
   isOwn: boolean
 }
 
-const emojiOnlyRegex =
-  /^(?:\p{Emoji_Presentation}|\p{Extended_Pictographic}|\p{Emoji}\uFE0F?|\p{Emoji_Modifier_Base}\p{Emoji_Modifier}?|\s)+$/u
-
 export const MessageBubble = React.memo(({ msg, isOwn }: Props) => {
   const content = msg.content.trim()
-  const isEmojiOnly = emojiOnlyRegex.test(content)
-
-  // Hitung jumlah emoji
-  const emojiCount = (
-    content.match(/\p{Emoji_Presentation}|\p{Extended_Pictographic}|\p{Emoji}/gu) || []
-  ).length
+  const isEmojiOnly = isOnlyEmojis(content)
+  const emojiCount = getEmojiCount(content)
 
   // Tentukan ukuran font berdasarkan jumlah emoji
   let emojiSize = 'text-6xl'
@@ -40,27 +34,15 @@ export const MessageBubble = React.memo(({ msg, isOwn }: Props) => {
   if (emojiCount >= 6) emojiSize = 'text-3xl'
   if (emojiCount >= 10) emojiSize = 'text-2xl'
 
-  // 🟢 Smooth animasi untuk text message
-  const textVariants: Variants = {
-    hidden: {},
-    visible: {},
-  }
-
-  // 🟣 Smooth animasi untuk emoji-only message
+  // Animasi
+  const textVariants: Variants = { hidden: {}, visible: {} }
   const emojiVariants: Variants = {
-    hidden: {
-      opacity: 0,
-      scale: 0.8,
-      y: 10,
-    },
+    hidden: { opacity: 0, scale: 0.8, y: 10 },
     visible: {
       opacity: 1,
       scale: 1,
       y: 0,
-      transition: {
-        duration: 0.1,
-        ease: 'easeOut',
-      },
+      transition: { duration: 0.1, ease: 'easeOut' },
     },
   }
 
@@ -98,19 +80,22 @@ export const MessageBubble = React.memo(({ msg, isOwn }: Props) => {
           {msg.content}
         </p>
 
-        {!isEmojiOnly && (
-          <span
-            className={cn(
-              'block text-[10px] text-muted-foreground mt-1 text-right',
-              isOwn ? 'text-primary-foreground' : 'text-muted-foreground'
-            )}
-          >
-            {new Date(msg.createdat).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-          </span>
-        )}
+        {/* Timestamp selalu tampil, termasuk untuk emoji-only */}
+        <span
+          className={cn(
+            'block text-[10px] mt-1 text-right',
+            isEmojiOnly
+              ? 'text-muted-foreground/70'
+              : isOwn
+              ? 'text-primary-foreground'
+              : 'text-muted-foreground'
+          )}
+        >
+          {new Date(msg.createdat).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+          })}
+        </span>
       </motion.div>
     </div>
   )
