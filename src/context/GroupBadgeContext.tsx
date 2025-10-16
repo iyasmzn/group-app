@@ -1,11 +1,7 @@
-"use client"
+'use client'
 
-import { createContext, useContext } from "react"
-import { useUnreadCount } from "@/lib/hooks/useUnreadCount"
-import { useEventBadge } from "@/lib/hooks/useEventBadge"
-import { useFinanceBadge } from "@/lib/hooks/useFinanceBadge"
-import { useAssetBadge } from "@/lib/hooks/useAssetBadge"
-import { useCoopBadge } from "@/lib/hooks/useCoopBadge"
+import { createContext, useContext } from 'react'
+import { useAppBadges } from './AppBadgeContext'
 
 type BadgeContextType = {
   unread: number
@@ -23,12 +19,21 @@ const GroupBadgeContext = createContext<BadgeContextType>({
   coop: 0,
 })
 
-export function GroupBadgeProvider({ groupId, children }: { groupId: string; children: React.ReactNode }) {
-  const unread = useUnreadCount(groupId)
-  const events = useEventBadge(groupId)
-  const finance = useFinanceBadge(groupId)
-  const assets = useAssetBadge(groupId)
-  const coop = useCoopBadge(groupId)
+export function GroupBadgeProvider({
+  groupId,
+  children,
+}: {
+  groupId: string
+  children: React.ReactNode
+}) {
+  const { groupUnreadMap } = useAppBadges()
+  const unread = groupUnreadMap[groupId] ?? 0
+
+  // fitur lain belum ready → default 0
+  const events = 0
+  const finance = 0
+  const assets = 0
+  const coop = 0
 
   return (
     <GroupBadgeContext.Provider value={{ unread, events, finance, assets, coop }}>
