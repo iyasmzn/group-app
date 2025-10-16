@@ -10,3 +10,9 @@ export function generateId(): string {
     return v.toString(16)
   })
 }
+
+export function isOnlyEmojis(text: string): boolean {
+  const emojiRegex = /\p{Extended_Pictographic}/u
+  const nonEmojiRegex = /[^\p{Extended_Pictographic}\s]/u
+  return emojiRegex.test(text) && !nonEmojiRegex.test(text)
+}
