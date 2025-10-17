@@ -129,7 +129,7 @@ export default function EventsPage() {
       {/* Daftar event */}
       <div className="space-y-4">
         {loading &&
-          Array.from({ length: limit }).map((_, idx) => (
+          Array.from({ length: 3 }).map((_, idx) => (
             <div
               key={idx}
               className="rounded-lg border p-4 shadow-sm bg-white dark:bg-neutral-900 space-y-3"
