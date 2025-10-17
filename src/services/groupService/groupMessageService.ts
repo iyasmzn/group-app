@@ -13,6 +13,7 @@ export type GroupChatItem = {
   name: string
   lastMessage: string
   lastCreatedAt: string
+  lastSenderFullName: string
   unread: number
 }
 
@@ -20,6 +21,7 @@ export type RPCRow = {
   group_id: string
   group_name: string
   last_message: string | null
+  last_sender_full_name: string | null
   last_createdat: string | null
   unread_count: number | null
 }
@@ -39,6 +41,7 @@ export const groupMessageService = {
         id: row.group_id,
         name: row.group_name ?? '',
         lastMessage: row.last_message ?? 'Belum ada pesan',
+        lastSenderFullName: row.last_sender_full_name ?? '?',
         lastCreatedAt: row.last_createdat ?? '',
         unread: row.unread_count ?? 0,
       }))
@@ -75,6 +78,7 @@ export const groupMessageService = {
         id: groupId,
         name: '', // bisa join ke tabel groups kalau perlu
         lastMessage: last?.content ?? 'Belum ada pesan',
+        lastSenderFullName: '?', // perlu join ke tabel users kalau perlu
         lastCreatedAt: last?.createdat ?? '',
         unread,
       })

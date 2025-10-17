@@ -13,15 +13,16 @@ import { AnimatePresence, motion } from 'framer-motion'
 import Reveal from '@/components/animations/Reveal'
 import { useRouter } from 'next/navigation'
 import { groupService } from '@/services/groupService/groupService'
-import { GroupMessage, groupMessageService } from '@/services/groupService/groupMessageService'
-import { useRealtimeTable } from '@/lib/hooks/useRealtimeTable'
+import { groupMessageService } from '@/services/groupService/groupMessageService'
 import { cn } from '@/lib/utils'
 import LoadingOverlay from '@/components/loading-overlay'
+import { useRealtime } from '@/lib/hooks/useRealtime'
 
 type GroupChatItem = {
   id: string
   name: string
   lastMessage: string
+  lastSenderFullName?: string | null
   time: string
   lastCreatedAt: string
   unread: number
@@ -83,21 +84,24 @@ export default function ChatPage() {
     }
   }, [userId])
 
-  // ✅ Realtime listener optimized
-  useRealtimeTable<GroupMessage>({
+  useRealtime({
     supabase,
-    table: 'group_messages',
-    onInsert: async (msg) => {
-      if (!userId) return
+    type: 'postgres_changes',
+    table: 'group_messages_with_profile',
+    onInsert: (msg: any) => {
+      console.log('🟢 New group message (realtime via table):', msg)
 
       setGroupChats((prev) => {
         const existing = prev.find((c) => c.id === msg.group_id)
+        const full_name = msg.full_name ?? 'Unknown'
+
         if (existing) {
           const updated = prev.map((c) =>
             c.id === msg.group_id
               ? {
                   ...c,
                   lastMessage: msg.content,
+                  lastSenderFullName: full_name,
                   time: new Date(msg.createdat).toLocaleTimeString([], {
                     hour: '2-digit',
                     minute: '2-digit',
@@ -107,22 +111,18 @@ export default function ChatPage() {
                 }
               : c
           )
-
-          // hanya sort kalau grup yang diupdate bukan yang paling atas
-          if (msg.group_id !== prev[0]?.id) {
-            return [...updated].sort(
-              (a, b) => new Date(b.lastCreatedAt).getTime() - new Date(a.lastCreatedAt).getTime()
-            )
-          }
-          return updated
+          return [...updated].sort(
+            (a, b) => new Date(b.lastCreatedAt).getTime() - new Date(a.lastCreatedAt).getTime()
+          )
         }
 
-        // kalau grup baru
+        // kalau grup baru muncul
         return [
           {
             id: msg.group_id,
             name: 'Unknown',
             lastMessage: msg.content,
+            lastSenderFullName: full_name,
             time: new Date(msg.createdat).toLocaleTimeString([], {
               hour: '2-digit',
               minute: '2-digit',
@@ -133,8 +133,6 @@ export default function ChatPage() {
           ...prev,
         ]
       })
-
-      debounceSyncUnread(msg.group_id)
     },
   })
 

@@ -1,9 +1,10 @@
-import { AppAvatar } from "@/components/ui/app-avatar"
+import { AppAvatar } from '@/components/ui/app-avatar'
 
 interface ChatListItemProps {
   name: string
   avatar?: string
   lastMessage: string
+  lastSenderFullName?: string | null
   time: string
   unread?: number
   onClick?: () => void
@@ -14,6 +15,7 @@ export function ChatListItem({
   name,
   avatar,
   lastMessage,
+  lastSenderFullName,
   time,
   unread = 0,
   onClick,
@@ -36,7 +38,10 @@ export function ChatListItem({
           <p className="font-medium truncate">{name}</p>
           <span className="text-xs text-gray-500 shrink-0 ml-2">{time}</span>
         </div>
-        <p className="text-sm text-gray-600 truncate">{lastMessage}</p>
+        <p className="text-sm text-gray-600 truncate">
+          {lastSenderFullName ? `${lastSenderFullName}: ` : ''}
+          {lastMessage}
+        </p>
       </div>
 
       {unread > 0 && (
