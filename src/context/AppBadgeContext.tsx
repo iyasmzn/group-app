@@ -5,6 +5,7 @@ import { Profile } from '@/types/profile'
 import { useProfile } from '@/lib/hooks/useProfile'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase/client'
+import { useRealtime } from '@/lib/hooks/useRealtime'
 
 type AppBadgeContextType = {
   supabase: typeof supabase
@@ -71,28 +72,18 @@ export function AppBadgeProvider({ children }: { children: React.ReactNode }) {
     debounceMap.set(groupId, timeout)
   }
 
-  // realtime listener
-  useEffect(() => {
-    if (!user) return
-
-    const channel = supabase
-      .channel('realtime:group_messages')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'group_messages' },
-        (payload) => {
-          const msg = payload.new as { group_id: string; sender_id: string }
-          if (msg.sender_id !== user.id) {
-            updateGroupUnread(msg.group_id)
-          }
-        }
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [user?.id])
+  // ✅ realtime listener pakai hook generik
+  useRealtime<{ group_id: string; sender_id: string }>({
+    supabase,
+    type: 'postgres_changes',
+    table: 'group_messages',
+    schema: 'public',
+    onInsert: (msg) => {
+      if (msg.sender_id !== user?.id) {
+        updateGroupUnread(msg.group_id)
+      }
+    },
+  })
 
   function resetGroupUnread(groupId: string) {
     setGroupUnreadMap((prev) => ({ ...prev, [groupId]: 0 }))
