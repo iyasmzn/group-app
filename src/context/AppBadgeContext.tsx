@@ -1,7 +1,6 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, useMemo, useRef } from 'react'
-import { groupMessageService } from '@/services/groupService/groupMessageService'
 import { Profile } from '@/types/profile'
 import { useProfile } from '@/lib/hooks/useProfile'
 import { User } from '@supabase/supabase-js'
