@@ -1,35 +1,37 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import {
-  Calendar,
-  MapPin,
-  Users,
-  Plus,
-  SortAsc,
-  SortDesc,
-  Trash2
-} from "lucide-react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import Reveal from "@/components/animations/Reveal"
-import { useParams } from "next/navigation"
-import { supabase } from "@/lib/supabase/client"
-import { useRealtimeTable } from "@/lib/hooks/useRealtimeTable"
-import { Skeleton } from "@/components/ui/skeleton"
-import { eventService, GroupEvent } from "@/services/eventService/eventService"
+import { useEffect, useState } from 'react'
+import { Calendar, MapPin, Users, Plus, SortAsc, SortDesc, Trash2 } from 'lucide-react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import Reveal from '@/components/animations/Reveal'
+import { useParams } from 'next/navigation'
+import { supabase } from '@/lib/supabase/client'
+import { Skeleton } from '@/components/ui/skeleton'
+import { eventService, GroupEvent } from '@/services/eventService/eventService'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { EventStatusBadge } from "@/components/app/events/EventStatusBadge"
-import { toast } from "sonner"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+} from '@/components/ui/select'
+import { EventStatusBadge } from '@/components/app/events/EventStatusBadge'
+import { toast } from 'sonner'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import { useRealtime } from '@/lib/hooks/useRealtime'
 
-type OrderByField = "created_at" | "start_at" | "end_at" | "title"
+type OrderByField = 'created_at' | 'start_at' | 'end_at' | 'title'
 
 export default function EventsPage() {
   const { groupId } = useParams() as { groupId: string }
@@ -38,10 +40,10 @@ export default function EventsPage() {
   const [deleteLoading, setDeleteLoading] = useState(false)
 
   // sorting & pagination state
-  const [orderBy, setOrderBy] = useState<
-    "created_at" | "start_at" | "end_at" | "title"
-  >("created_at")
-  const [orderDir, setOrderDir] = useState<"asc" | "desc">("desc")
+  const [orderBy, setOrderBy] = useState<'created_at' | 'start_at' | 'end_at' | 'title'>(
+    'created_at'
+  )
+  const [orderDir, setOrderDir] = useState<'asc' | 'desc'>('desc')
   const [page, setPage] = useState(1)
   const limit = 5
 
@@ -59,7 +61,7 @@ export default function EventsPage() {
       )
       setEvents(data)
     } catch (err) {
-      console.error("Error fetching events:", err)
+      console.error('Error fetching events:', err)
     } finally {
       setLoading(false)
     }
@@ -71,9 +73,11 @@ export default function EventsPage() {
   }, [groupId, orderBy, orderDir, page])
 
   // realtime subscription
-  useRealtimeTable<GroupEvent>({
+  useRealtime<GroupEvent>({
     supabase,
-    table: "group_events",
+    type: 'postgres_changes',
+    table: 'group_events',
+    schema: 'public',
     filter: `group_id=eq.${groupId}`,
     onInsert: () => fetchEvents(),
     onUpdate: () => fetchEvents(),
@@ -101,10 +105,7 @@ export default function EventsPage() {
 
       {/* Sorting controls */}
       <div className="flex items-center gap-4">
-        <Select 
-          value={orderBy} 
-          onValueChange={(v: OrderByField) => setOrderBy(v)}
-        >
+        <Select value={orderBy} onValueChange={(v: OrderByField) => setOrderBy(v)}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Urutkan berdasarkan" />
           </SelectTrigger>
@@ -119,13 +120,9 @@ export default function EventsPage() {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => setOrderDir(orderDir === "asc" ? "desc" : "asc")}
+          onClick={() => setOrderDir(orderDir === 'asc' ? 'desc' : 'asc')}
         >
-          {orderDir === "asc" ? (
-            <SortAsc className="w-4 h-4" />
-          ) : (
-            <SortDesc className="w-4 h-4" />
-          )}
+          {orderDir === 'asc' ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
         </Button>
       </div>
 
@@ -153,90 +150,87 @@ export default function EventsPage() {
 
         {!loading &&
           events.map((event, idx) => (
-          <Reveal key={event.id} animation="fadeInRight" delay={0.05 * idx}>
-            <div className="rounded-lg border p-4 shadow-sm hover:shadow-md transition bg-white dark:bg-neutral-900">
-              <div className="flex items-center justify-between mb-2">
-                <Link href={`./events/${event.id}`} className="flex-1">
-                  <h2 className="text-lg font-semibold">{event.title}</h2>
-                </Link>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">
-                    Dibuat{" "}
-                    {event.created_at &&
-                      new Date(event.created_at).toLocaleDateString("id-ID")}
-                  </span>
+            <Reveal key={event.id} animation="fadeInRight" delay={0.05 * idx}>
+              <div className="rounded-lg border p-4 shadow-sm hover:shadow-md transition bg-white dark:bg-neutral-900">
+                <div className="flex items-center justify-between mb-2">
+                  <Link href={`./events/${event.id}`} className="flex-1">
+                    <h2 className="text-lg font-semibold">{event.title}</h2>
+                  </Link>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">
+                      Dibuat{' '}
+                      {event.created_at && new Date(event.created_at).toLocaleDateString('id-ID')}
+                    </span>
 
-                  {/* ✅ Delete pakai AlertDialog */}
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button size="icon" variant="destructive">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Hapus Event?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Tindakan ini tidak bisa dibatalkan. Event akan dihapus secara permanen.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Batal</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={async () => {
-                            setDeleteLoading(true)
-                            try {
-                              await eventService.remove(event.id)
-                              toast.success("Event berhasil dihapus")
-                              setEvents(prev => prev.filter(e => e.id !== event.id))
-                            } catch (err) {
-                              toast.error("Gagal menghapus event")
-                              console.error(err)
-                            } finally {
-                              setDeleteLoading(false)
-                            }
-                          }}
-                          className="bg-red-600 hover:bg-red-700"
-                        >
-                          {deleteLoading ? (
-                            <span className="flex items-center gap-2">
-                              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                              Menghapus...
-                            </span>
-                          ) : (
-                            "Hapus"
-                          )}
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                    {/* ✅ Delete pakai AlertDialog */}
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="icon" variant="destructive">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Hapus Event?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Tindakan ini tidak bisa dibatalkan. Event akan dihapus secara permanen.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Batal</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={async () => {
+                              setDeleteLoading(true)
+                              try {
+                                await eventService.remove(event.id)
+                                toast.success('Event berhasil dihapus')
+                                setEvents((prev) => prev.filter((e) => e.id !== event.id))
+                              } catch (err) {
+                                toast.error('Gagal menghapus event')
+                                console.error(err)
+                              } finally {
+                                setDeleteLoading(false)
+                              }
+                            }}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            {deleteLoading ? (
+                              <span className="flex items-center gap-2">
+                                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                Menghapus...
+                              </span>
+                            ) : (
+                              'Hapus'
+                            )}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </div>
+
+                {event.description && (
+                  <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                    {event.description}
+                  </p>
+                )}
+
+                <div className="flex flex-wrap gap-3 text-sm text-neutral-600 dark:text-neutral-400">
+                  {event.start_at && <EventStatusBadge start={event.start_at} end={event.end_at} />}
+
+                  {event.location && (
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-4 h-4" />
+                      {event.location}
+                    </span>
+                  )}
+                  <span className="flex items-center gap-1">
+                    <Users className="w-4 h-4" /> Attendance
+                  </span>
                 </div>
               </div>
-
-              {event.description && (
-                <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
-                  {event.description}
-                </p>
-              )}
-
-              <div className="flex flex-wrap gap-3 text-sm text-neutral-600 dark:text-neutral-400">
-                {event.start_at && (
-                  <EventStatusBadge start={event.start_at} end={event.end_at} />
-                )}
-
-                {event.location && (
-                  <span className="flex items-center gap-1">
-                    <MapPin className="w-4 h-4" />
-                    {event.location}
-                  </span>
-                )}
-                <span className="flex items-center gap-1">
-                  <Users className="w-4 h-4" /> Attendance
-                </span>
-              </div>
-            </div>
-          </Reveal>
-        ))}
+            </Reveal>
+          ))}
       </div>
 
       {/* Pagination */}
@@ -259,10 +253,7 @@ export default function EventsPage() {
       </div>
 
       {/* Floating Action Button (FAB) */}
-      <Link
-        href={`./events/create`}
-        className="fixed bottom-20 right-6 md:hidden"
-      >
+      <Link href={`./events/create`} className="fixed bottom-20 right-6 md:hidden">
         <Button size="icon" className="rounded-full w-14 h-14 shadow-lg">
           <Plus className="w-6 h-6" />
         </Button>

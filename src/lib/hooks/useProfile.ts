@@ -4,14 +4,14 @@ import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '@/lib/supabase/auth'
 import { supabase } from '@/lib/supabase/client'
 import type { Profile } from '@/types/profile'
-import { useRealtimeTable } from './useRealtimeTable'
+import { useRealtime } from './useRealtime'
 
 export function useProfile() {
   const { user } = useAuth()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const filter = user?.id ? `id=eq.${user.id}` : null
+  const filter = user?.id ? `id=eq.${user.id}` : undefined
 
   // fetch profile pertama kali
   useEffect(() => {
@@ -41,11 +41,13 @@ export function useProfile() {
   const handleUpdate = useCallback((newProfile: Profile) => setProfile(newProfile), [])
   const handleInsert = useCallback((newProfile: Profile) => setProfile(newProfile), [])
   const handleDelete = useCallback(() => setProfile(null), [])
+
   // realtime subscribe pakai hook generik
-  useRealtimeTable<Profile>({
+  useRealtime<Profile>({
     supabase,
+    type: 'postgres_changes',
     table: 'profiles',
-    filter: filter || undefined,
+    filter,
     onUpdate: handleUpdate,
     onInsert: handleInsert,
     onDelete: handleDelete,
