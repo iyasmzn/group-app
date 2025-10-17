@@ -8,7 +8,7 @@ export default async function GroupLayout({ children }: { children: React.ReactN
       <GroupTopbar />
       <div className="flex justify-center">
         <GroupNavigation />
-        <main className="flex-1 max-w-4xl md:ml-56">{children}</main>
+        <main className="flex-1 max-w-4xl md:ml-56 pb-15">{children}</main>
       </div>
     </>
   )
