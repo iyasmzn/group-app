@@ -303,7 +303,6 @@ export default function ChatPage() {
           )}
         </div>
       </PageWrapper>
-      <AppBottombar />
     </>
   )
 }

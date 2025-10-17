@@ -1,14 +1,14 @@
-"use client"
+'use client'
 
-import { useAuth } from "@/lib/supabase/auth"
-import Link from "next/link"
-import { LogOut, Bell, Shield, Info, Palette, User } from "lucide-react"
-import { motion } from "framer-motion"
-import PageWrapper from "@/components/page-wrapper"
-import { AppBottombar } from "@/components/app/bottombar"
-import { Skeleton } from "@/components/ui/skeleton"
-import { AppAvatar } from "@/components/ui/app-avatar"
-import { useAppBadges } from "@/context/AppBadgeContext"
+import { useAuth } from '@/lib/supabase/auth'
+import Link from 'next/link'
+import { LogOut, Bell, Shield, Info, Palette, User } from 'lucide-react'
+import { motion } from 'framer-motion'
+import PageWrapper from '@/components/page-wrapper'
+import { AppBottombar } from '@/components/app/bottombar'
+import { Skeleton } from '@/components/ui/skeleton'
+import { AppAvatar } from '@/components/ui/app-avatar'
+import { useAppBadges } from '@/context/AppBadgeContext'
 
 export default function SettingsPage() {
   const { signOut } = useAuth()
@@ -16,15 +16,15 @@ export default function SettingsPage() {
 
   const menuItems = [
     {
-      href: "/app/settings/profile",
+      href: '/app/settings/profile',
       icon: <User className="h-5 w-5 text-gray-500" />,
-      label: "Account",
-      desc: "Profile, Email, Password",
+      label: 'Account',
+      desc: 'Profile, Email, Password',
     },
-    { icon: <Bell className="h-5 w-5 text-gray-500" />, label: "Notifications" },
-    { icon: <Palette className="h-5 w-5 text-gray-500" />, label: "Appearance" },
-    { icon: <Shield className="h-5 w-5 text-gray-500" />, label: "Privacy & Security" },
-    { icon: <Info className="h-5 w-5 text-gray-500" />, label: "About" },
+    { icon: <Bell className="h-5 w-5 text-gray-500" />, label: 'Notifications' },
+    { icon: <Palette className="h-5 w-5 text-gray-500" />, label: 'Appearance' },
+    { icon: <Shield className="h-5 w-5 text-gray-500" />, label: 'Privacy & Security' },
+    { icon: <Info className="h-5 w-5 text-gray-500" />, label: 'About' },
   ]
 
   return (
@@ -34,7 +34,7 @@ export default function SettingsPage() {
           className="p-6 max-w-lg mx-auto space-y-8"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
         >
           {/* Profile Section */}
           <motion.div
@@ -54,15 +54,13 @@ export default function SettingsPage() {
             ) : (
               <>
                 <AppAvatar
-                  name={profile?.full_name || profile?.email || "Guest"}
+                  name={profile?.full_name || profile?.email || 'Guest'}
                   image={profile?.avatar_url}
                   size="xxl"
                   preview
                 />
                 <div className="text-center">
-                  <h2 className="text-xl font-semibold">
-                    {profile?.full_name || "Guest"}
-                  </h2>
+                  <h2 className="text-xl font-semibold">{profile?.full_name || 'Guest'}</h2>
                   <p className="text-gray-500 text-sm">{profile?.email}</p>
                 </div>
               </>
@@ -99,9 +97,7 @@ export default function SettingsPage() {
                         <div>
                           <p>{item.label}</p>
                           {item.desc && (
-                            <span className="text-xs text-secondary-foreground">
-                              {item.desc}
-                            </span>
+                            <span className="text-xs text-secondary-foreground">{item.desc}</span>
                           )}
                         </div>
                       </div>
@@ -138,7 +134,6 @@ export default function SettingsPage() {
           </div>
         </motion.div>
       </PageWrapper>
-      <AppBottombar />
     </>
   )
 }

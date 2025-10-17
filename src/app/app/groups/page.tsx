@@ -316,7 +316,6 @@ function GroupsPage({ userId }: { userId: string }) {
           </div>
         </div>
       </PageWrapper>
-      <AppBottombar />
     </>
   )
 }

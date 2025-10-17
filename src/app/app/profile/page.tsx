@@ -82,7 +82,6 @@ export default function ProfileDetailPage() {
           </CardContent>
         </Card>
       </div>
-      <AppBottombar />
     </>
   )
 }
