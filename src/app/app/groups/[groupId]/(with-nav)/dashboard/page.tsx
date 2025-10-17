@@ -6,9 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import Reveal from '@/components/animations/Reveal'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { LucideUsers, MessageCircleWarning } from 'lucide-react'
-import ClockWidget from '@/components/group/dashboard/ClockWidget'
-import { DashboardStatCard } from '@/components/group/dashboard/DashboardStatCard'
 import { useGroupBadges } from '@/context/GroupBadgeContext'
+import ClockWidget from '@/components/app/groups/dashboard/ClockWidget'
+import { DashboardStatCard } from '@/components/app/groups/dashboard/DashboardStatCard'
 
 export default function GroupDashboardPage() {
   const router = useRouter()

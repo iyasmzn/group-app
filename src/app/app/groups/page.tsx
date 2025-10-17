@@ -17,7 +17,6 @@ import {
   Settings2,
 } from 'lucide-react'
 import { useAuth } from '@/lib/supabase/auth'
-import { AddGroupDialog } from './components/addGroupDialog'
 import LoadingOverlay from '@/components/loading-overlay'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
@@ -35,6 +34,7 @@ import { GroupData } from '@/types/group'
 import Reveal from '@/components/animations/Reveal'
 import { AppAvatar } from '@/components/ui/app-avatar'
 import { useAppBadges } from '@/context/AppBadgeContext'
+import { AddGroupDialog } from '@/components/app/groups/AddGroupDialog'
 
 const PAGE_LIMIT = 6
 

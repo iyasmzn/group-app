@@ -1,9 +1,9 @@
 'use client'
 import { AppTopbar } from '@/components/app/topbar'
-import { GroupTitle } from '@/components/group/GroupTitle'
-import { GroupTopbarMenu } from '@/components/group/GroupTopbarMenu'
-import { GroupTitleSkeleton } from '@/components/group/GroupTitleSkeleton'
 import { useGroupBadges } from '@/context/GroupBadgeContext'
+import { GroupTitle } from './GroupTitle'
+import { GroupTopbarMenu } from './GroupTopbarMenu'
+import { GroupTitleSkeleton } from './GroupTitleSkeleton'
 
 type GroupTopbarProps = {
   backHref?: string
