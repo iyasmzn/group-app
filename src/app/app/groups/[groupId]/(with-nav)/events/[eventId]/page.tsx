@@ -1,27 +1,27 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
-import { eventService, GroupEvent } from "@/services/eventService/eventService"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Edit } from "lucide-react"
-import Reveal from "@/components/animations/Reveal"
+import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
+import { eventService, GroupEvent } from '@/services/eventService/eventService'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Edit } from 'lucide-react'
+import Reveal from '@/components/animations/Reveal'
 
 // Import tab components
-import DetailTab from "./components/DetailTab"
-import PesertaTab from "./components/PesertaTab"
-import TaskTab from "./components/TaskTab"
-import KontribusiTab from "./components/KontribusiTab"
-import NotulenTab from "./components/NotulenTab"
-import { useGroupRole } from "@/lib/hooks/useGroupRole"
+import DetailTab from './components/DetailTab'
+import PesertaTab from './components/PesertaTab'
+import TaskTab from './components/TaskTab'
+import KontribusiTab from './components/KontribusiTab'
+import NotulenTab from './components/NotulenTab'
+import { useGroupRole } from '@/lib/hooks/useGroupRole'
 
 export default function EventDetailPage() {
-  const { eventId, groupId } = useParams() as { eventId: string, groupId: string }
+  const { eventId, groupId } = useParams() as { eventId: string; groupId: string }
   const [event, setEvent] = useState<GroupEvent | null>(null)
   const [loading, setLoading] = useState(true)
-  const {role, loading: roleLoading} = useGroupRole(groupId)
+  const { role, loading: roleLoading } = useGroupRole(groupId)
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -29,7 +29,7 @@ export default function EventDetailPage() {
         const data = await eventService.read({ id: eventId })
         setEvent(data[0] ?? null)
       } catch (err) {
-        console.log("Error fetching event:", err)
+        console.log('Error fetching event:', err)
       } finally {
         setLoading(false)
       }
@@ -80,7 +80,7 @@ export default function EventDetailPage() {
         </TabsList>
 
         {/* Mobile Bottom Tab Bar */}
-        <div className="sm:hidden fixed bottom-13 left-0 right-0 border-t bg-background h-14 flex items-center z-50 px-2 rounded-2xl">
+        <div className="sm:hidden fixed bottom-18 left-0 right-0 border mx-1 bg-background h-14 flex items-center z-50 px-2 rounded-2xl">
           <TabsList className="flex justify-around w-full">
             <TabsTrigger value="detail" className="flex flex-col items-center text-xs">
               Detail
@@ -107,7 +107,7 @@ export default function EventDetailPage() {
         </TabsContent>
         <TabsContent value="peserta" className="mt-4">
           {!roleLoading && (
-            <PesertaTab eventId={event.id} groupId={groupId} roleCode={role?.code ?? "member"} />
+            <PesertaTab eventId={event.id} groupId={groupId} roleCode={role?.code ?? 'member'} />
           )}
           <div className="h-30 sm:hidden" /> {/* spacer biar konten tidak ketutup navbar */}
         </TabsContent>
@@ -124,7 +124,6 @@ export default function EventDetailPage() {
           <div className="h-30 sm:hidden" /> {/* spacer biar konten tidak ketutup navbar */}
         </TabsContent>
       </Tabs>
-
     </div>
   )
 }
