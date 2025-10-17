@@ -61,6 +61,7 @@ export function useRealtime<T>(options: Options<T>) {
 
       return () => {
         supabase.removeChannel(channel)
+        console.log(`[Realtime] Unsubscribed to ${table}`, { schema, table, filter })
       }
     }
 
