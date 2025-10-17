@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { LogOut, Bell, Shield, Info, Palette, User } from 'lucide-react'
 import { motion } from 'framer-motion'
 import PageWrapper from '@/components/page-wrapper'
-import { AppBottombar } from '@/components/app/bottombar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AppAvatar } from '@/components/ui/app-avatar'
 import { useAppBadges } from '@/context/AppBadgeContext'
@@ -16,7 +15,7 @@ export default function SettingsPage() {
 
   const menuItems = [
     {
-      href: '/app/settings/profile',
+      href: '/app/profile',
       icon: <User className="h-5 w-5 text-gray-500" />,
       label: 'Account',
       desc: 'Profile, Email, Password',

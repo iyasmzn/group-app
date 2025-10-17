@@ -7,7 +7,6 @@ import { AppAvatar } from '@/components/ui/app-avatar'
 import Reveal from '@/components/animations/Reveal'
 import { useAppBadges } from '@/context/AppBadgeContext'
 import { ShineBorder } from '@/components/ui/shine-border'
-import { AppBottombar } from '@/components/app/bottombar'
 import { useRouter } from 'next/navigation'
 
 export default function ProfileDetailPage() {

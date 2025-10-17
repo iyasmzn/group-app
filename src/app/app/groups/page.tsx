@@ -16,7 +16,6 @@ import {
   RefreshCw,
   Settings2,
 } from 'lucide-react'
-import { AppBottombar } from '@/components/app/bottombar'
 import { useAuth } from '@/lib/supabase/auth'
 import { AddGroupDialog } from './components/addGroupDialog'
 import LoadingOverlay from '@/components/loading-overlay'
