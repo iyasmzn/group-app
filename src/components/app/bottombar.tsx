@@ -40,7 +40,12 @@ export function AppBottombar() {
                    flex items-center justify-around px-4 z-50"
       >
         {tabs.map((tab) => {
-          const active = pathname === tab.href
+          // aktif kalau path persis sama, atau kalau tab Settings dan path sekarang mulai dengan /app/settings
+          const active =
+            pathname === tab.href ||
+            (tab.href === '/app/settings' &&
+              (pathname.startsWith('/app/settings') || pathname === '/app/profile'))
+
           const Icon = tab.icon
           return (
             <Tooltip key={tab.href}>
