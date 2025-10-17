@@ -58,7 +58,7 @@ export function AppBottombar() {
                     className="relative flex items-center justify-center"
                   >
                     <Icon className="h-6 w-6" />
-                    {tab.badge && tab.badge > 0 && (
+                    {typeof tab.badge == 'number' && tab.badge > 0 && (
                       <Badge
                         variant="destructive"
                         className="absolute -top-2 -right-3 px-1.5 py-0 text-[10px] rounded-full"
