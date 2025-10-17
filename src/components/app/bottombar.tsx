@@ -75,6 +75,14 @@ export function AppBottombar() {
                       <motion.div
                         layoutId="activeTab"
                         className="absolute -bottom-2 h-1 w-6 rounded-full bg-primary"
+                        transition={{
+                          type: 'spring',
+                          stiffness: 300,
+                          damping: 25,
+                          bounce: 0.35, // pantulan lebih terasa
+                          duration: 0.5, // durasi singkat
+                          ease: 'easeInOut',
+                        }}
                       />
                     )}
                   </motion.div>
