@@ -1,19 +1,20 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Button } from "@/components/ui/button"
-import { CalendarIcon, Clock } from "lucide-react"
-import { format } from "date-fns"
-import { id } from "date-fns/locale"
-import { DateRange } from "react-day-picker"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import clsx from "clsx"
-import { toast } from "sonner"
-import { TimePicker24 } from "./time-picker-24"
+import * as React from 'react'
+import { Calendar } from '@/components/ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Button } from '@/components/ui/button'
+import { CalendarIcon, Clock } from 'lucide-react'
+import { format } from 'date-fns'
+import { id } from 'date-fns/locale'
+import { DateRange } from 'react-day-picker'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import clsx from 'clsx'
+import { toast } from 'sonner'
+import { TimePicker24 } from './time-picker-24'
+import Reveal from '../animations/Reveal'
 
 type Props = {
   value?: DateRange
@@ -52,8 +53,8 @@ export function DateRangePicker({
     const endDate = new Date(value.to)
 
     if (withTime && startTime && endTime) {
-      const [sh, sm] = startTime.split(":").map(Number)
-      const [eh, em] = endTime.split(":").map(Number)
+      const [sh, sm] = startTime.split(':').map(Number)
+      const [eh, em] = endTime.split(':').map(Number)
       startDate.setHours(sh, sm)
       endDate.setHours(eh, em)
     }
@@ -68,13 +69,13 @@ export function DateRangePicker({
         // Jika hari sama tapi jam salah → swap jam
         onStartTimeChange?.(endTime)
         onEndTimeChange?.(startTime)
-        toast.info("Jam otomatis disesuaikan ⏱️")
+        toast.info('Jam otomatis disesuaikan ⏱️')
         setError(null)
         onError?.(null)
       } else {
         // Jika tanggal akhir < tanggal awal → swap tanggal
         onChange({ from: value.to, to: value.from })
-        toast.info("Tanggal otomatis disesuaikan 📅")
+        toast.info('Tanggal otomatis disesuaikan 📅')
         setError(null)
         onError?.(null)
       }
@@ -82,26 +83,22 @@ export function DateRangePicker({
       setError(null)
       onError?.(null)
     }
-
   }, [value, withTime, startTime, endTime])
 
   return (
     <div className="space-y-3">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className="w-full justify-start text-left font-normal"
-          >
+          <Button variant="outline" className="w-full justify-start text-left font-normal">
             <CalendarIcon className="mr-2 h-4 w-4" />
             {value?.from ? (
               value.to ? (
                 <>
-                  {format(value.from, "dd MMM yyyy", { locale: id })} -{" "}
-                  {format(value.to, "dd MMM yyyy", { locale: id })}
+                  {format(value.from, 'dd MMM yyyy', { locale: id })} -{' '}
+                  {format(value.to, 'dd MMM yyyy', { locale: id })}
                 </>
               ) : (
-                format(value.from, "dd MMM yyyy", { locale: id })
+                format(value.from, 'dd MMM yyyy', { locale: id })
               )
             ) : (
               <span>Pilih rentang tanggal</span>
@@ -133,22 +130,18 @@ export function DateRangePicker({
       </div>
 
       {withTime && (
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label className="block mb-1">Jam Mulai</Label>
-            <TimePicker24
-              value={startTime}
-              onChange={(val) => onStartTimeChange?.(val)}
-            />
+        <Reveal distance={10}>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label className="block mb-1">Jam Mulai</Label>
+              <TimePicker24 value={startTime} onChange={(val) => onStartTimeChange?.(val)} />
+            </div>
+            <div>
+              <Label className="block mb-1">Jam Selesai</Label>
+              <TimePicker24 value={endTime} onChange={(val) => onEndTimeChange?.(val)} />
+            </div>
           </div>
-          <div>
-            <Label className="block mb-1">Jam Selesai</Label>
-            <TimePicker24
-              value={endTime}
-              onChange={(val) => onEndTimeChange?.(val)}
-            />
-          </div>
-        </div>
+        </Reveal>
       )}
 
       {error && <p className="text-sm text-red-500">{error}</p>}
