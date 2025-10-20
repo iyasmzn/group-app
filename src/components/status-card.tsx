@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { useRouter } from 'next/navigation'
 import { JSX, useEffect, useState, useRef } from 'react'
-import { Hammer, Clock, Info, ShieldAlert, CheckCircle2 } from 'lucide-react'
+import { Hammer, Clock, Info, ShieldAlert, CheckCircle2, X } from 'lucide-react'
 import { ProgressBar } from './ui/progress-bar'
 import { ShineBorder } from './ui/shine-border'
 
@@ -29,6 +29,7 @@ type StatusCardProps = {
   progressBarColor?: string
   progressShineColor?: string[] | string
   progressPosition?: 'top' | 'bottom'
+  closable?: boolean
 }
 
 export default function StatusCard({
@@ -48,6 +49,7 @@ export default function StatusCard({
   progressBarColor = 'bg-primary',
   progressShineColor = ['#A07CFE', '#FE8FB5', '#FFBE7B'],
   progressPosition = 'bottom',
+  closable = false,
 }: StatusCardProps) {
   const router = useRouter()
   const [visible, setVisible] = useState(true)
@@ -76,6 +78,11 @@ export default function StatusCard({
       return () => cancelAnimationFrame(frame)
     }
   }, [paused, autoDismiss, onDismiss])
+
+  const handleClose = () => {
+    setVisible(false)
+    onDismiss?.()
+  }
 
   const variantConfig: Record<Variant, { icon: JSX.Element }> = {
     soon: { icon: <Clock className="w-12 h-12 text-primary" /> },
@@ -110,6 +117,16 @@ export default function StatusCard({
             }}
           >
             {shineBorder && <ShineBorder className="w-full h-full" shineColor={shineBorderColor} />}
+
+            {closable && (
+              <button
+                onClick={handleClose}
+                className="absolute top-3 right-3 p-1 rounded-md hover:bg-muted transition"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            )}
 
             <CardHeader className="flex flex-col items-center text-center space-y-3">
               <motion.div
