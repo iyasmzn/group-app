@@ -5,9 +5,10 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { useRouter } from 'next/navigation'
-import { JSX, useEffect, useState } from 'react'
+import { JSX, useEffect, useState, useRef } from 'react'
 import { Hammer, Clock, Info, ShieldAlert, CheckCircle2 } from 'lucide-react'
-import { ShineBorder } from '@/components/ui/shine-border'
+import { ProgressBar } from './ui/progress-bar'
+import { ShineBorder } from './ui/shine-border'
 
 type Variant = 'soon' | 'maintenance' | 'info' | 'warning' | 'success'
 
@@ -22,6 +23,12 @@ type StatusCardProps = {
   autoDismiss?: number // ms
   onDismiss?: () => void
   className?: string
+  shineBorder?: boolean
+  shineBorderColor?: string[] | string
+  progressShine?: boolean
+  progressBarColor?: string
+  progressShineColor?: string[] | string
+  progressPosition?: 'top' | 'bottom'
 }
 
 export default function StatusCard({
@@ -35,27 +42,40 @@ export default function StatusCard({
   autoDismiss,
   onDismiss,
   className,
+  shineBorder = false,
+  shineBorderColor = ['#A07CFE', '#FE8FB5', '#FFBE7B'],
+  progressShine = false,
+  progressBarColor = 'bg-primary',
+  progressShineColor = ['#A07CFE', '#FE8FB5', '#FFBE7B'],
+  progressPosition = 'bottom',
 }: StatusCardProps) {
   const router = useRouter()
   const [visible, setVisible] = useState(true)
   const [progress, setProgress] = useState(100)
+  const [paused, setPaused] = useState(false)
+  const startRef = useRef(Date.now())
+  const elapsedRef = useRef(0)
 
   useEffect(() => {
     if (autoDismiss) {
-      const start = Date.now()
-      const timer = setInterval(() => {
-        const elapsed = Date.now() - start
-        const percent = Math.max(0, 100 - (elapsed / autoDismiss) * 100)
-        setProgress(percent)
-        if (elapsed >= autoDismiss) {
-          clearInterval(timer)
-          setVisible(false)
-          onDismiss?.()
+      let frame: number
+      const tick = () => {
+        if (!paused) {
+          const elapsed = Date.now() - startRef.current + elapsedRef.current
+          const percent = Math.max(0, 100 - (elapsed / autoDismiss) * 100)
+          setProgress(percent)
+          if (elapsed >= autoDismiss) {
+            setVisible(false)
+            onDismiss?.()
+            return
+          }
         }
-      }, 100)
-      return () => clearInterval(timer)
+        frame = requestAnimationFrame(tick)
+      }
+      frame = requestAnimationFrame(tick)
+      return () => cancelAnimationFrame(frame)
     }
-  }, [autoDismiss, onDismiss])
+  }, [paused, autoDismiss, onDismiss])
 
   const variantConfig: Record<Variant, { icon: JSX.Element }> = {
     soon: { icon: <Clock className="w-12 h-12 text-primary" /> },
@@ -78,7 +98,19 @@ export default function StatusCard({
           transition={{ duration: 0.4, ease: 'easeInOut' }}
           className={cn('flex justify-center items-center py-20 px-4', className)}
         >
-          <Card className="relative max-w-md w-full shadow-lg border border-border/50 overflow-hidden">
+          <Card
+            className="relative max-w-md w-full shadow-lg border border-border/50 overflow-hidden"
+            onMouseEnter={() => {
+              setPaused(true)
+              elapsedRef.current += Date.now() - startRef.current
+            }}
+            onMouseLeave={() => {
+              setPaused(false)
+              startRef.current = Date.now()
+            }}
+          >
+            {shineBorder && <ShineBorder className="w-full h-full" shineColor={shineBorderColor} />}
+
             <CardHeader className="flex flex-col items-center text-center space-y-3">
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
@@ -99,21 +131,14 @@ export default function StatusCard({
               )}
             </CardContent>
 
-            {/* 🔥 Progress bar countdown */}
             {autoDismiss && (
-              <div className="absolute bottom-0 left-0 w-full h-1 bg-muted">
-                <motion.div
-                  initial={{ width: '100%' }}
-                  animate={{ width: `${progress}%` }}
-                  transition={{ duration: 0.1, ease: 'linear' }}
-                  className="h-full"
-                >
-                  <ShineBorder
-                    className="w-full h-full"
-                    shineColor={['#A07CFE', '#FE8FB5', '#FFBE7B']}
-                  />
-                </motion.div>
-              </div>
+              <ProgressBar
+                progress={progress}
+                shine={progressShine}
+                barColor={progressBarColor}
+                shineColor={progressShineColor}
+                position={progressPosition}
+              />
             )}
           </Card>
         </motion.div>
