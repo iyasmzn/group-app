@@ -1,123 +1,97 @@
 'use client'
 
-import { motion, AnimatePresence } from 'framer-motion'
-import { cn } from '@/lib/utils'
+import Link from 'next/link'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { useRouter } from 'next/navigation'
-import { JSX, useEffect, useState } from 'react'
-import { Hammer, Clock, Info, ShieldAlert, CheckCircle2 } from 'lucide-react'
+import { Clock, MessageCircle, MessageCircleWarning } from 'lucide-react'
+import { useGroupBadges } from '@/context/GroupBadgeContext'
 import { ShineBorder } from '@/components/ui/shine-border'
+import { useTheme } from 'next-themes'
+import CountUp from '@/components/ui/count-up'
+import { AppAvatar } from '@/components/ui/app-avatar'
 
-type Variant = 'soon' | 'maintenance' | 'info' | 'warning' | 'success'
-
-type StatusCardProps = {
-  title?: string
-  description?: string
-  variant?: Variant
-  actionLabel?: string
-  actionHref?: string
-  secondaryActionLabel?: string
-  secondaryAction?: () => void
-  autoDismiss?: number // ms
-  onDismiss?: () => void
-  className?: string
+type LastGroup = {
+  id: string
+  name: string
+  image_url?: string | null
+  joinedate?: string | null
+  last_seen_at?: string | null
 }
 
-export default function StatusCard({
-  title = 'Coming Soon 🚀',
-  description = 'Fitur ini sedang dalam pengembangan. Nantikan update berikutnya!',
-  variant = 'soon',
-  actionLabel = 'Kembali ke Beranda',
-  actionHref = '/',
-  secondaryActionLabel = 'Hubungi Support',
-  secondaryAction,
-  autoDismiss,
-  onDismiss,
-  className,
-}: StatusCardProps) {
-  const router = useRouter()
-  const [visible, setVisible] = useState(true)
-  const [progress, setProgress] = useState(100)
+export function LastGroupCard({ lastGroup }: { lastGroup: LastGroup }) {
+  // ambil badge dari provider
+  const { unread } = useGroupBadges()
+  const theme = useTheme()
 
-  useEffect(() => {
-    if (autoDismiss) {
-      const start = Date.now()
-      const timer = setInterval(() => {
-        const elapsed = Date.now() - start
-        const percent = Math.max(0, 100 - (elapsed / autoDismiss) * 100)
-        setProgress(percent)
-        if (elapsed >= autoDismiss) {
-          clearInterval(timer)
-          setVisible(false)
-          onDismiss?.()
-        }
-      }, 100)
-      return () => clearInterval(timer)
-    }
-  }, [autoDismiss, onDismiss])
-
-  const variantConfig: Record<Variant, { icon: JSX.Element }> = {
-    soon: { icon: <Clock className="w-12 h-12 text-primary" /> },
-    maintenance: { icon: <Hammer className="w-12 h-12 text-yellow-500" /> },
-    info: { icon: <Info className="w-12 h-12 text-blue-500" /> },
-    warning: { icon: <ShieldAlert className="w-12 h-12 text-orange-500" /> },
-    success: { icon: <CheckCircle2 className="w-12 h-12 text-green-500" /> },
-  }
-
-  const { icon } = variantConfig[variant]
+  if (!lastGroup) return null
 
   return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          key="status-card"
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -20, scale: 0.95 }}
-          transition={{ duration: 0.4, ease: 'easeInOut' }}
-          className={cn('flex justify-center items-center py-20 px-4', className)}
-        >
-          <Card className="relative max-w-md w-full shadow-lg border border-border/50 overflow-hidden">
-            <CardHeader className="flex flex-col items-center text-center space-y-3">
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-              >
-                {icon}
-              </motion.div>
-              <CardTitle className="text-2xl font-semibold">{title}</CardTitle>
-              <CardDescription className="text-muted-foreground">{description}</CardDescription>
-            </CardHeader>
-            <CardContent className="flex justify-center gap-3 pt-4">
-              <Button onClick={() => router.push(actionHref)}>{actionLabel}</Button>
-              {secondaryAction && (
-                <Button variant="outline" onClick={secondaryAction}>
-                  {secondaryActionLabel}
-                </Button>
-              )}
-            </CardContent>
+    <Card className="relative overflow-hidden">
+      <ShineBorder shineColor={['#A07CFE', '#FE8FB5', '#FFBE7B']} />
+      <CardContent>
+        <div className="flex flex-row justify-between items-center">
+          <Link href={`groups/${lastGroup.id}`} className="flex items-center gap-2 mb-4">
+            <AppAvatar name={lastGroup.name} image={lastGroup.image_url ?? undefined} size="lg" />
+            <div>
+              <p>{lastGroup.name}</p>
+              <p className="text-xs text-muted-foreground">
+                Joined:
+                <span className="ml-1">
+                  {lastGroup.joinedate
+                    ? new Date(lastGroup.joinedate).toLocaleString('id-ID', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                      })
+                    : '-'}
+                </span>
+              </p>
+            </div>
+          </Link>
+          <Button asChild variant="outline">
+            <Link href={`groups/${lastGroup.id}`}>Show</Link>
+          </Button>
+        </div>
 
-            {/* 🔥 Progress bar countdown */}
-            {autoDismiss && (
-              <div className="absolute bottom-0 left-0 w-full h-1 bg-muted">
-                <motion.div
-                  initial={{ width: '100%' }}
-                  animate={{ width: `${progress}%` }}
-                  transition={{ duration: 0.1, ease: 'linear' }}
-                  className="h-full"
-                >
-                  <ShineBorder
-                    className="w-full h-full"
-                    shineColor={['#A07CFE', '#FE8FB5', '#FFBE7B']}
-                  />
-                </motion.div>
-              </div>
+        <div className="grid grid-cols-2 gap-4">
+          {/* Last seen */}
+          <div className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted">
+            <Clock className="w-6 h-6 mb-2 text-primary" />
+            <span className="text-sm text-muted-foreground">Last seen</span>
+            <span className="text-sm font-semibold">
+              {lastGroup.last_seen_at
+                ? new Date(lastGroup.last_seen_at).toLocaleString('id-ID', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    day: 'numeric',
+                    month: 'short',
+                  })
+                : '-'}
+            </span>
+          </div>
+
+          {/* Unread messages */}
+          <Link
+            href={`groups/${lastGroup.id}/chat`}
+            className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted"
+          >
+            {unread > 0 ? (
+              <MessageCircleWarning className="w-6 h-6 mb-2 text-primary animate-pulse" />
+            ) : (
+              <MessageCircle className="w-6 h-6 mb-2" />
             )}
-          </Card>
-        </motion.div>
-      )}
-    </AnimatePresence>
+            <CountUp
+              from={0}
+              to={unread}
+              separator=","
+              direction="up"
+              duration={1}
+              className={`text-3xl font-bold ${unread && 'text-primary animate-pulse'}`}
+            />
+            <span className="text-xs text-muted-foreground">Unread Messages</span>
+          </Link>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
