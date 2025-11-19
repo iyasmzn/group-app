@@ -7,11 +7,11 @@ import { motion } from 'framer-motion'
 import PageWrapper from '@/components/page-wrapper'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AppAvatar } from '@/components/ui/app-avatar'
-import { useAppBadges } from '@/context/AppBadgeContext'
+import { useProfile } from '@/lib/hooks/useProfile'
 
 export default function SettingsPage() {
   const { signOut } = useAuth()
-  const { profile, profileLoading: loading } = useAppBadges()
+  const { profile, loading } = useProfile()
 
   const menuItems = [
     {

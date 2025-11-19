@@ -8,8 +8,7 @@ import { ChatShell } from './ChatShell'
 import ChatInput from '@/components/app/chat-input'
 import { MessageList } from '@/components/ui/message-list'
 import { generateId } from '@/lib/utils/helper'
-import { groupMessageService } from '@/services/groupService/groupMessageService'
-import { useAppBadges } from '@/context/AppBadgeContext'
+import { useNotifications } from '@/context/notification/NotificationContext'
 
 type Message = {
   id: string
@@ -25,10 +24,10 @@ type Message = {
 
 export default function GroupChatPage() {
   const { user } = useAuth()
-  const { resetGroupUnread } = useAppBadges()
   const { groupId } = useParams()
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')
+  const { resetCategory } = useNotifications()
 
   // ✅ Fetch pesan awal (tetap dipanggil walau groupId belum siap)
   useEffect(() => {
@@ -44,6 +43,8 @@ export default function GroupChatPage() {
       }
     }
     fetchMessages()
+    // Reset unread count saat membuka chat
+    resetCategory('chat', groupId as string)
   }, [groupId])
 
   // ✅ Realtime listener

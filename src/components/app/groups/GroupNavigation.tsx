@@ -20,14 +20,14 @@ export function GroupNavigation() {
   const groupId = params.groupId as string
   const isChatPage = pathname?.includes('/chat')
 
-  const { unread, events, finance, assets, coop } = useGroupBadges()
+  const { chat, finance, coop } = useGroupBadges()
 
   const tabs = [
     { href: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { href: 'chat', icon: MessageCircle, label: 'Chat', badge: unread },
-    { href: 'events', icon: CalendarDays, label: 'Events', badge: events },
+    { href: 'chat', icon: MessageCircle, label: 'Chat', badge: chat },
+    { href: 'events', icon: CalendarDays, label: 'Events', badge: 0 },
     { href: 'finance', icon: DollarSign, label: 'Finance', badge: finance },
-    { href: 'assets', icon: Package, label: 'Assets', badge: assets },
+    { href: 'assets', icon: Package, label: 'Assets', badge: 0 },
     { href: 'coop', icon: Handshake, label: 'Koperasi', badge: coop },
   ]
 

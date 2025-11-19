@@ -2,8 +2,8 @@
 
 import { usePathname } from 'next/navigation'
 import { AppBottombar } from '@/components/app/bottombar'
-import { AppBadgeProvider } from '@/context/AppBadgeContext'
 import { AuthGuard } from './AuthGuard'
+import { NotificationProvider } from '@/context/notification/NotificationProvider'
 
 export function AppLayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -14,10 +14,10 @@ export function AppLayoutClient({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthGuard>
-      <AppBadgeProvider>
+      <NotificationProvider>
         {children}
         {!hideBottomBar && <AppBottombar />}
-      </AppBadgeProvider>
+      </NotificationProvider>
     </AuthGuard>
   )
 }

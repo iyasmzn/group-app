@@ -57,11 +57,11 @@ export function useRealtime<T>(options: Options<T>) {
         })
         .subscribe()
 
-      console.log(`[Realtime] Subscribed to ${table}`, { schema, table, filter })
+      // console.log(`[Realtime] Subscribed to ${table}`, { schema, table, filter })
 
       return () => {
         supabase.removeChannel(channel)
-        console.log(`[Realtime] Unsubscribed to ${table}`, { schema, table, filter })
+        // console.log(`[Realtime] Unsubscribed to ${table}`, { schema, table, filter })
       }
     }
 
@@ -80,11 +80,11 @@ export function useRealtime<T>(options: Options<T>) {
         })
         .subscribe()
 
-      console.log(`[Realtime] Subscribed to channel ${channelName}`)
+      // console.log(`[Realtime] Subscribed to channel ${channelName}`)
 
       return () => {
         supabase.removeChannel(channel)
-        console.log(`[Realtime] Unsubscribed from channel ${channelName}`)
+        // console.log(`[Realtime] Unsubscribed from channel ${channelName}`)
       }
     }
   }, [supabase, options])

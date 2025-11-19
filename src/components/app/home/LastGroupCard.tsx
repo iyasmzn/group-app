@@ -4,11 +4,10 @@ import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Clock, MessageCircle, MessageCircleWarning } from 'lucide-react'
-import { useGroupBadges } from '@/context/GroupBadgeContext'
 import { ShineBorder } from '@/components/ui/shine-border'
-import { useTheme } from 'next-themes'
 import CountUp from '@/components/ui/count-up'
 import { AppAvatar } from '@/components/ui/app-avatar'
+import { useNotifications } from '@/context/notification/NotificationContext'
 
 type LastGroup = {
   id: string
@@ -20,10 +19,11 @@ type LastGroup = {
 
 export function LastGroupCard({ lastGroup }: { lastGroup: LastGroup }) {
   // ambil badge dari provider
-  const { unread } = useGroupBadges()
-  const theme = useTheme()
+  const { unread } = useNotifications()
 
   if (!lastGroup) return null
+
+  const unreadCount = unread.chat[lastGroup.id] || 0
 
   return (
     <Card className="relative overflow-hidden">
@@ -75,18 +75,18 @@ export function LastGroupCard({ lastGroup }: { lastGroup: LastGroup }) {
             href={`groups/${lastGroup.id}/chat`}
             className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted"
           >
-            {unread > 0 ? (
+            {unreadCount > 0 ? (
               <MessageCircleWarning className="w-6 h-6 mb-2 text-primary animate-pulse" />
             ) : (
               <MessageCircle className="w-6 h-6 mb-2" />
             )}
             <CountUp
               from={0}
-              to={unread}
+              to={unreadCount}
               separator=","
               direction="up"
               duration={1}
-              className={`text-3xl font-bold ${unread && 'text-primary animate-pulse'}`}
+              className={`text-3xl font-bold ${unreadCount && 'text-primary animate-pulse'}`}
             />
             <span className="text-xs text-muted-foreground">Unread Messages</span>
           </Link>

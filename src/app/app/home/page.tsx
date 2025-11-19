@@ -9,8 +9,10 @@ import { ClockFading } from 'lucide-react'
 import { ProfileSkeleton } from '@/components/ui/profile-skeleton'
 import { LastGroupSkeleton } from '@/components/app/home/LastGroupSkeleton'
 import { AppAvatar } from '@/components/ui/app-avatar'
-import { useAppBadges } from '@/context/AppBadgeContext'
 import { EmptyGroupCard } from '@/components/app/home/EmptyGroupCard'
+import { useNotifications } from '@/context/notification/NotificationContext'
+import { useProfile } from '@/lib/hooks/useProfile'
+import { supabase } from '@/lib/supabase/client'
 
 type LastGroup = {
   id: string
@@ -23,11 +25,11 @@ type LastGroup = {
 }
 
 export default function UserHomePage() {
-  const { supabase, user, profile, profileLoading: loading } = useAppBadges()
+  const { user, profile, loading } = useProfile()
   const router = useRouter()
   const [lastGroup, setLastGroup] = useState<LastGroup | null>(null)
   const [loadingGroup, setLoadingGroup] = useState(true)
-  const { groupUnreadMap } = useAppBadges()
+  const { unread } = useNotifications()
 
   useEffect(() => {
     if (user) {
@@ -37,6 +39,8 @@ export default function UserHomePage() {
 
   const fetchLastGroup = useCallback(async () => {
     if (!user?.id) return
+
+    console.log('Fetching last group for user:', user.id)
 
     setLoadingGroup(true)
     // coba ambil group terakhir dibuka
@@ -53,7 +57,7 @@ export default function UserHomePage() {
       .eq('group_last_seen.user_id', user.id)
       .order('last_seen_at', { referencedTable: 'group_last_seen', ascending: false })
       .limit(1)
-
+    console.log('Fetched groups:', groups)
     let g = groups?.[0]
 
     // kalau belum ada last_seen, fallback ke group terbaru yang di-join
@@ -75,7 +79,9 @@ export default function UserHomePage() {
 
     if (g) {
       const lastSeenAt = g.group_last_seen?.[0]?.message_last_seen_at || null
-      const unreadCount = groupUnreadMap[g.id] ?? 0
+      console.log('unread.chat', unread.chat)
+      const unreadCount = unread.chat[g.id] ?? 0
+      console.log('Last group found:', g.id, 'with unread count:', unreadCount)
 
       setLastGroup({
         id: g.id,
@@ -88,7 +94,7 @@ export default function UserHomePage() {
       })
     }
     setLoadingGroup(false)
-  }, [user?.id, groupUnreadMap])
+  }, [user?.id, unread])
 
   return (
     <>

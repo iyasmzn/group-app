@@ -1,25 +1,25 @@
 'use client'
 
 import { createContext, useContext } from 'react'
-import { useAppBadges } from './AppBadgeContext'
+import { useNotifications } from '@/context/notification/NotificationContext'
 import { useGroupData } from '@/lib/hooks/useGroupData'
 import { GroupData } from '@/types/group'
 
-type BadgeContextType = {
-  unread: number
-  events: number
-  finance: number
-  assets: number
+type GroupBadgeContextType = {
+  chat: number
   coop: number
+  finance: number
+  approval: number
+  total: number
   groupData: GroupData | null
 }
 
-const GroupBadgeContext = createContext<BadgeContextType>({
-  unread: 0,
-  events: 0,
-  finance: 0,
-  assets: 0,
+const GroupBadgeContext = createContext<GroupBadgeContextType>({
+  chat: 0,
   coop: 0,
+  finance: 0,
+  approval: 0,
+  total: 0,
   groupData: null,
 })
 
@@ -30,19 +30,19 @@ export function GroupBadgeProvider({
   groupId: string
   children: React.ReactNode
 }) {
-  const { groupUnreadMap } = useAppBadges()
-  const unread = groupUnreadMap[groupId] ?? 0
+  const { unread } = useNotifications()
+
+  const chat = unread.chat[groupId] ?? 0
+  const coop = unread.coop[groupId] ?? 0
+  const finance = unread.finance[groupId] ?? 0
+  const approval = unread.approval[groupId] ?? 0
+
+  const total = chat + coop + finance + approval
 
   const groupData = useGroupData(groupId)
 
-  // fitur lain belum ready → default 0
-  const events = 0
-  const finance = 0
-  const assets = 0
-  const coop = 0
-
   return (
-    <GroupBadgeContext.Provider value={{ unread, events, finance, assets, coop, groupData }}>
+    <GroupBadgeContext.Provider value={{ chat, coop, finance, approval, total, groupData }}>
       {children}
     </GroupBadgeContext.Provider>
   )

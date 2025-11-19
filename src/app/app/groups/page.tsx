@@ -33,8 +33,8 @@ import { Badge } from '@/components/ui/badge'
 import { GroupData } from '@/types/group'
 import Reveal from '@/components/animations/Reveal'
 import { AppAvatar } from '@/components/ui/app-avatar'
-import { useAppBadges } from '@/context/AppBadgeContext'
 import { AddGroupDialog } from '@/components/app/groups/AddGroupDialog'
+import { useNotifications } from '@/context/notification/NotificationContext'
 
 const PAGE_LIMIT = 6
 
@@ -59,7 +59,7 @@ export default function GroupsPageWrapper() {
 }
 
 function GroupsPage({ userId }: { userId: string }) {
-  const { groupUnreadMap } = useAppBadges()
+  const { groupUnreadMap } = useNotifications()
   const [groups, setGroups] = useState<GroupData[]>([])
   const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState<'name' | 'createdat'>('createdat')

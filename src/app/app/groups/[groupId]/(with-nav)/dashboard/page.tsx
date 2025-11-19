@@ -13,7 +13,7 @@ import { DashboardStatCard } from '@/components/app/groups/dashboard/DashboardSt
 export default function GroupDashboardPage() {
   const router = useRouter()
   const [loading] = useState(false)
-  const { unread, groupData } = useGroupBadges()
+  const { chat, groupData } = useGroupBadges()
 
   return (
     <>
@@ -40,9 +40,9 @@ export default function GroupDashboardPage() {
                 {/* Unread Messages */}
                 <DashboardStatCard
                   icon={MessageCircleWarning}
-                  value={unread}
+                  value={chat}
                   label="Unread Messages"
-                  accent={unread ? 'animate-pulse text-primary' : 'text-muted-foreground'}
+                  accent={chat ? 'animate-pulse text-primary' : 'text-muted-foreground'}
                   onClick={() => router.push('chat')}
                 />
               </div>

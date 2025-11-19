@@ -16,6 +16,7 @@ import { groupMessageService } from '@/services/groupService/groupMessageService
 import { cn } from '@/lib/utils'
 import LoadingOverlay from '@/components/loading-overlay'
 import { useRealtime } from '@/lib/hooks/useRealtime'
+import { useNotifications } from '@/context/notification/NotificationContext'
 
 type GroupChatItem = {
   id: string
@@ -30,21 +31,43 @@ type GroupChatItem = {
 export default function ChatPage() {
   const { user } = useAuth()
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'private' | 'group'>('private')
+  const { unread, resetCategory } = useNotifications() // ⬅️ FETCH unread notifications
+
+  const [activeTab, setActiveTab] = useState<'private' | 'group'>('group')
   const [dragX, setDragX] = useState(0)
   const [groupChats, setGroupChats] = useState<GroupChatItem[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingOpenChat, setLoadingOpenChat] = useState(false)
 
   const userId = useMemo(() => user?.id, [user?.id])
-  const unreadPrivate = 3 // dummy private
-  const totalGroupUnread = groupChats.reduce((sum, g) => sum + g.unread, 0)
 
-  // ✅ Fetch awal
+  // 🟢 Compute unread private messages from NotificationMap
+  const unreadPrivate = useMemo(() => {
+    return Object.values(unread.chat || {}).reduce((sum, count) => sum + count, 0)
+  }, [unread.chat])
+
+  // 🟢 Compute group unread from NotificationMap (replace manual calculations)
+  const totalGroupUnread = useMemo(() => {
+    return Object.values(unread.chat || {}).reduce((sum, count) => sum + count, 0)
+  }, [unread.chat])
+
+  // 🔄 Make sure groupChats uses unread from context (merging logic)
+  const mergeUnreadToChats = useCallback(
+    (chats: GroupChatItem[]) => {
+      return chats.map((chat) => ({
+        ...chat,
+        unread: unread.chat[chat.id] ?? chat.unread ?? 0,
+      }))
+    },
+    [unread.chat]
+  )
+
+  // 🟢 Fetch initial group list + last message
   useEffect(() => {
     async function fetchGroups() {
       if (!userId) return
       setLoading(true)
+
       const groups = await groupService.getByMember(userId)
       const chats = await groupMessageService.getLatestByGroups(
         groups.map((g) => g.id),
@@ -55,41 +78,32 @@ export default function ChatPage() {
         ...c,
         name: groups.find((g) => g.id === c.id)?.name ?? 'Unknown',
         time: c.lastCreatedAt
-          ? new Date(c.lastCreatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          ? new Date(c.lastCreatedAt).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            })
           : '',
       }))
 
       setGroupChats(
-        merged.sort(
-          (a, b) => new Date(b.lastCreatedAt).getTime() - new Date(a.lastCreatedAt).getTime()
+        mergeUnreadToChats(
+          merged.sort(
+            (a, b) => new Date(b.lastCreatedAt).getTime() - new Date(a.lastCreatedAt).getTime()
+          )
         )
       )
       setLoading(false)
     }
 
     fetchGroups()
-  }, [userId])
+  }, [userId, mergeUnreadToChats])
 
-  // ✅ Optimistic unread sync debounce (1 sync per 10s)
-  const debounceSyncUnread = useMemo(() => {
-    let timeout: NodeJS.Timeout | null = null
-    return (groupId: string) => {
-      if (timeout) clearTimeout(timeout)
-      timeout = setTimeout(async () => {
-        if (!userId) return
-        const unread = await groupMessageService.getUnreadCount(groupId, userId)
-        setGroupChats((prev) => prev.map((c) => (c.id === groupId ? { ...c, unread } : c)))
-      }, 10000)
-    }
-  }, [userId])
-
+  // 📡 Realtime message updates
   useRealtime({
     supabase,
     type: 'postgres_changes',
     table: 'group_messages_with_profile',
     onInsert: (msg: any) => {
-      console.log('🟢 New group message (realtime via table):', msg)
-
       setGroupChats((prev) => {
         const existing = prev.find((c) => c.id === msg.group_id)
         const full_name = msg.full_name ?? 'Unknown'
@@ -106,17 +120,13 @@ export default function ChatPage() {
                     minute: '2-digit',
                   }),
                   lastCreatedAt: msg.createdat,
-                  unread: c.unread + 1,
                 }
               : c
           )
-          return [...updated].sort(
-            (a, b) => new Date(b.lastCreatedAt).getTime() - new Date(a.lastCreatedAt).getTime()
-          )
+          return mergeUnreadToChats(updated)
         }
 
-        // kalau grup baru muncul
-        return [
+        return mergeUnreadToChats([
           {
             id: msg.group_id,
             name: 'Unknown',
@@ -127,15 +137,24 @@ export default function ChatPage() {
               minute: '2-digit',
             }),
             lastCreatedAt: msg.createdat,
-            unread: 1,
+            unread: unread.chat[msg.group_id] ?? 1,
           },
           ...prev,
-        ]
+        ])
       })
     },
   })
 
-  // ✅ Swipe handling
+  const handleOpenChat = async (chatId: string) => {
+    if (!userId) return
+    setLoadingOpenChat(true)
+
+    resetCategory('chat', chatId) // 🟢 Reset unread on open
+
+    router.push(`/app/groups/${chatId}/chat`)
+  }
+
+  // 🔁 Swipe handling tetap utuh
   const handleSwipe = useCallback(
     (offsetX: number) => {
       if (offsetX < -50 && activeTab === 'private') {
@@ -164,23 +183,23 @@ export default function ChatPage() {
             }}
             className="w-full"
           >
-            <TabsList className="grid grid-cols-2 w-full sm:max-w-sm">
-              <TabsTrigger value="private" className="relative">
-                Pribadi
-                {unreadPrivate > 0 && (
-                  <span className="absolute -top-1 -right-3 bg-red-500 text-white text-xs rounded-full px-1.5">
-                    {unreadPrivate}
-                  </span>
-                )}
-              </TabsTrigger>
+            <TabsList className="grid grid-cols-1 w-full sm:max-w-sm">
               <TabsTrigger value="group" className="relative">
-                Grup
+                Grup Chat
                 {totalGroupUnread > 0 && (
                   <span className="absolute -top-1 -right-3 bg-red-500 text-white text-xs rounded-full px-1.5">
                     {totalGroupUnread}
                   </span>
                 )}
               </TabsTrigger>
+              {/* <TabsTrigger value="private" className="relative">
+                Pribadi
+                {unreadPrivate > 0 && (
+                  <span className="absolute -top-1 -right-3 bg-red-500 text-white text-xs rounded-full px-1.5">
+                    {unreadPrivate}
+                  </span>
+                )}
+              </TabsTrigger> */}
             </TabsList>
           </Tabs>
 
@@ -286,11 +305,7 @@ export default function ChatPage() {
                           <ChatListItem
                             index={i}
                             {...chat}
-                            onClick={async () => {
-                              if (!userId) return
-                              setLoadingOpenChat(true)
-                              router.push(`/app/groups/${chat.id}/chat`)
-                            }}
+                            onClick={() => handleOpenChat(chat.id)}
                           />
                         </Reveal>
                       ))

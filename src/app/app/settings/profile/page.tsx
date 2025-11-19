@@ -12,14 +12,14 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { UnifiedUploader } from '@/components/unified-uploader'
 import LoadingOverlay from '@/components/loading-overlay'
 import { AppAvatar } from '@/components/ui/app-avatar'
-import { useAppBadges } from '@/context/AppBadgeContext'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
+import { useProfile } from '@/lib/hooks/useProfile'
 
 export default function ProfilePage() {
   const { user, updateUserMeta, updateProfile, loading } = useAuth()
-  const { profile, profileLoading, chat } = useAppBadges()
+  const { profile, loading: profileLoading } = useProfile()
   const [fullName, setFullName] = useState<string>('')
   const [saving, setSaving] = useState<boolean>(false)
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
@@ -206,10 +206,6 @@ export default function ProfilePage() {
                   </span>
                 </div>
               )}
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Unread Chats</span>
-                <Badge variant={chat > 0 ? 'default' : 'outline'}>{chat} total</Badge>
-              </div>
             </CardContent>
           </Card>
         </div>

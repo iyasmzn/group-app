@@ -3,16 +3,16 @@
 import Link from 'next/link'
 import { Home, Users, MessageCircle, Settings } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { useAppBadges } from '@/context/AppBadgeContext'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Badge } from '@/components/ui/badge'
 import { useEffect, useState } from 'react'
+import { useNotifications } from '@/context/notification/NotificationContext'
 
 export function AppBottombar() {
   const pathname = usePathname()
-  const { chat, groups } = useAppBadges()
+  const { unread } = useNotifications()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -20,10 +20,14 @@ export function AppBottombar() {
     setMounted(true)
   }, [])
 
+  console.log('BottomBar unread:', unread)
+
+  const chatUnread = Object.values(unread.chat || {}).reduce((sum, count) => sum + count, 0)
+
   const tabs = [
     { href: '/app/home', icon: Home, label: 'Home' },
-    { href: '/app/chat', icon: MessageCircle, label: 'Chat', badge: chat },
-    { href: '/app/groups', icon: Users, label: 'Groups', badge: groups },
+    { href: '/app/chat', icon: MessageCircle, label: 'Chat', badge: chatUnread },
+    { href: '/app/groups', icon: Users, label: 'Groups' },
     { href: '/app/settings', icon: Settings, label: 'Settings' },
   ]
 

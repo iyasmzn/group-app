@@ -5,12 +5,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { AppAvatar } from '@/components/ui/app-avatar'
 import Reveal from '@/components/animations/Reveal'
-import { useAppBadges } from '@/context/AppBadgeContext'
 import { ShineBorder } from '@/components/ui/shine-border'
 import { useRouter } from 'next/navigation'
+import { useProfile } from '@/lib/hooks/useProfile'
 
 export default function ProfileDetailPage() {
-  const { profile, profileLoading, user } = useAppBadges()
+  const { profile, loading: profileLoading, user } = useProfile()
   const router = useRouter()
 
   if (profileLoading) {

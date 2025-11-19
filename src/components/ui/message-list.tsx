@@ -3,10 +3,9 @@
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso'
 import { cn } from '@/lib/utils'
 import { formatDateDivider } from '@/lib/utils/format'
-import React, { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { ArrowDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useAppBadges } from '@/context/AppBadgeContext'
 import { MessageBubble } from '@/components/ui/message-bubble'
 import { groupMessageService } from '@/services/groupService/groupMessageService'
 
@@ -39,7 +38,6 @@ export function MessageList({ messages, currentUserId, height, width, groupId }:
   const [stickyDate, setStickyDate] = useState<string | null>(null)
   const [firstLoad, setFirstLoad] = useState(true)
   const prevIsBottomRef = useRef<boolean>(true)
-  const { resetGroupUnread, refresh } = useAppBadges()
 
   // Scroll ke bawah pada load pertama
   useEffect(() => {
@@ -52,11 +50,10 @@ export function MessageList({ messages, currentUserId, height, width, groupId }:
             align: 'end',
             behavior: 'auto',
           })
-          resetGroupUnread(groupId)
         }, 50)
       })
     }
-  }, [firstLoad, messages.length, groupId, resetGroupUnread])
+  }, [firstLoad, messages.length, groupId])
 
   // Deteksi pesan baru
   useEffect(() => {
@@ -80,7 +77,6 @@ export function MessageList({ messages, currentUserId, height, width, groupId }:
       console.log('Auto-scrolling to bottom')
       setUnreadCount(0)
       unreadRef.current = 0
-      resetGroupUnread(groupId)
     } else {
       setUnreadCount((prev) => prev + 1)
       unreadRef.current += 1
@@ -101,7 +97,6 @@ export function MessageList({ messages, currentUserId, height, width, groupId }:
       if (isBottom) {
         setUnreadCount(0)
         unreadRef.current = 0
-        resetGroupUnread(groupId)
       }
     }
   }
@@ -110,9 +105,6 @@ export function MessageList({ messages, currentUserId, height, width, groupId }:
     return () => {
       console.log('MessageList unmount → refresh badge state')
       groupMessageService.markAsRead(groupId, currentUserId!, new Date().toISOString())
-      setTimeout(() => {
-        refresh() // aman, hanya sekali saat unmount
-      }, 1000)
     }
   }, []) // kosong → tidak rerun saat atBottom berubah
 
@@ -182,7 +174,6 @@ export function MessageList({ messages, currentUserId, height, width, groupId }:
               setUnreadCount(0)
               unreadRef.current = 0
               setAtBottom(true)
-              resetGroupUnread(groupId)
             }}
             className={cn(
               'absolute bottom-16 right-4 flex items-center justify-center',
