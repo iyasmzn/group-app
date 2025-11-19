@@ -1,10 +1,17 @@
-"use client"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { useGroupBadges } from "@/context/GroupBadgeContext"
-import { EllipsisVertical, MessageCircle } from "lucide-react"
+'use client'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { useGroupBadges } from '@/context/GroupBadgeContext'
+import { EllipsisVertical, MessageCircle } from 'lucide-react'
 
 export function GroupTopbarMenu() {
-  const {unread} = useGroupBadges()
+  const { chat } = useGroupBadges()
 
   return (
     <DropdownMenu>
@@ -17,9 +24,9 @@ export function GroupTopbarMenu() {
         <DropdownMenuItem>
           <MessageCircle className="h-4 w-4 mr-2" />
           Chat
-          {unread > 0 && (
+          {chat > 0 && (
             <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
-              {unread}
+              {chat}
             </span>
           )}
         </DropdownMenuItem>
