@@ -8,6 +8,7 @@ import { ArrowDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MessageBubble } from '@/components/ui/message-bubble'
 import { groupMessageService } from '@/services/groupService/groupMessageService'
+import { useNotifications } from '@/context/notification/NotificationContext'
 
 type Message = {
   id: string
@@ -38,6 +39,7 @@ export function MessageList({ messages, currentUserId, height, width, groupId }:
   const [stickyDate, setStickyDate] = useState<string | null>(null)
   const [firstLoad, setFirstLoad] = useState(true)
   const prevIsBottomRef = useRef<boolean>(true)
+  const { resetCategory } = useNotifications()
 
   // Scroll ke bawah pada load pertama
   useEffect(() => {
@@ -74,9 +76,10 @@ export function MessageList({ messages, currentUserId, height, width, groupId }:
           behavior: 'smooth',
         })
       }, 50)
-      console.log('Auto-scrolling to bottom')
       setUnreadCount(0)
       unreadRef.current = 0
+      resetCategory('chat', groupId)
+      console.log('Scrolled to bottom due to own message or atBottom')
     } else {
       setUnreadCount((prev) => prev + 1)
       unreadRef.current += 1
@@ -97,6 +100,9 @@ export function MessageList({ messages, currentUserId, height, width, groupId }:
       if (isBottom) {
         setUnreadCount(0)
         unreadRef.current = 0
+
+        // Reset notification badge
+        resetCategory('chat', groupId)
       }
     }
   }

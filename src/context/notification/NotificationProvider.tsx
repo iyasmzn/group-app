@@ -41,12 +41,18 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         ...prev,
         [category]: { ...prev[category], [id]: count ?? 0 },
       }))
+      console.log(`Refreshed ${category} count for ${id}: ${count}`)
     }, 400)
 
     debounceRef.current.set(id, timeout)
+    console.log(`Scheduled refresh for ${category} in ${id}`)
   }
 
   function resetCategory(category: NotificationCategory, id: string) {
+    if (debounceRef.current.has(id)) {
+      clearTimeout(debounceRef.current.get(id)!)
+      debounceRef.current.delete(id)
+    }
     setUnread((prev) => ({
       ...prev,
       [category]: { ...prev[category], [id]: 0 },
