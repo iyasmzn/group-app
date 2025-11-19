@@ -57,7 +57,7 @@ export const MessageBubble = React.memo(({ msg, isOwn }: Props) => {
 
         <p
           className={cn(
-            'whitespace-pre-wrap break-words leading-snug',
+            'whitespace-pre-wrap wrap-break-word leading-snug',
             isEmojiOnly && cn(emojiSize, 'leading-tight')
           )}
         >
