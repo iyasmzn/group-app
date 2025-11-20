@@ -1,5 +1,4 @@
 import { supabase } from '@/lib/supabase/client'
-import { CoopLoan } from '@/types/coop'
 import { coopLedgerService } from './coopLedgerService'
 import { Database } from '@/types/database.types'
 

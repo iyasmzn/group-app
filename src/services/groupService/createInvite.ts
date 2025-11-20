@@ -7,7 +7,7 @@ export async function createInvite(groupId: string, groupRoleId: string) {
     group_id: groupId,
     group_role_id: groupRoleId,
     code,
-    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // expired 7 hari
+    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // expired 7 hari
   }).select().single()
 
   if (error) throw error
