@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/host.js && next dev --turbopack --hostname 0.0.0.0",
-    "build": "NEXT_DISABLE_TURBOPACK=1 next build",
+    "build": "next build",
     "start": "NEXT_DISABLE_TURBOPACK=1 next start -p 4000",
     "lint": "eslint",
     "test": "vitest"
