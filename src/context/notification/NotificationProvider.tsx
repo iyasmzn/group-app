@@ -32,7 +32,8 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         finance: 'get_finance_notif_count',
       }
 
-      const { data: count } = await supabase.rpc(rpcMap[category], {
+      // Use type assertion to bypass strict typing (temporary fix)
+      const { data: count } = await supabase.rpc(rpcMap[category] as any, {
         uid: user.id,
         gid: id,
       })
