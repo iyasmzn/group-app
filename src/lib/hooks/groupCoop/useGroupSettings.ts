@@ -8,7 +8,14 @@ export function useGroupSettings(groupId: string) {
     queryFn: async () => {
       const { data, error } = await coopSettingsService.getSettings(groupId)
       if (error) throw error
-      return data as CoopSettings | undefined
+      return (
+      data ?? {
+        group_id: groupId,
+        interest_rate: 0,
+        max_loan_amount: 0,
+        created_at: null,
+      }
+    ) as CoopSettings
     },
     enabled: !!groupId,
   })

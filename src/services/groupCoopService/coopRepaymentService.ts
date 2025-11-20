@@ -1,9 +1,12 @@
 import { supabase } from '@/lib/supabase/client'
-import { CoopRepayment } from '@/types/coop'
 import { coopLedgerService } from './coopLedgerService'
+import { Database } from '@/types/database.types'
+
+type RepaymentRow = Database["public"]["Tables"]["group_coop_repayments"]["Row"]
+type NewRepayment = Omit<RepaymentRow, "id" | "created_at">
 
 export const coopRepaymentService = {
-  async addRepayment(data: CoopRepayment) {
+  async addRepayment(data: NewRepayment) {
     const { data: repayment, error } = await supabase
       .from('group_coop_repayments')
       .insert([data])

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import { useCoopSettings } from '@/lib/hooks/groupCoop'
+import { toast } from 'sonner'
 
 export default function CoopSettingsPage() {
   const { groupId } = useParams() as { groupId: string }
@@ -32,7 +33,12 @@ export default function CoopSettingsPage() {
   }
 
   async function handleSave() {
-    await saveSettings(form)
+    try {
+      await saveSettings(form)
+      toast.success('Coop setting saved')
+    } catch (err) {
+      toast.error('Coop setting failed to save')
+    }
   }
 
   if (loading) {

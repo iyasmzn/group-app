@@ -1,62 +1,70 @@
-import { coopRepaymentService } from "@/services/groupCoopService";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { coopRepaymentService } from "@/services/groupCoopService"
+import { Database } from "@/types/database.types"
 
+// Ambil type row dari Supabase types
+type RepaymentRow = Database["public"]["Tables"]["group_coop_repayments"]["Row"]
+
+
+// ✅ Query repayments per loan
 export function useCoopRepayments(loanId: string) {
-  return useQuery({
+  return useQuery<RepaymentRow[]>({
     queryKey: ["coopRepayments", loanId],
-    queryFn: () => coopRepaymentService.getRepayments(loanId),
+    queryFn: async () => {
+      const { data, error } = await coopRepaymentService.getRepayments(loanId)
+      if (error) throw error
+      return data ?? []
+    },
     enabled: !!loanId,
-  });
+  })
 }
 
+// ✅ Mutation add repayment dengan optimistic update
 export function useAddRepayment() {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: coopRepaymentService.addRepayment,
 
-    // 🚀 Optimistic update
-    onMutate: async (newRepayment) => {
-      // Cancel query supaya tidak overwrite
-      await queryClient.cancelQueries({ queryKey: ["coopRepayments", newRepayment.loan_id] });
+    onMutate: async (newRepayment: Omit<RepaymentRow, "id" | "created_at">) => {
+      await queryClient.cancelQueries({ queryKey: ["coopRepayments", newRepayment.loan_id] })
 
-      // Snapshot data lama
-      const previousRepayments = queryClient.getQueryData<any[]>([
+      const previousRepayments = queryClient.getQueryData<RepaymentRow[]>([
         "coopRepayments",
         newRepayment.loan_id,
-      ]);
+      ])
 
-      // Update cache seolah-olah repayment sudah masuk
-      queryClient.setQueryData<any[]>(["coopRepayments", newRepayment.loan_id], (old = []) => [
-        { ...newRepayment, id: "temp-id", paid_at: new Date().toISOString() },
+      // inject repayment sementara ke cache
+      queryClient.setQueryData<RepaymentRow[]>(["coopRepayments", newRepayment.loan_id], (old = []) => [
+        {
+          ...newRepayment,
+          id: "temp-id", // temporary ID
+          created_at: new Date().toISOString(),
+        } as RepaymentRow,
         ...old,
-      ]);
+      ])
 
-      // Return snapshot untuk rollback kalau gagal
-      return { previousRepayments };
+      return { previousRepayments }
     },
 
-    // ✅ Kalau sukses, invalidate biar data sync dengan server
-    onSuccess: (res) => {
-      queryClient.invalidateQueries({ queryKey: ["coopRepayments", res.repayment?.loan_id] });
-      if (res.group_id) {
-        queryClient.invalidateQueries({ queryKey: ["coopLedger", res.group_id] });
-      }
-      queryClient.invalidateQueries({ queryKey: ["coopBalance", res.repayment?.loan_id] });
-    },
-
-    // ❌ Kalau gagal, rollback ke data lama
     onError: (_err, newRepayment, context) => {
       if (context?.previousRepayments) {
-        queryClient.setQueryData(["coopRepayments", newRepayment.loan_id], context.previousRepayments);
+        queryClient.setQueryData(["coopRepayments", newRepayment.loan_id], context.previousRepayments)
       }
     },
 
-    // 🎉 Cleanup setelah mutation selesai
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["coopRepayments", res.repayment?.loan_id] })
+      if (res.group_id) {
+        queryClient.invalidateQueries({ queryKey: ["coopLedger", res.group_id] })
+      }
+      queryClient.invalidateQueries({ queryKey: ["coopBalance", res.repayment?.loan_id] })
+    },
+
     onSettled: (res) => {
       if (res?.repayment?.loan_id) {
-        queryClient.invalidateQueries({ queryKey: ["coopRepayments", res.repayment.loan_id] });
+        queryClient.invalidateQueries({ queryKey: ["coopRepayments", res.repayment.loan_id] })
       }
     },
-  });
+  })
 }

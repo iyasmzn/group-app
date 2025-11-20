@@ -166,6 +166,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "group_coop_ledger_created_by_fkey1"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "group_coop_members"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "group_coop_ledger_group_id_fkey"
             columns: ["group_id"]
             isOneToOne: false
@@ -291,26 +298,26 @@ export type Database = {
         Row: {
           amount: number
           id: string
-          loan_id: string | null
+          loan_id: string
           note: string | null
           paid_at: string | null
-          paid_by: string | null
+          paid_by: string
         }
         Insert: {
           amount: number
           id?: string
-          loan_id?: string | null
+          loan_id: string
           note?: string | null
           paid_at?: string | null
-          paid_by?: string | null
+          paid_by: string
         }
         Update: {
           amount?: number
           id?: string
-          loan_id?: string | null
+          loan_id?: string
           note?: string | null
           paid_at?: string | null
-          paid_by?: string | null
+          paid_by?: string
         }
         Relationships: [
           {
