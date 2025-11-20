@@ -200,7 +200,7 @@ export type Database = {
           coop_member_id: string
           created_at: string | null
           due_date: string | null
-          group_id: string | null
+          group_id: string
           id: string
           interest_rate: number | null
           principal: number
@@ -212,7 +212,7 @@ export type Database = {
           coop_member_id: string
           created_at?: string | null
           due_date?: string | null
-          group_id?: string | null
+          group_id: string
           id?: string
           interest_rate?: number | null
           principal: number
@@ -224,7 +224,7 @@ export type Database = {
           coop_member_id?: string
           created_at?: string | null
           due_date?: string | null
-          group_id?: string | null
+          group_id?: string
           id?: string
           interest_rate?: number | null
           principal?: number

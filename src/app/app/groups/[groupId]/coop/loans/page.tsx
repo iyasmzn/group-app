@@ -1,9 +1,11 @@
 'use client'
 
 import { useParams } from 'next/navigation'
+import Link from 'next/link'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { motion } from 'framer-motion'
 import { useCoopLoans } from '@/lib/hooks/groupCoop'
+import { Button } from '@/components/ui/button'
 
 export default function CoopLoansPage() {
   const { groupId } = useParams() as { groupId: string }
@@ -15,7 +17,13 @@ export default function CoopLoansPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-4">
-      <h1 className="text-2xl font-bold mb-4">💰 Pinjaman Koperasi</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold">💰 Pinjaman Koperasi</h1>
+        {/* Tombol Add Loan */}
+        <Link href={`/app/groups/${groupId}/coop/loans/apply`}>
+          <Button>+ Tambah Pinjaman</Button>
+        </Link>
+      </div>
 
       {loans?.data?.length ? (
         loans.data.map((loan: any) => (

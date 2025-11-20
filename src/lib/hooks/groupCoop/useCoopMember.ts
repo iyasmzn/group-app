@@ -4,9 +4,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 export function useCoopMembers(groupId: string) {
   return useQuery({
     queryKey: ["coopMembers", groupId],
-    queryFn: () => coopMemberService.getCoopMembers(groupId),
+    queryFn: async () => {
+      const { data, error } = await coopMemberService.getCoopMembers(groupId)
+      if (error) throw error
+      return data ?? []   // ✅ selalu array
+    },
     enabled: !!groupId,
-  });
+  })
 }
 
 export function useAddCoopMember() {
