@@ -14,7 +14,7 @@ export const coopMemberService = {
       role,
       status,
       joined_at,
-      users (
+      profiles (
         id,
         full_name,
         avatar_url,

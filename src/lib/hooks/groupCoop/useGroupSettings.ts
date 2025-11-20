@@ -1,13 +1,19 @@
 import { coopSettingsService } from "@/services/groupCoopService";
+import { CoopSettings } from "@/types/coop";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useGroupSettings(groupId: string) {
-  return useQuery({
+  return useQuery<CoopSettings | undefined>({
     queryKey: ["coopSettings", groupId],
-    queryFn: () => coopSettingsService.getSettings(groupId),
+    queryFn: async () => {
+      const { data, error } = await coopSettingsService.getSettings(groupId)
+      if (error) throw error
+      return data as CoopSettings | undefined
+    },
     enabled: !!groupId,
-  });
+  })
 }
+
 
 export function useUpdateSettings(groupId: string) {
   const queryClient = useQueryClient();
@@ -38,4 +44,17 @@ export function useUpdateSettings(groupId: string) {
       queryClient.invalidateQueries({ queryKey: ["coopSettings", groupId] });
     },
   });
+}
+
+export function useCoopSettings(groupId: string) {
+  const query = useGroupSettings(groupId)
+  const mutation = useUpdateSettings(groupId)
+
+  return {
+    settings: query.data,
+    loading: query.isLoading,
+    error: query.error,
+    saveSettings: mutation.mutateAsync,
+    saving: mutation.isPending,
+  }
 }

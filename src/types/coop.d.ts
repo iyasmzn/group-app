@@ -29,7 +29,8 @@ export interface CoopRepayment {
 }
 
 export interface CoopSettings {
+  interest_rate: number | null
+  max_loan_amount: number | null
+  created_at?: string | null
   group_id: string
-  interest_rate: number
-  max_loan_amount: number
 }

@@ -20,10 +20,10 @@ export const coopDashboardService = {
         created_by,
         reference_type,
         reference_id,
-        group_coop_members!group_coop_ledger_created_by_fkey (
+        group_coop_members!group_coop_ledger_created_by_fkey1 (
           user_id,
           role,
-          users ( full_name, avatar_url )
+          profiles ( full_name, avatar_url )
         )
       `
       )
@@ -41,7 +41,7 @@ export const coopDashboardService = {
         role,
         status,
         user_id,
-        users (
+        profiles (
           full_name,
           avatar_url
         )
