@@ -1,22 +1,10 @@
-'use client'
+import { coopDashboardService } from "@/services/groupCoopService";
+import { useQuery } from "@tanstack/react-query";
 
-import { useState, useEffect } from 'react'
-import { getCoopDashboard } from '@/services/groupCoopService'
-
-export function useCoopDashboard(group_id: string) {
-  const [report, setReport] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-
-  async function fetchDashboard() {
-    setLoading(true)
-    const data = await getCoopDashboard(group_id)
-    setReport(data)
-    setLoading(false)
-  }
-
-  useEffect(() => {
-    fetchDashboard()
-  }, [group_id])
-
-  return { report, loading, refresh: fetchDashboard }
+export function useCoopDashboard(groupId: string) {
+  return useQuery({
+    queryKey: ["coopDashboard", groupId],
+    queryFn: () => coopDashboardService.fetchFullCoopDashboard(groupId),
+    enabled: !!groupId,
+  });
 }
