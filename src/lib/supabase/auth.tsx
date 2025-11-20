@@ -1,15 +1,11 @@
-"use client"
+'use client'
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from "react"
-import { supabase } from "@/lib/supabase/client"
-import type { User, Session, SupabaseClient } from "@supabase/supabase-js"
-import { Profile } from "@/types/profile"
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { supabase } from '@/lib/supabase/client'
+import type { User, Session, SupabaseClient } from '@supabase/supabase-js'
+import { Database } from '@/types/database.types'
+
+type Profile = Database['public']['Tables']['profiles']['Row']
 
 interface AuthContextType {
   user: User | null
@@ -20,8 +16,8 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>
   signInWithGoogle: () => Promise<void>
   signOut: () => Promise<void>
-  updateUserMeta: (data: Partial<User["user_metadata"]>) => Promise<void>
-  updateProfile: (data: Partial<Omit<Profile, "id">>) => Promise<void>
+  updateUserMeta: (data: Partial<User['user_metadata']>) => Promise<void>
+  updateProfile: (data: Partial<Omit<Profile, 'id'>>) => Promise<void>
   updateProfileHybrid?: (data: { full_name?: string; avatar_url?: string }) => Promise<void>
   getProfile: () => Promise<Profile | null>
 }
@@ -42,13 +38,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
 
     // subscribe to auth changes
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session)
-        setUser(session?.user ?? null)
-        setLoading(false)
-      }
-    )
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
 
     return () => {
       listener.subscription.unsubscribe()
@@ -74,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
+      provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
@@ -87,45 +81,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw new Error(error.message)
     setUser(null)
     setSession(null)
-    window.location.href = "/"
+    window.location.href = '/'
   }
 
-  const updateUserMeta = async (data: Partial<User["user_metadata"]>) => {
+  const updateUserMeta = async (data: Partial<User['user_metadata']>) => {
     const { error } = await supabase.auth.updateUser({ data })
     if (error) throw new Error(error.message)
   }
 
   const getProfile = async () => {
     if (!user) return null
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single()
+    const { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single()
     if (error) throw new Error(error.message)
     return data
   }
 
-  const updateProfile = async (data: Partial<Omit<Profile, "id">>) => {
-    if (!user) throw new Error("Not logged in")
-    const { error } = await supabase
-      .from("profiles")
-      .update(data)
-      .eq("id", user.id)
+  const updateProfile = async (data: Partial<Omit<Profile, 'id'>>) => {
+    if (!user) throw new Error('Not logged in')
+    const { error } = await supabase.from('profiles').update(data).eq('id', user.id)
     if (error) throw new Error(error.message)
   }
 
   const updateProfileHybrid = async (data: { full_name?: string; avatar_url?: string }) => {
-    if (!user) throw new Error("Not logged in")
+    if (!user) throw new Error('Not logged in')
 
-    const updates: Partial<Pick<Profile, "full_name" | "avatar_url">> = {}
+    const updates: Partial<Pick<Profile, 'full_name' | 'avatar_url'>> = {}
     if (data.full_name !== undefined) updates.full_name = data.full_name
     if (data.avatar_url !== undefined) updates.avatar_url = data.avatar_url
 
     const { error: profileError } = await supabase
-      .from("profiles")
+      .from('profiles')
       .update(updates)
-      .eq("id", user.id)
+      .eq('id', user.id)
     if (profileError) throw new Error(profileError.message)
 
     const { error: metaError } = await supabase.auth.updateUser({
@@ -161,6 +148,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export const useAuth = () => {
   const context = useContext(AuthContext)
-  if (!context) throw new Error("useAuth must be used inside AuthProvider")
+  if (!context) throw new Error('useAuth must be used inside AuthProvider')
   return context
 }
