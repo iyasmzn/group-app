@@ -96,6 +96,9 @@ function GroupsPage({ userId }: { userId: string }) {
         message_last_seen_at: g.message_last_seen_at,
         member_count: g.member_count,
         unreadCount: groupUnreadMap[g.id] ?? 0,
+        description: g.description ?? '',
+        description_updatedat: g.description_updatedat ?? null,
+        description_updatedby: g.description_updatedby ?? null,
       }))
 
       setGroups(enriched)
