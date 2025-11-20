@@ -3,12 +3,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '@/lib/supabase/auth'
 import { supabase } from '@/lib/supabase/client'
-import type { Profile } from '@/types/profile'
 import { useRealtime } from './useRealtime'
+import { Database } from '@/types/database.types'
+
+type ProfileRow = Database['public']['Tables']['profiles']['Row']
 
 export function useProfile() {
   const { user } = useAuth()
-  const [profile, setProfile] = useState<Profile | null>(null)
+  const [profile, setProfile] = useState<ProfileRow | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const filter = user?.id ? `id=eq.${user.id}` : undefined
@@ -38,12 +40,12 @@ export function useProfile() {
     fetchProfile()
   }, [user])
 
-  const handleUpdate = useCallback((newProfile: Profile) => setProfile(newProfile), [])
-  const handleInsert = useCallback((newProfile: Profile) => setProfile(newProfile), [])
+  const handleUpdate = useCallback((newProfile: ProfileRow) => setProfile(newProfile), [])
+  const handleInsert = useCallback((newProfile: ProfileRow) => setProfile(newProfile), [])
   const handleDelete = useCallback(() => setProfile(null), [])
 
   // realtime subscribe pakai hook generik
-  useRealtime<Profile>({
+  useRealtime<ProfileRow>({
     supabase,
     type: 'postgres_changes',
     table: 'profiles',
