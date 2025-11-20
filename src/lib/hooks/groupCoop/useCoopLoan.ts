@@ -19,8 +19,29 @@ export function useLoanDetail(loanId: string) {
 
 export function useApplyLoan() {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: coopLoanService.applyLoan,
+
+    onMutate: async (newLoan) => {
+      await queryClient.cancelQueries({ queryKey: ["coopLoans", newLoan.group_id] });
+
+      const previousLoans = queryClient.getQueryData<any[]>(["coopLoans", newLoan.group_id]);
+
+      queryClient.setQueryData<any[]>(["coopLoans", newLoan.group_id], (old = []) => [
+        { ...newLoan, id: "temp-id", status: "pending", created_at: new Date().toISOString() },
+        ...old,
+      ]);
+
+      return { previousLoans };
+    },
+
+    onError: (_err, newLoan, context) => {
+      if (context?.previousLoans) {
+        queryClient.setQueryData(["coopLoans", newLoan.group_id], context.previousLoans);
+      }
+    },
+
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ["coopLoans", res.loan?.group_id] });
       queryClient.invalidateQueries({ queryKey: ["coopLedger", res.loan?.group_id] });

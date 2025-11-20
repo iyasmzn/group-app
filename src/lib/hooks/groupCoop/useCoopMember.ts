@@ -11,9 +11,30 @@ export function useCoopMembers(groupId: string) {
 
 export function useAddCoopMember() {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: ({ groupId, userId }: { groupId: string; userId: string }) =>
       coopMemberService.addCoopMember(groupId, userId),
+
+    onMutate: async (vars) => {
+      await queryClient.cancelQueries({ queryKey: ["coopMembers", vars.groupId] });
+
+      const previousMembers = queryClient.getQueryData<any[]>(["coopMembers", vars.groupId]);
+
+      queryClient.setQueryData<any[]>(["coopMembers", vars.groupId], (old = []) => [
+        { id: "temp-id", user_id: vars.userId, role: "member", status: "active" },
+        ...old,
+      ]);
+
+      return { previousMembers };
+    },
+
+    onError: (_err, vars, context) => {
+      if (context?.previousMembers) {
+        queryClient.setQueryData(["coopMembers", vars.groupId], context.previousMembers);
+      }
+    },
+
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ["coopMembers", vars.groupId] });
     },
