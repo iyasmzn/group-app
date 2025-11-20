@@ -953,6 +953,8 @@ export type Database = {
           active_loans: number
           closed_loans: number
           outstanding_balance: number
+          total_credit: number
+          total_debit: number
           total_loans: number
           total_repayments: number
         }[]

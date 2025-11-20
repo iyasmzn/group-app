@@ -2,6 +2,17 @@ import { coopLedgerService } from "@/services/groupCoopService";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CoopLedgerEntry } from "@/types/coop";
 
+export type CoopSummary = {
+  total_loans: number;
+  total_repayments: number;
+  outstanding_balance: number;
+  active_loans: number;
+  closed_loans: number;
+  total_debit: number;
+  total_credit: number;
+};
+
+
 export function useCoopLedger(groupId: string) {
   return useQuery({
     queryKey: ["coopLedger", groupId],
@@ -11,12 +22,17 @@ export function useCoopLedger(groupId: string) {
 }
 
 export function useLedgerSummary(groupId: string) {
-  return useQuery({
+  return useQuery<CoopSummary | undefined>({
     queryKey: ["coopLedgerSummary", groupId],
-    queryFn: () => coopLedgerService.getSummary(groupId),
+    queryFn: async () => {
+      const { data, error } = await coopLedgerService.getSummary(groupId);
+      if (error) throw error;
+      return data?.[0] as CoopSummary | undefined;
+    },
     enabled: !!groupId,
   });
 }
+
 
 export function useAddLedgerEntry() {
   const queryClient = useQueryClient();
