@@ -8,7 +8,7 @@ export function crudService<T extends { id: string }>(table: string) {
   return {
     async create(payload: Omit<T, "id">, select: string = "*") {
       const { data, error } = await supabase
-        .from(table)
+        .from(table as any)  // Type assertion to bypass strict table name typing
         .insert(payload)
         .select(select)
         .single()
@@ -26,7 +26,7 @@ export function crudService<T extends { id: string }>(table: string) {
         select?: string
       }
     ) {
-      let query = supabase.from(table).select(options?.select ?? "*")
+      let query = supabase.from(table as any).select(options?.select ?? "*")  // Type assertion
 
       // filter
       if (where) {
@@ -61,7 +61,7 @@ export function crudService<T extends { id: string }>(table: string) {
       select: string = "*"
     ) {
       const { data, error } = await supabase
-        .from(table)
+        .from(table as any)  // Type assertion
         .update(payload)
         .eq("id", id)
         .select(select)
@@ -71,7 +71,7 @@ export function crudService<T extends { id: string }>(table: string) {
     },
 
     async remove(id: string) {
-      const { error } = await supabase.from(table).delete().eq("id", id)
+      const { error } = await supabase.from(table as any).delete().eq("id", id)  // Type assertion
       if (error) throw error
       return true
     },

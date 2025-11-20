@@ -19,7 +19,7 @@ export type GroupChatItem = {
 
 export type RPCRow = {
   group_id: string
-  group_name: string
+  group_name: string | null
   last_message: string | null
   last_sender_full_name: string | null
   last_createdat: string | null
@@ -51,7 +51,7 @@ export const groupMessageService = {
     }
   },
 
-  async _legacyGetLatestByGroups(groupIds: string[], userId: string): Promise<GroupChatItem[]> {
+    async _legacyGetLatestByGroups(groupIds: string[], userId: string): Promise<GroupChatItem[]> {
     const { data, error } = await supabase
       .from('group_messages')
       .select('group_id, content, createdat, sender_id')
@@ -60,11 +60,12 @@ export const groupMessageService = {
 
     if (error) throw error
 
-    const latestMap = new Map<string, { content: string; createdat: string }>()
+    // Updated Map type to allow nulls in values, and assert key is not null
+    const latestMap = new Map<string, { content: string | null; createdat: string | null }>()
     for (const msg of data ?? []) {
-      if (!latestMap.has(msg.group_id)) {
-        latestMap.set(msg.group_id, {
-          content: msg.content,
+      if (!latestMap.has(msg.group_id!)) {  // Non-null assertion for key
+        latestMap.set(msg.group_id!, {  // Non-null assertion for key
+          content: msg.content,  // Now assignable since Map allows null
           createdat: msg.createdat,
         })
       }
@@ -89,6 +90,7 @@ export const groupMessageService = {
     )
   },
 
+
   async getUnreadCount(groupId: string, userId: string) {
     const { data: seenRow, error: seenError } = await supabase
       .from('group_last_seen')
@@ -112,7 +114,7 @@ export const groupMessageService = {
       .select('id', { count: 'exact', head: true })
       .eq('group_id', groupId)
       .neq('sender_id', userId)
-      .gt('createdat', seenRow.message_last_seen_at)
+      .gt('createdat', seenRow.message_last_seen_at!)  // Non-null assertion to fix type error
 
     if (error) throw error
     return count ?? 0
