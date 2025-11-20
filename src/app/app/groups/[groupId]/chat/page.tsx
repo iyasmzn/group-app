@@ -24,7 +24,7 @@ type Message = {
 
 export default function GroupChatPage() {
   const { user } = useAuth()
-  const { groupId } = useParams()
+  const { groupId } = useParams() as { groupId: string }
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')
   const { resetCategory } = useNotifications()
@@ -44,7 +44,7 @@ export default function GroupChatPage() {
     }
     fetchMessages()
     // Reset unread count saat membuka chat
-    resetCategory('chat', groupId as string)
+    resetCategory('chat', groupId)
   }, [groupId])
 
   // ✅ Realtime listener
