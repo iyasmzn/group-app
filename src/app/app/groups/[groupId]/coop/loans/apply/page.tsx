@@ -7,8 +7,17 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
-
-// contoh: hook untuk ambil daftar anggota koperasi
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { AppAvatar } from '@/components/ui/app-avatar'
+import { Undo2 } from 'lucide-react'
+import Link from 'next/link'
+import Reveal from '@/components/animations/Reveal'
 
 export default function ApplyLoanForm() {
   const { groupId } = useParams() as { groupId: string }
@@ -35,73 +44,86 @@ export default function ApplyLoanForm() {
   }
 
   return (
-    <Card className="max-w-md mx-auto mt-6">
-      <CardHeader>
-        <CardTitle>Ajukan Pinjaman Baru</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Select anggota koperasi */}
-        <div className="space-y-2">
-          <Label htmlFor="coop_member_id">Anggota Koperasi</Label>
-          <select
-            id="coop_member_id"
-            name="coop_member_id"
-            value={form.coop_member_id}
-            onChange={handleChange}
-            className="w-full border rounded p-2"
-          >
-            <option value="">-- Pilih Anggota --</option>
-            {!loadingMembers &&
-              members?.map((m: any) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
-              ))}
-          </select>
-        </div>
+    <Reveal>
+      <Card className="max-w-md mx-auto mt-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Link href={`/app/groups/${groupId}/coop/loans`}>
+              <Undo2 />
+            </Link>
+            Ajukan Pinjaman Baru
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Select anggota koperasi */}
+          <div className="space-y-2">
+            <Label htmlFor="coop_member_id">Anggota Koperasi</Label>
+            <Select
+              value={form.coop_member_id}
+              onValueChange={(val) => setForm({ ...form, coop_member_id: val })}
+            >
+              <SelectTrigger id="coop_member_id" className="w-full">
+                <SelectValue placeholder="-- Pilih Anggota --" />
+              </SelectTrigger>
+              <SelectContent>
+                {!loadingMembers &&
+                  members?.map((m: any) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      <AppAvatar
+                        name={m.profiles.full_name}
+                        image={m.profiles?.avatar_url || undefined}
+                        size="xs"
+                      />
+                      {m.profiles.full_name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="principal">Jumlah Pinjaman</Label>
-          <Input
-            id="principal"
-            name="principal"
-            type="number"
-            value={form.principal}
-            onChange={handleChange}
-          />
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="principal">Jumlah Pinjaman</Label>
+            <Input
+              id="principal"
+              name="principal"
+              type="number"
+              value={form.principal}
+              onChange={handleChange}
+            />
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="term_months">Tenor (bulan)</Label>
-          <Input
-            id="term_months"
-            name="term_months"
-            type="number"
-            value={form.term_months}
-            onChange={handleChange}
-          />
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="term_months">Tenor (bulan)</Label>
+            <Input
+              id="term_months"
+              name="term_months"
+              type="number"
+              value={form.term_months}
+              onChange={handleChange}
+            />
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="interest_rate">Bunga (%)</Label>
-          <Input
-            id="interest_rate"
-            name="interest_rate"
-            type="number"
-            value={form.interest_rate}
-            onChange={handleChange}
-          />
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="interest_rate">Bunga (%)</Label>
+            <Input
+              id="interest_rate"
+              name="interest_rate"
+              type="number"
+              value={form.interest_rate}
+              onChange={handleChange}
+            />
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="note">Catatan</Label>
-          <Input id="note" name="note" type="text" value={form.note} onChange={handleChange} />
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="note">Catatan</Label>
+            <Input id="note" name="note" type="text" value={form.note} onChange={handleChange} />
+          </div>
 
-        <Button onClick={handleSubmit} disabled={applyLoan.isPending} className="w-full">
-          {applyLoan.isPending ? 'Mengajukan...' : 'Ajukan Pinjaman'}
-        </Button>
-      </CardContent>
-    </Card>
+          <Button onClick={handleSubmit} disabled={applyLoan.isPending} className="w-full">
+            {applyLoan.isPending ? 'Mengajukan...' : 'Ajukan Pinjaman'}
+          </Button>
+        </CardContent>
+      </Card>
+    </Reveal>
   )
 }

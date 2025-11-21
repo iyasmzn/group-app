@@ -13,6 +13,7 @@ import Link from 'next/link'
 import { Cog, Coins, Save, UserCog, Users2 } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatCurrency } from '@/lib/utils/format'
+import { ModeToggle } from '@/components/mode-toggle'
 
 export default function CoopSettingsPage() {
   const { groupId } = useParams() as { groupId: string }
@@ -137,13 +138,20 @@ export default function CoopSettingsPage() {
 
             {/* Tombol menuju halaman anggota */}
             <Link href={`/app/groups/${groupId}/coop/settings/members`}>
-              <Button className="w-full rainbow-border" variant="ghost">
+              <Button className="w-full" variant="primary-outline">
                 <Cog /> Kelola Anggota
               </Button>
             </Link>
           </CardContent>
         </Card>
       )}
+      {/* toggle theme */}
+      <Card className="rainbow-border">
+        <CardContent className="flex gap-2 flex-col items-center justify-center">
+          <ModeToggle />
+          <p> 🌞 Light / 🌚 Dark</p>
+        </CardContent>
+      </Card>
     </motion.div>
   )
 }
