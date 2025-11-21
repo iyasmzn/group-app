@@ -1,6 +1,7 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "./scrollbar.css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import './scrollbar.css';
+@import './custom.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -48,14 +49,14 @@
   --radius-xl: calc(var(--radius) + 4px);
   --animate-shine: shine var(--duration) infinite linear;
   @keyframes shine {
-  0% {
-    background-position: 0% 0%;
+    0% {
+      background-position: 0% 0%;
     }
-  50% {
-    background-position: 100% 100%;
+    50% {
+      background-position: 100% 100%;
     }
-  to {
-    background-position: 0% 0%;
+    to {
+      background-position: 0% 0%;
     }
   }
 }
@@ -147,8 +148,13 @@
 }
 
 @keyframes wiggle {
-  0%, 100% { transform: rotate(-6deg) }
-  50%      { transform: rotate(6deg) }
+  0%,
+  100% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(6deg);
+  }
 }
 
 @layer utilities {

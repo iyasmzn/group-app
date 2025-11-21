@@ -5,6 +5,8 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useParams } from 'next/navigation'
 import { useCoopDashboard, useLedgerSummary } from '@/lib/hooks/groupCoop'
+import Link from 'next/link'
+import { Settings2 } from 'lucide-react'
 
 export default function CoopPage() {
   const params = useParams()
@@ -37,7 +39,12 @@ export default function CoopPage() {
         className="flex items-center justify-between"
       >
         <h1 className="text-2xl font-bold">📊 Dashboard Koperasi</h1>
-        <Button variant="outline">Kelola Pengaturan</Button>
+        <Link href={`/app/groups/${groupId}/coop/settings`}>
+          <Button variant="outline">
+            <Settings2 />
+            Kelola Pengaturan
+          </Button>
+        </Link>
       </motion.div>
 
       {/* Status Cards */}

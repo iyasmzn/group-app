@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Home, Users, CreditCard, Settings, Undo2 } from 'lucide-react'
+import { Users, CreditCard, Settings, Undo2, ChartPie } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -20,8 +20,7 @@ export function CoopBottomNav() {
 
   const navItems = [
     { href: `/app/groups/${groupId}`, label: 'Back', icon: Undo2 },
-    { href: `/app/groups/${groupId}/coop`, label: 'Dashboard', icon: Home },
-    { href: `/app/groups/${groupId}/coop/members`, label: 'Anggota', icon: Users },
+    { href: `/app/groups/${groupId}/coop`, label: 'Dashboard', icon: ChartPie },
     { href: `/app/groups/${groupId}/coop/loans`, label: 'Pinjaman', icon: CreditCard, badge: 2 }, // contoh badge
     { href: `/app/groups/${groupId}/coop/settings`, label: 'Pengaturan', icon: Settings },
   ]
@@ -42,7 +41,8 @@ export function CoopBottomNav() {
           const active =
             pathname === href ||
             (href.includes('/settings') &&
-              pathname.startsWith(`/app/groups/${groupId}/coop/settings`))
+              pathname.startsWith(`/app/groups/${groupId}/coop/settings`)) ||
+            (href.includes('/loans') && pathname.startsWith(`/app/groups/${groupId}/coop/loans`))
 
           return (
             <Tooltip key={href}>
