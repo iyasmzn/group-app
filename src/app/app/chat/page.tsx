@@ -290,10 +290,10 @@ export default function ChatPage() {
                     exit={{ opacity: 0, x: 40 }}
                     transition={{ duration: 0.3 }}
                     className="space-y-2"
-                    drag="x"
-                    dragConstraints={{ left: 0, right: 0 }}
-                    onDrag={(e, info) => setDragX(info.offset.x)}
-                    onDragEnd={(_, info) => handleSwipe(info.offset.x)}
+                    // drag="x"
+                    // dragConstraints={{ left: 0, right: 0 }}
+                    // onDrag={(e, info) => setDragX(info.offset.x)}
+                    // onDragEnd={(_, info) => handleSwipe(info.offset.x)}
                   >
                     {groupChats.length === 0 ? (
                       <div className="text-center text-muted-foreground py-10">
