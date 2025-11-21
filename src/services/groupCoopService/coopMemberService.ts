@@ -14,6 +14,7 @@ export const coopMemberService = {
       role,
       status,
       joined_at,
+      user_id,
       profiles (
         id,
         full_name,
@@ -34,5 +35,11 @@ export const coopMemberService = {
       .maybeSingle()
 
     return !!data
+  },
+
+  async deleteCoopMember(group_id: string, user_id: string) {
+    return await supabase.from('group_coop_members').delete()
+      .eq('group_id', group_id)
+      .eq('user_id', user_id)
   },
 }

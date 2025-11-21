@@ -1,6 +1,6 @@
-"use client"
+'use client'
 
-import * as React from "react"
+import * as React from 'react'
 import {
   Command,
   CommandEmpty,
@@ -8,15 +8,15 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command"
-import { Button } from "@/components/ui/button"
-import { Profile } from "@/types/profile"
-import Reveal from "@/components/animations/Reveal"
-import { AppAvatar } from "@/components/ui/app-avatar"
+} from '@/components/ui/command'
+import { Button } from '@/components/ui/button'
+import { Profile } from '@/types/profile'
+import Reveal from '@/components/animations/Reveal'
+import { AppAvatar } from '@/components/ui/app-avatar'
 
 export type MemberOption = {
   user_id: string | null
-  full_name: string | null
+  full_name?: string | null
   profiles?: Partial<Profile> | null
 }
 
@@ -54,7 +54,11 @@ export function MemberMultiSelect({
                 className="flex items-center justify-between"
               >
                 <span className="flex items-center gap-2">
-                  <AppAvatar image={m.profiles?.avatar_url} name={m?.full_name || 'Member'} size="xs" />
+                  <AppAvatar
+                    image={m.profiles?.avatar_url}
+                    name={m?.full_name || 'Member'}
+                    size="xs"
+                  />
                   {m?.full_name}
                 </span>
               </CommandItem>
@@ -66,22 +70,19 @@ export function MemberMultiSelect({
       {selected.length > 0 && (
         <Reveal animation="fadeInUp">
           <div className="mt-2 rounded-md border p-2">
-            <div className="mb-2 text-secondary-foreground text-sm">Peserta Terpilih ({selected.length})</div>
+            <div className="mb-2 text-secondary-foreground text-sm">
+              Terpilih ({selected.length})
+            </div>
             <div className="flex flex-wrap gap-2">
               {selected.map((id) => {
                 const member = members.find((m) => m.user_id === id)
-                const displayName =
-                  member?.profiles?.full_name?.split(" ")[0] ?? id // 👈 ambil kata pertama
+                const displayName = member?.profiles?.full_name?.split(' ')[0] ?? id // 👈 ambil kata pertama
                 return (
                   <Reveal key={id} animation="zoomIn">
-                    <Button
-                      size="xs"
-                      variant="outline"
-                      onClick={() => toggle(id)}
-                    >
+                    <Button size="xs" variant="outline" onClick={() => toggle(id)}>
                       <AppAvatar
                         image={member?.profiles?.avatar_url}
-                        name={member?.full_name || "Member"}
+                        name={member?.full_name || 'Member'}
                         size="xs"
                       />
                       {displayName} ✕

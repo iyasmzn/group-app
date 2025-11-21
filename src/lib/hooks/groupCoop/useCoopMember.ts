@@ -44,3 +44,39 @@ export function useAddCoopMember() {
     },
   });
 }
+
+export function useRemoveCoopMember() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ groupId, userId }: { groupId: string; userId: string }) =>
+      coopMemberService.deleteCoopMember(groupId, userId),
+
+    onMutate: async (vars) => {
+      // Cancel query agar tidak bentrok
+      await queryClient.cancelQueries({ queryKey: ["coopMembers", vars.groupId] });
+
+      // Simpan state lama
+      const previousMembers = queryClient.getQueryData<any[]>(["coopMembers", vars.groupId]);
+
+      // Optimistik update: hapus member dari cache
+      queryClient.setQueryData<any[]>(["coopMembers", vars.groupId], (old = []) =>
+        old.filter((m) => m.user_id !== vars.userId)
+      );
+
+      return { previousMembers };
+    },
+
+    onError: (_err, vars, context) => {
+      // Rollback kalau gagal
+      if (context?.previousMembers) {
+        queryClient.setQueryData(["coopMembers", vars.groupId], context.previousMembers);
+      }
+    },
+
+    onSuccess: (_, vars) => {
+      // Pastikan data sinkron dengan server
+      queryClient.invalidateQueries({ queryKey: ["coopMembers", vars.groupId] });
+    },
+  });
+}
