@@ -1,54 +1,52 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import { useAuth } from "@/lib/supabase/auth";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import LoadingOverlay from "@/components/loading-overlay";
-import { toast } from "sonner";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Mail, Lock, Chrome, Home } from "lucide-react";
-import Image from "next/image";
-import Reveal from "@/components/animations/Reveal";
-import { ModeToggle } from "@/components/mode-toggle";
+import { useEffect, useState } from 'react'
+import { useAuth } from '@/lib/supabase/auth'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import LoadingOverlay from '@/components/loading-overlay'
+import { toast } from 'sonner'
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Mail, Lock, Chrome, Home } from 'lucide-react'
+import Image from 'next/image'
+import Reveal from '@/components/animations/Reveal'
+import { ModeToggle } from '@/components/mode-toggle'
 
 export default function LoginPage() {
-  const { signIn, signInWithGoogle, user } = useAuth();
-  const router = useRouter();
-  const [email, setEmail] = useState("grimsbyoloyo@gmail.com");
-  const [password, setPassword] = useState("grimsbyolo");
-  const [loading, setLoading] = useState(false);
+  const { signIn, signInWithGoogle, user } = useAuth()
+  const router = useRouter()
+  const [email, setEmail] = useState('grimsbyoloyo@gmail.com')
+  const [password, setPassword] = useState('grimsbyolo')
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    setLoading(true);
-    e.preventDefault();
+    setLoading(true)
+    e.preventDefault()
     try {
-      await signIn(email, password);
-      router.push("/app/home");
+      await signIn(email, password)
+      router.push('/app/home')
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong");
+      toast.error(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleGoogleLogin = async () => {
     try {
-      await signInWithGoogle();
+      await signInWithGoogle()
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong");
+      toast.error(err instanceof Error ? err.message : 'Something went wrong')
     }
-  };
+  }
 
   useEffect(() => {
     if (user) {
-      router.push("/app/home");
+      router.push('/app/home')
     }
-  }, [user, router]);
-
-  if (user) return null;
+  }, [user, router])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-cyan-400 dark:from-gray-900 dark:to-gray-800 p-4 transition-colors">
@@ -105,7 +103,10 @@ export default function LoginPage() {
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <Button type="submit" className="bg-primary text-primary-foreground hover:bg-primary/90">
+                  <Button
+                    type="submit"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90"
+                  >
                     Login
                   </Button>
                   <Link href="/signup" className="w-full">
@@ -144,5 +145,5 @@ export default function LoginPage() {
         </Card>
       </Reveal>
     </div>
-  );
+  )
 }
