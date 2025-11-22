@@ -49,7 +49,7 @@ export default function LoginPage() {
   }, [user, router])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-cyan-400 dark:from-gray-900 dark:to-gray-800 p-4 transition-colors">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-600 to-cyan-400 dark:from-gray-900 dark:to-gray-800 p-4 transition-colors">
       {loading && <LoadingOverlay />}
       <Reveal animation="fadeInUp" delay={0.1} className="flex justify-center w-full">
         <Card className="w-full max-w-md shadow-lg border border-border bg-card text-card-foreground backdrop-blur-md">
