@@ -3,18 +3,15 @@ import { GroupBadgeProvider } from '@/context/GroupBadgeContext'
 import { GroupSeenClient } from './GroupSeenClient'
 import { supabaseServer } from '@/lib/supabase/server'
 
-// ✅ generateMetadata jalan di server, langsung pakai supabaseServer
+// ✅ generateMetadata: params is now a Promise, so await it
 export async function generateMetadata({
   params,
 }: {
-  params: { groupId: string }
+  params: Promise<{ groupId: string }>
 }): Promise<Metadata> {
+  const { groupId } = await params // Await to get the actual params object
   const supabase = await supabaseServer()
-  const { data, error } = await supabase
-    .from('groups')
-    .select('name')
-    .eq('id', params.groupId)
-    .single()
+  const { data, error } = await supabase.from('groups').select('name').eq('id', groupId).single()
 
   if (error || !data) {
     return { title: 'Group App' }
@@ -26,15 +23,15 @@ export async function generateMetadata({
   }
 }
 
-// ✅ params langsung object, tidak perlu Promise
+// ✅ Layout: params is now a Promise, so await it
 export default async function GroupLayout({
   children,
   params,
 }: {
   children: React.ReactNode
-  params: { groupId: string }
+  params: Promise<{ groupId: string }>
 }) {
-  const { groupId } = params
+  const { groupId } = await params // Await to get the actual params object
 
   return (
     <GroupBadgeProvider groupId={groupId}>
