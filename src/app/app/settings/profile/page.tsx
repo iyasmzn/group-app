@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useAuth } from '@/lib/supabase/auth'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { uploadToCloudinary } from '@/lib/cloudinary'
@@ -16,6 +15,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { useProfile } from '@/lib/hooks/useProfile'
+import { useAuth } from '@/context/AuthContext'
 
 export default function ProfilePage() {
   const { user, updateUserMeta, updateProfile, loading } = useAuth()
@@ -29,9 +29,10 @@ export default function ProfilePage() {
   }
 
   const handleUpdate = async (): Promise<void> => {
+    if (!user) return
     setSaving(true)
     try {
-      await updateProfile({ full_name: fullName })
+      await updateProfile(user.id, { full_name: fullName })
       await updateUserMeta({ full_name: fullName })
       toast.success('Profile updated')
     } catch (err) {
@@ -42,6 +43,7 @@ export default function ProfilePage() {
   }
 
   const handleUploadAvatar = async (files: File[]): Promise<void> => {
+    if (!user) return
     if (!files.length) return
     setIsProcessing(true)
     try {
@@ -58,7 +60,7 @@ export default function ProfilePage() {
           })
         }
 
-        await updateProfile({
+        await updateProfile(user.id, {
           avatar_url: result.secure_url,
           avatar_public_id: result.public_id,
         })
@@ -77,6 +79,7 @@ export default function ProfilePage() {
   }
 
   const handleRemoveAvatar = async (): Promise<void> => {
+    if (!user) return
     setIsProcessing(true)
     try {
       const oldPublicId = user?.user_metadata?.avatar_public_id as string | undefined
@@ -88,7 +91,7 @@ export default function ProfilePage() {
         })
       }
 
-      await updateProfile({ avatar_url: null, avatar_public_id: null })
+      await updateProfile(user.id, { avatar_url: null, avatar_public_id: null })
       await updateUserMeta({ avatar_url: null, avatar_public_id: null })
 
       toast.success('Avatar removed')

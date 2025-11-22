@@ -1,6 +1,5 @@
 'use client'
 
-import { useAuth } from '@/lib/supabase/auth'
 import Link from 'next/link'
 import { LogOut, Bell, Shield, Info, Palette, User } from 'lucide-react'
 import { motion } from 'framer-motion'
@@ -8,6 +7,7 @@ import PageWrapper from '@/components/page-wrapper'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AppAvatar } from '@/components/ui/app-avatar'
 import { useProfile } from '@/lib/hooks/useProfile'
+import { useAuth } from '@/context/AuthContext'
 
 export default function SettingsPage() {
   const { signOut } = useAuth()

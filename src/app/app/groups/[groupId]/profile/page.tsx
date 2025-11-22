@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { useAuth } from '@/lib/supabase/auth'
 import {
   Settings,
   UserPlus2,
@@ -25,7 +24,7 @@ import { Input } from '@/components/ui/input'
 import { groupService } from '@/services/groupService/groupService'
 import { Skeleton } from '@/components/ui/skeleton'
 import InviteLink from './components/invite-link'
-import { GroupData, GroupMember } from '@/types/group.type'
+import { GroupData, GroupMember, GroupMemberOpt } from '@/types/group.type'
 import {
   Dialog,
   DialogContent,
@@ -35,11 +34,13 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { AppAvatar } from '@/components/ui/app-avatar'
+import { useAuth } from '@/context/AuthContext'
+import { supabase } from '@/lib/supabase/client'
 
 export default function GroupProfilePage() {
-  const { user, supabase } = useAuth()
+  const { user } = useAuth()
   const { update } = groupService
-  const { groupId } = useParams()
+  const { groupId } = useParams() as { groupId: string }
   const [group, setGroup] = useState<GroupData | null>(null)
   const [groupName, setGroupName] = useState('')
   const [groupNameEdit, setGroupNameEdit] = useState(false)
@@ -81,8 +82,38 @@ export default function GroupProfilePage() {
       if (error) {
         toast.error(error?.message || 'Error getting group detail data.')
       } else if (data) {
-        setGroup(data)
-        setGroupName(data.name)
+        const mapped: GroupData = {
+          ...data,
+          owner: data.owner
+            ? {
+                ...data.owner,
+                created_at: data.owner.created_at ?? undefined,
+                avatar_public_id: data.owner.avatar_public_id ?? undefined,
+              }
+            : null,
+
+          desc_updatedby: data.desc_updatedby
+            ? {
+                ...data.desc_updatedby,
+                created_at: data.desc_updatedby.created_at ?? undefined,
+                avatar_public_id: data.desc_updatedby.avatar_public_id ?? undefined,
+              }
+            : null,
+
+          group_members:
+            data.group_members?.map((m: any) => ({
+              ...m,
+              group_roles: m.group_roles
+                ? {
+                    ...m.group_roles,
+                    code: m.group_roles.code ?? undefined, // ⚠️ null → undefined
+                  }
+                : null,
+            })) ?? null,
+        }
+
+        setGroup(mapped)
+        setGroupName(mapped.name)
       }
     }
     fetchGroup()
@@ -230,7 +261,7 @@ export default function GroupProfilePage() {
             </p>
           </div>
           <ul className="divide-y">
-            {group?.group_members?.map((m: GroupMember) => (
+            {group?.group_members?.map((m: GroupMemberOpt) => (
               <li
                 key={m?.profiles?.id}
                 className="flex items-center justify-between p-4 hover:bg-accent"

@@ -1,10 +1,10 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { useAuth } from '@/lib/supabase/auth'
 import { supabase } from '@/lib/supabase/client'
 import { useRealtime } from './useRealtime'
 import { Database } from '@/types/database.types'
+import { useAuth } from '@/context/AuthContext'
 
 type ProfileRow = Database['public']['Tables']['profiles']['Row']
 

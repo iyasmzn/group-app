@@ -10,7 +10,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { useAuth } from '@/lib/supabase/auth'
 import { longDate } from '@/lib/utils/format'
 import { copyToClipboard } from '@/lib/utils/clipboard'
 import { createInvite } from '@/services/groupService/createInvite'
@@ -19,13 +18,13 @@ import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Database } from '@/types/database.types'
+import { supabase } from '@/lib/supabase/client'
 
 type GroupInvite = Database['public']['Tables']['group_invites']['Row']
 export default function InviteLink() {
   const [open, setOpen] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
   const { groupId } = useParams() as { groupId: string }
-  const { supabase } = useAuth()
   const [invite, setInvite] = useState<GroupInvite | null>(null)
   const [inviteLink, setInviteLink] = useState<string>('')
 

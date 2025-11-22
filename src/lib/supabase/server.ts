@@ -1,13 +1,23 @@
-import { createClient } from "@supabase/supabase-js"
+import { cookies } from 'next/headers'
+import { createServerClient } from '@supabase/ssr'
+import type { Database } from '@/types/database.types'
 
-export const supabaseServer = () => {
-  return createClient(
+export async function supabaseServer() {
+  const cookieStore = await cookies() 
+
+  return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!, // hanya untuk server
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options)
+          })
+        },
       },
     }
   )

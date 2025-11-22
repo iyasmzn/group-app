@@ -1,48 +1,40 @@
 import type { Metadata } from 'next'
 import { GroupBadgeProvider } from '@/context/GroupBadgeContext'
 import { GroupSeenClient } from './GroupSeenClient'
+import { supabaseServer } from '@/lib/supabase/server'
 
-// ✅ generateMetadata jalan di server, jadi bisa fetch langsung
+// ✅ generateMetadata jalan di server, langsung pakai supabaseServer
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ groupId: string }>
+  params: { groupId: string }
 }): Promise<Metadata> {
-  const { groupId } = await params
+  const supabase = await supabaseServer()
+  const { data, error } = await supabase
+    .from('groups')
+    .select('name')
+    .eq('id', params.groupId)
+    .single()
 
-  // fetch data grup dari Supabase REST API
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/groups?id=eq.${groupId}&select=name`,
-    {
-      headers: {
-        apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      },
-      cache: 'no-store', // biar selalu fresh
-    }
-  )
-
-  if (!res.ok) {
+  if (error || !data) {
     return { title: 'Group App' }
   }
 
-  const data = await res.json()
-  const group = data?.[0]
-
   return {
-    title: group?.name ? `${group.name} – Group App` : 'Group App',
-    description: group?.name ? `Halaman grup ${group.name} di aplikasi Group App` : 'Group App',
+    title: `${data.name} – Group App`,
+    description: `Halaman grup ${data.name} di aplikasi Group App`,
   }
 }
 
-// ✅ params sekarang Promise
+// ✅ params langsung object, tidak perlu Promise
 export default async function GroupLayout({
   children,
   params,
 }: {
   children: React.ReactNode
-  params: Promise<{ groupId: string }>
+  params: { groupId: string }
 }) {
-  const { groupId } = await params // ✅ tunggu promise
+  const { groupId } = params
 
   return (
     <GroupBadgeProvider groupId={groupId}>
@@ -51,3 +43,6 @@ export default async function GroupLayout({
     </GroupBadgeProvider>
   )
 }
+
+// ✅ Tambahkan revalidate untuk kontrol cache metadata
+export const revalidate = 60 // metadata akan di-refresh setiap 60 detik

@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useMemo, useState, useCallback } from 'react'
-import { useAuth } from '@/lib/supabase/auth'
 import { supabase } from '@/lib/supabase/client'
 import { AppTopbar } from '@/components/app/topbar'
 import PageWrapper from '@/components/page-wrapper'
@@ -17,6 +16,7 @@ import { cn } from '@/lib/utils'
 import LoadingOverlay from '@/components/loading-overlay'
 import { useRealtime } from '@/lib/hooks/useRealtime'
 import { useNotifications } from '@/context/notification/NotificationContext'
+import { useAuth } from '@/context/AuthContext'
 
 type GroupChatItem = {
   id: string

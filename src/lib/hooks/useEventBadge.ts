@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react"
-import { useAuth } from "@/lib/supabase/auth"
+import { supabase } from "../supabase/client"
 
 export function useEventBadge(groupId?: string) {
-  const { supabase } = useAuth()
   const [count, setCount] = useState(0)
 
   useEffect(() => {

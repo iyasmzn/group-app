@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useAuth } from '@/lib/supabase/auth'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import LoadingOverlay from '@/components/loading-overlay'
@@ -13,6 +12,7 @@ import { Mail, Lock, Chrome, Home } from 'lucide-react'
 import Image from 'next/image'
 import Reveal from '@/components/animations/Reveal'
 import { ModeToggle } from '@/components/mode-toggle'
+import { useAuth } from '@/context/AuthContext'
 
 export default function LoginPage() {
   const { signIn, signInWithGoogle, user } = useAuth()

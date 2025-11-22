@@ -1,23 +1,39 @@
-"use client"
+'use client'
 
-import { useCallback, useEffect, useState } from "react"
-import Reveal from "@/components/animations/Reveal"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Button } from "@/components/ui/button"
-import { attendanceService, GroupEventAttendance } from "@/services/eventService/attendanceService"
-import { toast } from "sonner"
-import { longDateTime } from "@/lib/utils/format"
-import LoadingOverlay from "@/components/loading-overlay"
-import { cn } from "@/lib/utils"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import { Pencil, Trash2 } from "lucide-react"
-import { ExcuseDialog } from "@/components/app/events/ExuseDialog"
-import { AddParticipantDialog } from "@/components/app/events/AddParticipantDialog"
-import { useGroupMembers } from "@/lib/hooks/useGroupMembers"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import { useAuth } from "@/lib/supabase/auth"
-import { AppAvatar } from "@/components/ui/app-avatar"
+import { useCallback, useEffect, useState } from 'react'
+import Reveal from '@/components/animations/Reveal'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
+import { attendanceService, GroupEventAttendance } from '@/services/eventService/attendanceService'
+import { toast } from 'sonner'
+import { longDateTime } from '@/lib/utils/format'
+import LoadingOverlay from '@/components/loading-overlay'
+import { cn } from '@/lib/utils'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
+import { Pencil, Trash2 } from 'lucide-react'
+import { ExcuseDialog } from '@/components/app/events/ExuseDialog'
+import { AddParticipantDialog } from '@/components/app/events/AddParticipantDialog'
+import { useGroupMembers } from '@/lib/hooks/useGroupMembers'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import { AppAvatar } from '@/components/ui/app-avatar'
+import { useAuth } from '@/context/AuthContext'
 
 export default function PesertaTab({
   eventId,
@@ -28,12 +44,12 @@ export default function PesertaTab({
   groupId: string
   roleCode: string
 }) {
-  const {user} = useAuth()
+  const { user } = useAuth()
   const [attendees, setAttendees] = useState<GroupEventAttendance[]>([])
   const [loading, setLoading] = useState(true)
   const [updateLoading, setUpdateLoading] = useState(false)
-  const [filter, setFilter] = useState<"all" | GroupEventAttendance["status"]>("all")
-  const [search, setSearch] = useState("")
+  const [filter, setFilter] = useState<'all' | GroupEventAttendance['status']>('all')
+  const [search, setSearch] = useState('')
   const { members: groupMembers, loading: membersLoading } = useGroupMembers(groupId)
   // ambil semua user_id peserta yang sudah terdaftar
   const existingIds = new Set(attendees.map((a) => a.user_id).filter(Boolean))
@@ -42,12 +58,15 @@ export default function PesertaTab({
 
   const fetchAttendees = useCallback(async () => {
     try {
-      const data = await attendanceService.read({ event_id: eventId }, {
-        select: "*, profiles(full_name, avatar_url)"
-      })
+      const data = await attendanceService.read(
+        { event_id: eventId },
+        {
+          select: '*, profiles(full_name, avatar_url)',
+        }
+      )
       setAttendees(data)
     } catch (err) {
-      console.error("Error fetching attendees:", err)
+      console.error('Error fetching attendees:', err)
     } finally {
       setLoading(false)
     }
@@ -59,16 +78,16 @@ export default function PesertaTab({
 
   const handleMark = async (
     id: string,
-    status: GroupEventAttendance["status"],
+    status: GroupEventAttendance['status'],
     notes?: string | null
   ) => {
     try {
       setUpdateLoading(true)
       await attendanceService.markAttendance(id, status, notes)
-      toast.success("Update success")
+      toast.success('Update success')
       fetchAttendees()
     } catch (err) {
-      toast.error("Update Failed")
+      toast.error('Update Failed')
       console.log(err)
     } finally {
       setUpdateLoading(false)
@@ -86,38 +105,29 @@ export default function PesertaTab({
   }
 
   if (attendees.length === 0) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        Belum ada peserta yang terdaftar.
-      </p>
-    )
+    return <p className="text-sm text-muted-foreground">Belum ada peserta yang terdaftar.</p>
   }
 
   // mapping warna status (badge ringkas)
-  const statusColor: Record<GroupEventAttendance["status"], string> = {
-    present: "bg-green-500",
-    absent: "bg-red-500",
-    late: "bg-yellow-500",
-    excused: "bg-blue-500",
+  const statusColor: Record<GroupEventAttendance['status'], string> = {
+    present: 'bg-green-500',
+    absent: 'bg-red-500',
+    late: 'bg-yellow-500',
+    excused: 'bg-blue-500',
   }
 
-  const statusLabel: Record<GroupEventAttendance["status"], string> = {
-    present: "Hadir",
-    absent: "Tidak Hadir",
-    late: "Terlambat",
-    excused: "Izin",
+  const statusLabel: Record<GroupEventAttendance['status'], string> = {
+    present: 'Hadir',
+    absent: 'Tidak Hadir',
+    late: 'Terlambat',
+    excused: 'Izin',
   }
 
-  const statusOrder: GroupEventAttendance["status"][] = [
-    "present",
-    "late",
-    "excused",
-    "absent",
-  ]
+  const statusOrder: GroupEventAttendance['status'][] = ['present', 'late', 'excused', 'absent']
 
   // filter + search + sort
   const filteredAttendees = attendees
-    .filter((a) => (filter === "all" ? true : a.status === filter))
+    .filter((a) => (filter === 'all' ? true : a.status === filter))
     .filter((a) => {
       const name = a.display_name || a.profiles?.full_name || `User ${a.user_id}`
       return name.toLowerCase().includes(search.toLowerCase())
@@ -134,7 +144,7 @@ export default function PesertaTab({
       return acc
     },
     { all: 0, present: 0, absent: 0, late: 0, excused: 0 } as Record<
-      "all" | GroupEventAttendance["status"],
+      'all' | GroupEventAttendance['status'],
       number
     >
   )
@@ -146,24 +156,19 @@ export default function PesertaTab({
       {/* Header: total + filter + search */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div className="flex justify-between items-end gap-2">
-          <p className="text-sm font-medium">
-            Total Peserta: {counts.all}
-          </p>
-          {
-            !membersLoading && roleCode === "admin" && 
-              <AddParticipantDialog
-                eventId={eventId}
-                members={availableMembers.map((m) => ({
-                  user_id: m.user_id,
-                  full_name: m.profiles?.full_name ?? null,
-                  profiles: m.profiles,
-                }))}
-                onAdded={fetchAttendees}
-                existingNames={attendees.map(
-                  (a) => a.display_name || a.profiles?.full_name || ""
-                )}
-              />
-          }
+          <p className="text-sm font-medium">Total Peserta: {counts.all}</p>
+          {!membersLoading && roleCode === 'admin' && (
+            <AddParticipantDialog
+              eventId={eventId}
+              members={availableMembers.map((m) => ({
+                user_id: m.user_id,
+                full_name: m.profiles?.full_name ?? null,
+                profiles: m.profiles,
+              }))}
+              onAdded={fetchAttendees}
+              existingNames={attendees.map((a) => a.display_name || a.profiles?.full_name || '')}
+            />
+          )}
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Input
@@ -174,7 +179,7 @@ export default function PesertaTab({
           />
           <Select
             value={filter}
-            onValueChange={(v: "all" | GroupEventAttendance["status"]) => setFilter(v)}
+            onValueChange={(v: 'all' | GroupEventAttendance['status']) => setFilter(v)}
           >
             <SelectTrigger className="w-full sm:w-[200px]">
               <SelectValue placeholder="Filter status" />
@@ -203,10 +208,7 @@ export default function PesertaTab({
                   {/* Badge ringkas */}
                   <span className="flex items-center gap-1 text-xs">
                     <span
-                      className={cn(
-                        "inline-block w-2 h-2 rounded-full",
-                        statusColor[a.status]
-                      )}
+                      className={cn('inline-block w-2 h-2 rounded-full', statusColor[a.status])}
                     />
                     {statusLabel[a.status]}
                   </span>
@@ -218,7 +220,7 @@ export default function PesertaTab({
                 </div>
 
                 {/* 👇 Notes tampil di bawah jika ada */}
-                {a.status === "excused" && (
+                {a.status === 'excused' && (
                   <div className="flex items-center gap-2 text-xs text-muted-foreground ml-8">
                     {a.notes ? (
                       <>
@@ -227,7 +229,7 @@ export default function PesertaTab({
                           roleCode={roleCode}
                           canEdit={a.user_id === user?.id}
                           initialNotes={a.notes}
-                          onSave={(notes) => handleMark(a.id, "excused", notes)}
+                          onSave={(notes) => handleMark(a.id, 'excused', notes)}
                           trigger={
                             <button className="text-primary hover:underline flex items-center gap-1">
                               <Pencil className="w-3 h-3" /> Edit
@@ -244,14 +246,14 @@ export default function PesertaTab({
 
               {/* Tombol aksi */}
               <div className="flex flex-wrap sm:flex-nowrap gap-2">
-                {roleCode === "admin" ? (
+                {roleCode === 'admin' ? (
                   // Admin bisa semua
                   <>
-                    {(["present", "absent", "late"] as const).map((s) => (
+                    {(['present', 'absent', 'late'] as const).map((s) => (
                       <Button
                         key={s}
                         size="sm"
-                        variant={a.status === s ? "default" : "outline"}
+                        variant={a.status === s ? 'default' : 'outline'}
                         onClick={() => handleMark(a.id, s, null)}
                         className="flex-1 sm:flex-none"
                       >
@@ -263,14 +265,14 @@ export default function PesertaTab({
                       roleCode={roleCode}
                       canEdit={a.user_id === user?.id} // hanya dirinya sendiri
                       initialNotes={a.notes}
-                      onSave={(notes) => handleMark(a.id, "excused", notes)}
+                      onSave={(notes) => handleMark(a.id, 'excused', notes)}
                       trigger={
                         <Button
                           size="sm"
-                          variant={a.status === "excused" ? "default" : "outline"}
+                          variant={a.status === 'excused' ? 'default' : 'outline'}
                           className="flex-1 sm:flex-none"
                         >
-                          {statusLabel["excused"]}
+                          {statusLabel['excused']}
                         </Button>
                       }
                     />
@@ -297,10 +299,10 @@ export default function PesertaTab({
                               try {
                                 setUpdateLoading(true)
                                 await attendanceService.remove(a.id)
-                                toast.success("Peserta dihapus")
+                                toast.success('Peserta dihapus')
                                 fetchAttendees()
                               } catch (err) {
-                                toast.error("Gagal menghapus peserta")
+                                toast.error('Gagal menghapus peserta')
                                 console.error(err)
                               } finally {
                                 setUpdateLoading(false)
@@ -316,25 +318,23 @@ export default function PesertaTab({
                 ) : (
                   // Non-admin hanya bisa izin
                   <>
-                  {
-                    a.user_id === user?.id && (
+                    {a.user_id === user?.id && (
                       <ExcuseDialog
                         roleCode={roleCode}
                         canEdit={a.user_id === user?.id}
                         initialNotes={a.notes}
-                        onSave={(notes) => handleMark(a.id, "excused", notes)}
+                        onSave={(notes) => handleMark(a.id, 'excused', notes)}
                         trigger={
                           <Button
                             size="sm"
-                            variant={a.status === "excused" ? "default" : "outline"}
+                            variant={a.status === 'excused' ? 'default' : 'outline'}
                             className="flex-1 sm:flex-none"
                           >
-                            {statusLabel["excused"]}
+                            {statusLabel['excused']}
                           </Button>
                         }
                       />
-                    )
-                  }
+                    )}
                   </>
                 )}
               </div>

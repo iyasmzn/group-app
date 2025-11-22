@@ -13,7 +13,7 @@ import {
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
-import { useAuth } from '@/lib/supabase/auth'
+import { useAuth } from '@/context/AuthContext'
 import { longDateTime } from '@/lib/utils/format'
 import { groupService } from '@/services/groupService/groupService'
 import { GroupData } from '@/types/group.type'
@@ -28,9 +28,9 @@ type DescriptionCardProps = {
 export default function DescriptionCard({ group }: DescriptionCardProps) {
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
-  const [descriptionFinal, setDescriptionFinal] = useState('')
-  const [description, setDescription] = useState('')
-  const [descriptionUpdatedat, setDescriptionUpdatedat] = useState<Date | null>(null)
+  const [descriptionFinal, setDescriptionFinal] = useState<string | null>('')
+  const [description, setDescription] = useState<string | null>('')
+  const [descriptionUpdatedat, setDescriptionUpdatedat] = useState<Date | string | null>(null)
   const [descriptionUpdatedby, setDescriptionUpdatedby] = useState<string | null>('')
   const { update } = groupService
   const { user } = useAuth()
@@ -66,7 +66,7 @@ export default function DescriptionCard({ group }: DescriptionCardProps) {
 
     await update(group.id, {
       description: description,
-      description_updatedat: now,
+      description_updatedat: now.toISOString(),
       description_updatedby: user?.id,
     })
       .then((res) => {

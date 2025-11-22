@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { ModeToggle } from '../mode-toggle'
-import { useAuth } from '@/lib/supabase/auth'
 import { usePathname } from 'next/navigation'
 import { ChevronLeft } from 'lucide-react'
 import React from 'react'
@@ -16,6 +15,7 @@ import {
 import BackButton from '../back-button'
 import { AppAvatar } from '../ui/app-avatar'
 import { useProfile } from '@/lib/hooks/useProfile'
+import { useAuth } from '@/context/AuthContext'
 
 type MobileTopbarProps = {
   titleSlot?: React.ReactNode // slot untuk menerima component dari props

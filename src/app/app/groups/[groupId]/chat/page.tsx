@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { useAuth } from '@/lib/supabase/auth'
 import { supabase } from '@/lib/supabase/client'
 import { useParams } from 'next/navigation'
 import { ChatShell } from './ChatShell'
@@ -9,6 +8,7 @@ import ChatInput from '@/components/app/chat-input'
 import { MessageList } from '@/components/ui/message-list'
 import { generateId } from '@/lib/utils/helper'
 import { useNotifications } from '@/context/notification/NotificationContext'
+import { useAuth } from '@/context/AuthContext'
 
 type Message = {
   id: string

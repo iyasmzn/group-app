@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react"
-import { useAuth } from "@/lib/supabase/auth"
 import { GroupData } from "@/types/group.type"
 import { useNotifications } from "@/context/notification/NotificationContext"
 import { groupService } from "@/services/groupService/groupService"
+import { supabase } from "../supabase/client"
 
 export type LastGroupState = {
   id: string
@@ -16,7 +16,6 @@ export type LastGroupState = {
 
 
 export function useGroupData(groupId?: string) {
-  const { supabase } = useAuth()
   const [groupData, setGroupData] = useState<GroupData | null>(null)
 
   useEffect(() => {

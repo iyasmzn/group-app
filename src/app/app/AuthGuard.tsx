@@ -1,18 +1,9 @@
-"use client"
+'use client'
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useAuth } from "@/lib/supabase/auth"
+import { useAuth } from '@/context/AuthContext'
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.replace("/login")
-    }
-  }, [user, loading, router])
 
   if (loading) {
     return (
@@ -22,7 +13,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     )
   }
 
-  if (!user) return null
+  if (!user) {
+    return null // atau skeleton
+  }
 
   return <>{children}</>
 }

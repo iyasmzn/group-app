@@ -1,8 +1,7 @@
-import { useAuth } from "../supabase/auth"
 import { useRealtimeCount } from "./useRealtimeCount"
+import { supabase } from "../supabase/client"
 
 export function useAssetBadge(groupId?: string) {
-  const { supabase } = useAuth()
   return useRealtimeCount({
     table: "group_assets",
     filter: groupId ? `group_id=eq.${groupId}` : undefined,

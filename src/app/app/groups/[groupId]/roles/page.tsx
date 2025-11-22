@@ -2,22 +2,23 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { useAuth } from '@/lib/supabase/auth'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Edit3, ShieldCheck, Trash2, Plus } from 'lucide-react'
 import Reveal from '@/components/animations/Reveal'
 import LoadingOverlay from '@/components/loading-overlay'
 import RoleForm from './components/roles-form'
-import { GroupRole } from '@/types/group.type'
 import BackButton from '@/components/back-button'
+import { supabase } from '@/lib/supabase/client'
+import { Database } from '@/types/database.types'
 
 const DEFAULT_CODES = ['owner', 'admin', 'member']
 
+type GroupRoleRow = Database['public']['Tables']['group_roles']['Row']
+
 export default function GroupRolesPage() {
-  const { supabase } = useAuth()
-  const { groupId } = useParams()
-  const [roles, setRoles] = useState<GroupRole[]>([])
+  const { groupId } = useParams() as { groupId: string }
+  const [roles, setRoles] = useState<GroupRoleRow[]>([])
   const [loading, setLoading] = useState(true)
   const [editingRoleId, setEditingRoleId] = useState<string | null>(null)
   const [adding, setAdding] = useState(false)
@@ -123,11 +124,11 @@ export default function GroupRolesPage() {
       <ul className="divide-y">
         {roles.map((role) => (
           <li key={role.id} className="py-4">
-            {editingRoleId === role.id ? (
+            {editingRoleId === role.id && role.code ? (
               <RoleForm
                 initialCode={role.code}
                 initialName={role.name}
-                initialPermissions={role.permissions}
+                initialPermissions={role.permissions || ['']}
                 isDefaultCode={DEFAULT_CODES.includes(role.code)}
                 onSave={(data) => handleSave(role.id, data)}
                 onCancel={() => setEditingRoleId(null)}
@@ -149,10 +150,10 @@ export default function GroupRolesPage() {
                       className="w-4 h-4 text-secondary-foreground cursor-pointer"
                       onClick={() => setEditingRoleId(role.id)}
                     />
-                    {!DEFAULT_CODES.includes(role.code) && (
+                    {role.code != null && !DEFAULT_CODES.includes(role.code) && (
                       <Trash2
                         className="w-4 h-4 text-red-500 cursor-pointer"
-                        onClick={() => handleDelete(role.id, role.code)}
+                        onClick={() => role.code && handleDelete(role.id, role.code)}
                       />
                     )}
                   </div>

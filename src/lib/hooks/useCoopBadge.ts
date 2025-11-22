@@ -1,8 +1,7 @@
-import { useAuth } from "../supabase/auth"
+import { supabase } from "../supabase/client"
 import { useRealtimeCount } from "./useRealtimeCount"
 
 export function useCoopBadge(groupId?: string) {
-  const { supabase } = useAuth()
   return useRealtimeCount({
     table: "group_coop_loans",
     filter: groupId ? `group_id=eq.${groupId}` : undefined,

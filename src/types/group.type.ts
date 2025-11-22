@@ -3,16 +3,43 @@ import { Profile } from './profile.type'
 export interface GroupData {
   id: string
   name: string
-  image_url: string
-  createdat: Date
-  description: string
-  description_updatedat: Date
-  description_updatedby: Date
-  group_members?: GroupMember[]
-  owner?: Partial<Profile> | null
-  desc_updatedby?: Partial<Profile> | null
+  image_url: string | null
+  createdat: string | Date | null
+  description: string | null
+  description_updatedat: string | Date | null
+  description_updatedby: string | null
+  group_members?: Partial<GroupMemberOpt>[] | null
+  owner?: Partial<ProfileOpt> | null
+  desc_updatedby?: Partial<ProfileOpt> | null
   unreadCount?: number | null
   member_count?: number | null
+}
+
+export interface ProfileOpt {
+  id: string
+  email?: string | null
+  full_name?: string | null
+  avatar_url?: string | null
+  avatar_public_id?: string | null
+  created_at?: string | null
+  updated_at?: string | null
+}
+
+
+export interface GroupMemberOpt {
+  id?: string
+  joinedat?: string | null
+  user_id?: string | null
+  profiles?: Partial<Profile> | null
+  group_roles?: Partial<GroupRoleOpt> | null
+}
+
+export interface GroupRoleOpt {
+  id: string
+  code: string | null
+  name: string
+  permissions?: string[] | null
+  group_id?: string
 }
 
 export interface GroupMember {

@@ -1,27 +1,27 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import { useRouter, useParams, redirect } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { ClipboardList, FileText, MapPin, User, Users, Wallet } from "lucide-react"
-import Reveal from "@/components/animations/Reveal"
-import { useAuth } from "@/lib/supabase/auth"
-import { eventService } from "@/services/eventService/eventService"
-import { taskService } from "@/services/eventService/taskService"
-import { contributionService } from "@/services/eventService/contributionService"
-import { minutesService } from "@/services/eventService/minutesService"
-import { RRuleSelector } from "@/components/app/events/RRuleSelector"
-import { toast } from "sonner"
-import { DateRangePicker } from "@/components/ui/date-range-picker"
-import { DateRange } from "react-day-picker"
-import { Switch } from "@/components/ui/switch"
-import { attendanceService } from "@/services/eventService/attendanceService"
-import { groupMemberService } from "@/services/eventService/groupMemberService"
-import { MemberMultiSelect, MemberOption } from "@/components/app/events/MemberMultiSelect"
-import LoadingOverlay from "@/components/loading-overlay"
+import { useEffect, useState } from 'react'
+import { useRouter, useParams, redirect } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { ClipboardList, FileText, MapPin, User, Users, Wallet } from 'lucide-react'
+import Reveal from '@/components/animations/Reveal'
+import { eventService } from '@/services/eventService/eventService'
+import { taskService } from '@/services/eventService/taskService'
+import { contributionService } from '@/services/eventService/contributionService'
+import { minutesService } from '@/services/eventService/minutesService'
+import { RRuleSelector } from '@/components/app/events/RRuleSelector'
+import { toast } from 'sonner'
+import { DateRangePicker } from '@/components/ui/date-range-picker'
+import { DateRange } from 'react-day-picker'
+import { Switch } from '@/components/ui/switch'
+import { attendanceService } from '@/services/eventService/attendanceService'
+import { groupMemberService } from '@/services/eventService/groupMemberService'
+import { MemberMultiSelect, MemberOption } from '@/components/app/events/MemberMultiSelect'
+import LoadingOverlay from '@/components/loading-overlay'
+import { useAuth } from '@/context/AuthContext'
 
 export default function CreateEventPage() {
   const { user } = useAuth()
@@ -30,11 +30,11 @@ export default function CreateEventPage() {
   const { groupId } = useParams() as { groupId: string }
 
   const [loading, setLoading] = useState(false)
-  const [rrule, setRrule] = useState<string>("")
+  const [rrule, setRrule] = useState<string>('')
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
   const [withTime, setWithTime] = useState(false)
-  const [startTime, setStartTime] = useState("08:00")
-  const [endTime, setEndTime] = useState("17:00")
+  const [startTime, setStartTime] = useState('08:00')
+  const [endTime, setEndTime] = useState('17:00')
   const [dateError, setDateError] = useState<string | null>(null)
 
   // state toggle tambahan
@@ -44,7 +44,7 @@ export default function CreateEventPage() {
 
   // peserta awal (manual input nama)
   const [participants, setParticipants] = useState<string[]>([])
-  const [newParticipant, setNewParticipant] = useState("")
+  const [newParticipant, setNewParticipant] = useState('')
 
   // state untuk assign semua member
   const [assignAll, setAssignAll] = useState(false)
@@ -52,19 +52,24 @@ export default function CreateEventPage() {
   const [groupMembers, setGroupMembers] = useState<MemberOption[]>([])
   const [participantError, setParticipantError] = useState<string | null>(null)
   const [participantInputError, setParticipantInputError] = useState<string | null>(null)
-  
+
   useEffect(() => {
     if (!user) return redirect('/login')
 
     const fetchMembers = async () => {
-      const data = await groupMemberService.read({ group_id: groupId }, {
-        select: "*, profiles(*)"
-      })
-      setGroupMembers(data.map((m) => ({ 
-        user_id: m.user_id, 
-        full_name: m?.profiles?.full_name ?? "(Tanpa Nama)", 
-        profiles: m?.profiles 
-      }))) 
+      const data = await groupMemberService.read(
+        { group_id: groupId },
+        {
+          select: '*, profiles(*)',
+        }
+      )
+      setGroupMembers(
+        data.map((m) => ({
+          user_id: m.user_id,
+          full_name: m?.profiles?.full_name ?? '(Tanpa Nama)',
+          profiles: m?.profiles,
+        }))
+      )
       // TODO: ganti `m.user_id` dengan field nama user kalau ada relasi ke profile
     }
     fetchMembers()
@@ -75,7 +80,7 @@ export default function CreateEventPage() {
 
     // Validasi peserta
     if (!assignAll && selectedMembers.length === 0 && participants.length === 0) {
-      setParticipantError("Minimal harus ada 1 peserta yang di-assign")
+      setParticipantError('Minimal harus ada 1 peserta yang di-assign')
       setLoading(false)
       return
     }
@@ -84,12 +89,12 @@ export default function CreateEventPage() {
       // 1. Buat event utama
       const newEvent = await eventService.create({
         group_id: groupId,
-        title: formData.get("title") as string,
-        description: formData.get("description") as string,
-        start_at: formData.get("start_at") as string,
-        end_at: formData.get("end_at") as string,
-        location: formData.get("location") as string,
-        recurrence_rule: formData.get("recurrence_rule") as string,
+        title: formData.get('title') as string,
+        description: formData.get('description') as string,
+        start_at: formData.get('start_at') as string,
+        end_at: formData.get('end_at') as string,
+        location: formData.get('location') as string,
+        recurrence_rule: formData.get('recurrence_rule') as string,
       })
 
       // Assign peserta awal
@@ -104,7 +109,7 @@ export default function CreateEventPage() {
           newEvent.id,
           selectedMembers.map((id) => ({ user_id: id }))
         )
-      } 
+      }
       if (participants.length > 0) {
         await attendanceService.assignParticipants(
           newEvent.id,
@@ -113,33 +118,33 @@ export default function CreateEventPage() {
       }
 
       // 3. Opsional: buat task awal
-      const firstTask = formData.get("task_title") as string
+      const firstTask = formData.get('task_title') as string
       if (firstTask) {
         await taskService.assignTask(newEvent.id, {
           title: firstTask,
-          description: formData.get("task_description") as string,
-          status: "todo",
+          description: formData.get('task_description') as string,
+          status: 'todo',
         })
       }
 
       // 4. Opsional: kontribusi awal
-      const amount = formData.get("contribution_amount") as string
+      const amount = formData.get('contribution_amount') as string
       if (amount && user) {
         await contributionService.addContribution(
           newEvent.id,
           user.id,
           parseFloat(amount),
-          formData.get("contribution_note") as string
+          formData.get('contribution_note') as string
         )
       }
 
       // 5. Opsional: notulen awal
-      const minutes = formData.get("minutes") as string
+      const minutes = formData.get('minutes') as string
       if (minutes && user) {
         await minutesService.addMinute(newEvent.id, user.id, minutes)
       }
 
-      toast.success("Event berhasil dibuat 🎉")
+      toast.success('Event berhasil dibuat 🎉')
       router.push(`/app/groups/${groupId}/events`)
     } catch (err) {
       toast.error(`Gagal membuat event`)
@@ -147,7 +152,6 @@ export default function CreateEventPage() {
       setLoading(false)
     }
   }
-
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
@@ -159,12 +163,16 @@ export default function CreateEventPage() {
       <form action={handleSubmit} className="space-y-6">
         {/* Event utama */}
         <div>
-          <Label htmlFor="title" className="block mb-1">Judul</Label>
+          <Label htmlFor="title" className="block mb-1">
+            Judul
+          </Label>
           <Input id="title" name="title" required placeholder="Judul event" />
         </div>
 
         <div>
-          <Label htmlFor="description" className="block mb-1">Deskripsi</Label>
+          <Label htmlFor="description" className="block mb-1">
+            Deskripsi
+          </Label>
           <Textarea id="description" name="description" placeholder="Deskripsi event" />
         </div>
 
@@ -178,7 +186,7 @@ export default function CreateEventPage() {
             startTime={startTime}
             endTime={endTime}
             onStartTimeChange={setStartTime}
-            onEndTimeChange={setEndTime}  
+            onEndTimeChange={setEndTime}
             onError={setDateError}
           />
           {/* hidden input agar tetap masuk ke FormData */}
@@ -188,10 +196,9 @@ export default function CreateEventPage() {
             value={
               dateRange?.from
                 ? new Date(
-                    dateRange.from.toDateString() +
-                      (withTime ? " " + startTime : " 00:00")
+                    dateRange.from.toDateString() + (withTime ? ' ' + startTime : ' 00:00')
                   ).toISOString()
-                : ""
+                : ''
             }
           />
           <input
@@ -200,16 +207,17 @@ export default function CreateEventPage() {
             value={
               dateRange?.to
                 ? new Date(
-                    dateRange.to.toDateString() +
-                      (withTime ? " " + endTime : " 23:59")
+                    dateRange.to.toDateString() + (withTime ? ' ' + endTime : ' 23:59')
                   ).toISOString()
-                : ""
+                : ''
             }
           />
         </div>
 
         <div>
-          <Label htmlFor="location" className="block mb-1">Lokasi</Label>
+          <Label htmlFor="location" className="block mb-1">
+            Lokasi
+          </Label>
           <div className="flex items-center gap-2">
             <MapPin className="w-4 h-4 text-muted-foreground" />
             <Input id="location" name="location" placeholder="Lokasi event" />
@@ -261,7 +269,9 @@ export default function CreateEventPage() {
                     setParticipantInputError(null) // reset error saat user mengetik lagi
                   }}
                   placeholder="Nama peserta"
-                  className={participantInputError ? "border-red-500 focus-visible:ring-red-500" : ""}
+                  className={
+                    participantInputError ? 'border-red-500 focus-visible:ring-red-500' : ''
+                  }
                 />
                 <Button
                   type="button"
@@ -276,22 +286,21 @@ export default function CreateEventPage() {
 
                     // cek duplikat dengan member multi-select
                     const existsMember = groupMembers.some(
-                      (m) =>
-                        m.full_name && m.full_name.toLowerCase() === name.toLowerCase()
+                      (m) => m.full_name && m.full_name.toLowerCase() === name.toLowerCase()
                     )
 
                     if (existsManual) {
-                      setParticipantInputError("Nama peserta sudah ada di daftar peserta manual")
+                      setParticipantInputError('Nama peserta sudah ada di daftar peserta manual')
                       return
                     }
 
                     if (existsMember) {
-                      setParticipantInputError("Nama peserta ada dalam member grup")
+                      setParticipantInputError('Nama peserta ada dalam member grup')
                       return
                     }
 
                     setParticipants([...participants, name])
-                    setNewParticipant("")
+                    setNewParticipant('')
                     setParticipantInputError(null)
                   }}
                 >
@@ -312,9 +321,7 @@ export default function CreateEventPage() {
                       type="button"
                       size="xs"
                       variant="ghost"
-                      onClick={() =>
-                        setParticipants(participants.filter((_, i) => i !== idx))
-                      }
+                      onClick={() => setParticipants(participants.filter((_, i) => i !== idx))}
                     >
                       Hapus
                     </Button>
@@ -324,9 +331,7 @@ export default function CreateEventPage() {
             </div>
           )}
 
-          {participantError && (
-            <p className="text-sm text-red-500">{participantError}</p>
-          )}
+          {participantError && <p className="text-sm text-red-500">{participantError}</p>}
         </div>
 
         {/* Relasi opsional */}
@@ -363,7 +368,11 @@ export default function CreateEventPage() {
                 <Wallet className="w-4 h-4 text-muted-foreground" />
                 Kontribusi Awal
               </Label>
-              <Switch id="contribution_switch" checked={enableContribution} onCheckedChange={setEnableContribution} />
+              <Switch
+                id="contribution_switch"
+                checked={enableContribution}
+                onCheckedChange={setEnableContribution}
+              />
             </div>
             {enableContribution && (
               <Reveal animation="fadeInUp">
@@ -392,22 +401,22 @@ export default function CreateEventPage() {
                 <FileText className="w-4 h-4 text-muted-foreground" />
                 Notulen Awal
               </Label>
-              <Switch id="minutes_switch" checked={enableMinutes} onCheckedChange={setEnableMinutes} />
+              <Switch
+                id="minutes_switch"
+                checked={enableMinutes}
+                onCheckedChange={setEnableMinutes}
+              />
             </div>
             {enableMinutes && (
               <Reveal animation="fadeInUp">
-                <Textarea
-                  id="minutes"
-                  name="minutes"
-                  placeholder="Isi notulen (opsional)"
-                />
+                <Textarea id="minutes" name="minutes" placeholder="Isi notulen (opsional)" />
               </Reveal>
             )}
           </div>
         </div>
 
         <Button type="submit" disabled={loading || !!dateError}>
-          {loading ? "Menyimpan..." : "Simpan Event"}
+          {loading ? 'Menyimpan...' : 'Simpan Event'}
         </Button>
       </form>
     </div>

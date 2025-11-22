@@ -1,8 +1,8 @@
-"use client"
+'use client'
 
-import Link from "next/link"
-import { useAuth } from "@/lib/supabase/auth"
-import BackButton from "@/components/back-button"
+import Link from 'next/link'
+import BackButton from '@/components/back-button'
+import { useAuth } from '@/context/AuthContext'
 
 export default function NotFound() {
   const { user } = useAuth()
@@ -14,7 +14,7 @@ export default function NotFound() {
       <div className="flex items-center mt-6 gap-4 ">
         <BackButton label="Kembali" />
         <Link
-          href={user ? "/app/home" : "/"}
+          href={user ? '/app/home' : '/'}
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
         >
           Go Home

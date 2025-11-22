@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { useAuth } from '@/lib/supabase/auth'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { UserCog, UserMinus, UserPlus2 } from 'lucide-react'
@@ -21,10 +20,10 @@ import { GroupMember, GroupRole } from '@/types/group.type'
 import BackButton from '@/components/back-button'
 import { formatDate } from '@/lib/utils/format'
 import { AppAvatar } from '@/components/ui/app-avatar'
+import { supabase } from '@/lib/supabase/client'
 
 export default function ManageMembersPage() {
-  const { supabase } = useAuth()
-  const { groupId } = useParams()
+  const { groupId } = useParams() as { groupId: string }
   const [members, setMembers] = useState<GroupMember[]>([])
   const [roles, setRoles] = useState<GroupRole[]>([])
   const [loading, setLoading] = useState(true)

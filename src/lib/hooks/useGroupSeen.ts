@@ -1,8 +1,9 @@
+import { useAuth } from '@/context/AuthContext'
 import { useEffect, useRef } from 'react'
-import { useAuth } from '../supabase/auth'
+import { supabase } from '../supabase/client'
 
 export function useGroupSeen(groupId: string) {
-  const { supabase, user } = useAuth()
+  const { user } = useAuth()
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const isUnmountingRef = useRef(false)
 

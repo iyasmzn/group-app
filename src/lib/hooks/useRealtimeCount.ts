@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useAuth } from "@/lib/supabase/auth"
+import { supabase } from "../supabase/client"
 
 type Options = {
   table: string
@@ -8,7 +8,6 @@ type Options = {
 }
 
 export function useRealtimeCount({ table, filter, countQuery }: Options) {
-  const { supabase } = useAuth()
   const [count, setCount] = useState(0)
 
   useEffect(() => {

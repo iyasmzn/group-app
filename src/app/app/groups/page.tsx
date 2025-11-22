@@ -16,7 +16,6 @@ import {
   RefreshCw,
   Settings2,
 } from 'lucide-react'
-import { useAuth } from '@/lib/supabase/auth'
 import LoadingOverlay from '@/components/loading-overlay'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
@@ -35,6 +34,7 @@ import Reveal from '@/components/animations/Reveal'
 import { AppAvatar } from '@/components/ui/app-avatar'
 import { AddGroupDialog } from '@/components/app/groups/AddGroupDialog'
 import { useNotifications } from '@/context/notification/NotificationContext'
+import { useAuth } from '@/context/AuthContext'
 
 const PAGE_LIMIT = 6
 
@@ -223,10 +223,12 @@ function GroupsPage({ userId }: { userId: string }) {
                       </Link>
                       <span className="text-xs text-secondary-foreground">
                         Since{' '}
-                        {new Date(group.createdat).toLocaleDateString(undefined, {
-                          year: 'numeric',
-                          month: 'short',
-                        })}
+                        {group.createdat
+                          ? new Date(group.createdat).toLocaleDateString(undefined, {
+                              year: 'numeric',
+                              month: 'short',
+                            })
+                          : ''}
                         {' • '}
                         {group?.member_count ?? 0} member
                         {(group?.member_count ?? 0) !== 1 ? 's' : ''}
