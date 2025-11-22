@@ -1,6 +1,7 @@
 "use client"
 
-import { GroupMember, groupService } from "@/services/groupService/groupService"
+import { groupService } from "@/services/groupService/groupService"
+import { GroupMember } from "@/types/group.type"
 import { useEffect, useState, useCallback } from "react"
 
 export function useGroupMembers(groupId: string) {
