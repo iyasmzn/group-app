@@ -28,46 +28,41 @@ export function AuthProvider({
   children: ReactNode
   initialSession?: Session | null
 }) {
-  const [user, setUser] = useState<User | null>(initialSession?.user ?? null)
   const [session, setSession] = useState<Session | null>(initialSession ?? null)
+  const [user, setUser] = useState<User | null>(initialSession?.user ?? null)
   const [loading, setLoading] = useState(!initialSession)
 
   useEffect(() => {
-    // initial session
-    supabase.auth.getSession().then(async ({ data }) => {
-      setSession(data.session)
+    let isMounted = true
 
-      // isi user cepat dari session (fallback)
+    const initSession = async () => {
+      const { data } = await supabase.auth.getSession()
+      if (!isMounted) return
+
+      setSession(data.session)
       setUser(data.session?.user ?? null)
 
-      // verifikasi user ke server
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser()
-      if (!error) setUser(user ?? null)
+      // 🔒 Validasi ke server Supabase Auth (secure)
+      const { data: authUser } = await supabase.auth.getUser()
+      if (!isMounted) return
 
+      setUser(authUser.user ?? null)
       setLoading(false)
-    })
+    }
 
-    // subscribe to auth changes
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    initSession()
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isMounted) return
+
       setSession(session)
-
-      // isi user cepat dari session (fallback)
-      setUser(session?.user ?? null)
-
-      // verifikasi user ke server
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser()
-      if (!error) setUser(user ?? null)
+      setUser(session?.user ?? null) // cukup set cepat, tidak wajib getUser()
 
       setLoading(false)
     })
 
     return () => {
+      isMounted = false
       listener.subscription.unsubscribe()
     }
   }, [])
@@ -78,14 +73,7 @@ export function AuthProvider({
         user,
         session,
         loading,
-        signUp: authService.signUp,
-        signIn: authService.signIn,
-        signInWithGoogle: authService.signInWithGoogle,
-        signOut: authService.signOut,
-        updateUserMeta: authService.updateUserMeta,
-        getProfile: authService.getProfile,
-        updateProfile: authService.updateProfile,
-        updateProfileHybrid: authService.updateProfileHybrid,
+        ...authService,
       }}
     >
       {children}
