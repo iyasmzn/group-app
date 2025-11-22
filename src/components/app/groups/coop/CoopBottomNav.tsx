@@ -21,7 +21,7 @@ export function CoopBottomNav() {
   const navItems = [
     { href: `/app/groups/${groupId}`, label: 'Back', icon: Undo2 },
     { href: `/app/groups/${groupId}/coop`, label: 'Dashboard', icon: ChartPie },
-    { href: `/app/groups/${groupId}/coop/loans`, label: 'Pinjaman', icon: CreditCard, badge: 2 }, // contoh badge
+    { href: `/app/groups/${groupId}/coop/loans`, label: 'Pinjaman', icon: CreditCard, badge: 0 },
     { href: `/app/groups/${groupId}/coop/settings`, label: 'Pengaturan', icon: Settings },
   ]
 

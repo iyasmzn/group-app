@@ -5,6 +5,24 @@ export const coopMemberService = {
     return await supabase.from('group_coop_members').insert([{ group_id, user_id }])
   },
 
+  async getCoopMemberById(member_id: string) {
+    
+    return await supabase
+      .from('group_coop_members')
+      .select(
+        `*,
+          profiles (
+            id,
+            full_name,
+            avatar_url,
+            email
+          )
+        `
+      )
+      .eq('id', member_id)
+      .maybeSingle()
+  },
+
   async getCoopMembers(group_id: string) {
     return await supabase
       .from('group_coop_members')

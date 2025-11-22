@@ -17,7 +17,7 @@
 
 export function formatDate(
   date: string | Date,
-  locale: string | null,
+  locale: string | null = "id-ID",
   options: Intl.DateTimeFormatOptions = { day: "2-digit", month: "short", year: "numeric" }
 ) {
   const d = typeof date === "string" ? new Date(date) : date

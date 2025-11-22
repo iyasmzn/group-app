@@ -20,11 +20,7 @@ export const coopDashboardService = {
         created_by,
         reference_type,
         reference_id,
-        group_coop_members!group_coop_ledger_created_by_fkey1 (
-          user_id,
-          role,
-          profiles ( full_name, avatar_url )
-        )
+        profiles ( full_name, avatar_url )
       `
       )
       .eq('group_id', group_id)

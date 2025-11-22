@@ -203,6 +203,7 @@ export type Database = {
           group_id: string
           id: string
           interest_rate: number | null
+          note: string | null
           principal: number
           start_date: string | null
           status: string | null
@@ -215,6 +216,7 @@ export type Database = {
           group_id: string
           id?: string
           interest_rate?: number | null
+          note?: string | null
           principal: number
           start_date?: string | null
           status?: string | null
@@ -227,6 +229,7 @@ export type Database = {
           group_id?: string
           id?: string
           interest_rate?: number | null
+          note?: string | null
           principal?: number
           start_date?: string | null
           status?: string | null

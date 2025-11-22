@@ -7,6 +7,9 @@ import { useParams } from 'next/navigation'
 import { useCoopDashboard, useLedgerSummary } from '@/lib/hooks/groupCoop'
 import Link from 'next/link'
 import { Settings2 } from 'lucide-react'
+import { formatScheduleDate } from '@/lib/utils/schedule'
+import { AppAvatar } from '@/components/ui/app-avatar'
+import { formatCurrency } from '@/lib/utils/format'
 
 export default function CoopPage() {
   const params = useParams()
@@ -55,7 +58,7 @@ export default function CoopPage() {
               <CardTitle>Total Pinjaman</CardTitle>
             </CardHeader>
             <CardContent className="text-2xl font-semibold">
-              Rp {summary?.total_loans ?? 0}
+              {formatCurrency(summary?.total_loans ?? 0)}
             </CardContent>
           </Card>
         </motion.div>
@@ -66,7 +69,7 @@ export default function CoopPage() {
               <CardTitle>Total Pembayaran</CardTitle>
             </CardHeader>
             <CardContent className="text-2xl font-semibold">
-              Rp {summary?.total_repayments ?? 0}
+              {formatCurrency(summary?.total_repayments ?? 0)}
             </CardContent>
           </Card>
         </motion.div>
@@ -77,7 +80,7 @@ export default function CoopPage() {
               <CardTitle>Sisa Tunggakan</CardTitle>
             </CardHeader>
             <CardContent className="text-2xl font-semibold text-red-500">
-              Rp {summary?.outstanding_balance ?? 0}
+              {formatCurrency(summary?.outstanding_balance ?? 0)}
             </CardContent>
           </Card>
         </motion.div>
@@ -90,29 +93,49 @@ export default function CoopPage() {
             <CardTitle>Transaksi Terbaru</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              {dashboard?.recentTransactions?.length ? (
-                dashboard.recentTransactions.map((tx: any) => (
+            {dashboard?.recentTransactions?.length ? (
+              <div className="space-y-3">
+                {dashboard.recentTransactions.map((tx: any) => (
                   <motion.div
                     key={tx.id}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="flex items-center justify-between border-b py-2"
+                    className="flex items-center justify-between rounded-md border p-3 hover:bg-muted/50 transition"
                   >
-                    <span>{tx.description}</span>
+                    {/* Kiri: avatar + detail */}
+                    <div className="flex items-center gap-3">
+                      <AppAvatar
+                        name={tx.profiles?.full_name}
+                        image={tx.profiles?.avatar_url || undefined}
+                        size="sm"
+                      />
+                      <div>
+                        <p className="font-medium">{tx.description}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {tx.profiles?.full_name} •{' '}
+                          {formatScheduleDate(new Date(tx.created_at), 'dd MMM yyyy HH:mm')}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Kanan: nominal */}
                     <span
                       className={`font-semibold ${
-                        tx.entry_type === 'debit' ? 'text-red-500' : 'text-green-500'
+                        tx.entry_type === 'debit' ? 'text-red-500' : 'text-green-600'
                       }`}
                     >
-                      Rp {tx.amount}
+                      {new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        maximumFractionDigits: 0,
+                      }).format(tx.amount)}
                     </span>
                   </motion.div>
-                ))
-              ) : (
-                <p className="text-muted-foreground">Belum ada transaksi</p>
-              )}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground">Belum ada transaksi</p>
+            )}
           </CardContent>
         </Card>
       </motion.div>
