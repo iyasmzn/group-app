@@ -161,7 +161,7 @@ export default function PesertaTab({
             <AddParticipantDialog
               eventId={eventId}
               members={availableMembers.map((m) => ({
-                user_id: m.user_id,
+                user_id: m.user_id ?? null,
                 full_name: m.profiles?.full_name ?? null,
                 profiles: m.profiles,
               }))}
