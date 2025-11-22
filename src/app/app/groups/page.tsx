@@ -30,7 +30,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import { Badge } from '@/components/ui/badge'
-import { GroupData } from '@/types/group'
+import { GroupData } from '@/types/group.type'
 import Reveal from '@/components/animations/Reveal'
 import { AppAvatar } from '@/components/ui/app-avatar'
 import { AddGroupDialog } from '@/components/app/groups/AddGroupDialog'

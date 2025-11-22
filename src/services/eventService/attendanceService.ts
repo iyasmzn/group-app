@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase/client"
-import { Profile } from "@/types/profile"
+import { Profile } from "@/types/profile.type"
 import { crudService } from "../crudService"
 
 export type GroupEventAttendance = {

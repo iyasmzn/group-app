@@ -1,7 +1,7 @@
 'use client'
 import Reveal from '@/components/animations/Reveal'
 import { AppAvatar } from '@/components/ui/app-avatar'
-import { GroupData } from '@/types/group'
+import { GroupData } from '@/types/group.type'
 import { useRouter } from 'next/navigation'
 
 export function GroupTitle({ group }: { group: GroupData }) {

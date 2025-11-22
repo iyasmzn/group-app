@@ -1,84 +1,86 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { useAuth } from "@/lib/supabase/auth";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { UserCog, UserMinus, UserPlus2 } from "lucide-react";
-import Reveal from "@/components/animations/Reveal";
-import LoadingOverlay from "@/components/loading-overlay";
-import { Input } from "@/components/ui/input";
+import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
+import { useAuth } from '@/lib/supabase/auth'
+import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
+import { UserCog, UserMinus, UserPlus2 } from 'lucide-react'
+import Reveal from '@/components/animations/Reveal'
+import LoadingOverlay from '@/components/loading-overlay'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import ConfirmRemoveModal from "./components/confirm-remove-modal";
-import { GroupMember, GroupRole } from "@/types/group";
-import BackButton from "@/components/back-button";
-import { formatDate } from "@/lib/utils/format";
-import { AppAvatar } from "@/components/ui/app-avatar";
+} from '@/components/ui/select'
+import ConfirmRemoveModal from './components/confirm-remove-modal'
+import { GroupMember, GroupRole } from '@/types/group.type'
+import BackButton from '@/components/back-button'
+import { formatDate } from '@/lib/utils/format'
+import { AppAvatar } from '@/components/ui/app-avatar'
 
 export default function ManageMembersPage() {
-  const { supabase } = useAuth();
-  const { groupId } = useParams();
-  const [members, setMembers] = useState<GroupMember[]>([]);
-  const [roles, setRoles] = useState<GroupRole[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [removeTarget, setRemoveTarget] = useState<GroupMember | null>(null);
+  const { supabase } = useAuth()
+  const { groupId } = useParams()
+  const [members, setMembers] = useState<GroupMember[]>([])
+  const [roles, setRoles] = useState<GroupRole[]>([])
+  const [loading, setLoading] = useState(true)
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [removeTarget, setRemoveTarget] = useState<GroupMember | null>(null)
   const [loadedPage, setLoadedPage] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
       const { data: membersData, error: membersError } = await supabase
-        .from("group_members")
-        .select(`
+        .from('group_members')
+        .select(
+          `
           id,
           role_id,
           joinedat,
           profiles ( id, full_name, avatar_url ),
           group_roles ( id, code, name )
-        `)
-        .eq("group_id", groupId);
+        `
+        )
+        .eq('group_id', groupId)
 
       const { data: rolesData, error: rolesError } = await supabase
-        .from("group_roles")
-        .select("id, code, name")
-        .eq("group_id", groupId);
+        .from('group_roles')
+        .select('id, code, name')
+        .eq('group_id', groupId)
 
       if (membersError || rolesError) {
-        toast.error("Gagal mengambil data members/roles.");
-        console.error(membersError || rolesError);
+        toast.error('Gagal mengambil data members/roles.')
+        console.error(membersError || rolesError)
       } else {
-        setMembers(membersData as GroupMember[]);
-        setRoles(rolesData as GroupRole[]);
+        setMembers(membersData as GroupMember[])
+        setRoles(rolesData as GroupRole[])
       }
-      setLoading(false);
+      setLoading(false)
       setLoadedPage(true)
-    };
+    }
 
-    fetchData();
-  }, [groupId, supabase]);
+    fetchData()
+  }, [groupId, supabase])
 
   const handleRoleChange = async (memberId: string, newRoleId: string) => {
     setLoading(true)
     const { error } = await supabase
-      .from("group_members")
+      .from('group_members')
       .update({ role_id: newRoleId })
-      .eq("id", memberId)
+      .eq('id', memberId)
       .select()
-      .single();
+      .single()
 
     if (error) {
       setLoading(false)
-      toast.error("Gagal update role member.");
+      toast.error('Gagal update role member.')
     } else {
       setLoading(false)
-      toast.success("Role member berhasil diupdate.");
+      toast.success('Role member berhasil diupdate.')
       setMembers((prev) =>
         prev.map((m) =>
           m.id === memberId
@@ -89,89 +91,82 @@ export default function ManageMembersPage() {
               }
             : m
         )
-      );
+      )
     }
-  };
+  }
 
   const handleRemove = async () => {
-    if (!removeTarget) return;
+    if (!removeTarget) return
 
     setLoading(true)
-    const { error } = await supabase
-      .from("group_members")
-      .delete()
-      .eq("id", removeTarget.id);
+    const { error } = await supabase.from('group_members').delete().eq('id', removeTarget.id)
 
     if (error) {
       setLoading(false)
-      toast.error("Gagal menghapus member.");
+      toast.error('Gagal menghapus member.')
     } else {
       setLoading(false)
-      toast.success("Member berhasil dihapus.");
-      setMembers((prev) => prev.filter((m) => m.id !== removeTarget.id));
-      setRemoveTarget(null);
+      toast.success('Member berhasil dihapus.')
+      setMembers((prev) => prev.filter((m) => m.id !== removeTarget.id))
+      setRemoveTarget(null)
     }
-  };
+  }
 
   const handleInvite = async () => {
     setLoading(true)
     try {
       if (!inviteEmail) {
-        toast.error("Email wajib diisi.");
-        return;
+        toast.error('Email wajib diisi.')
+        return
       }
-      const defaultRole = roles.find((r) => r.code === "member");
+      const defaultRole = roles.find((r) => r.code === 'member')
       if (!defaultRole) {
-        toast.error("Role default member tidak ditemukan.");
-        return;
+        toast.error('Role default member tidak ditemukan.')
+        return
       }
-  
+
       const { data: profile } = await supabase
-        .from("profiles")
-        .select("id, full_name, avatar_url")
-        .eq("email", inviteEmail)
-        .single();
-  
+        .from('profiles')
+        .select('id, full_name, avatar_url')
+        .eq('email', inviteEmail)
+        .single()
+
       if (!profile) {
-        toast.error("User dengan email ini belum terdaftar.");
-        return;
+        toast.error('User dengan email ini belum terdaftar.')
+        return
       }
-  
+
       const { data, error } = await supabase
-        .from("group_members")
+        .from('group_members')
         .insert({
           group_id: groupId,
           user_id: profile.id,
           role_id: defaultRole.id,
         })
-        .select(
-          "id, role_id, profiles(id, full_name, avatar_url), group_roles(id, code, name)"
-        )
-        .single();
-  
+        .select('id, role_id, profiles(id, full_name, avatar_url), group_roles(id, code, name)')
+        .single()
+
       if (error) {
-        toast.error("Gagal mengundang member.");
+        toast.error('Gagal mengundang member.')
       } else {
-        toast.success("Member berhasil ditambahkan.");
-        setMembers((prev) => [...prev, data as GroupMember]);
-        setInviteEmail("");
+        toast.success('Member berhasil ditambahkan.')
+        setMembers((prev) => [...prev, data as GroupMember])
+        setInviteEmail('')
       }
     } finally {
       setLoading(false)
     }
-  };
+  }
 
-  if (loading && !loadedPage) return <LoadingOverlay />;
+  if (loading && !loadedPage) return <LoadingOverlay />
 
   return (
     <div className="p-2 md:p-6">
-      <LoadingOverlay isLoading={loading} />      
+      <LoadingOverlay isLoading={loading} />
       <div className="flex items-center mb-4 gap-2">
         <BackButton />
         <UserCog />
-        <h1 className="text-2xl font-bold">
-          Manage Members
-        </h1>
+        <h1 className="text-2xl font-bold">Manage Members</h1>
       </div>
 
       {/* Invite */}
@@ -191,30 +186,26 @@ export default function ManageMembersPage() {
       {/* Members list */}
       <ul className="divide-y">
         {members.map((m, idx) => (
-          <Reveal
-            key={m.id}
-            animation={"fadeInRight"}
-            delay={idx * 0.1}
-          >
+          <Reveal key={m.id} animation={'fadeInRight'} delay={idx * 0.1}>
             <li className="flex items-center justify-between p-4 hover:bg-accent">
               <div className="flex items-center gap-3">
-                <AppAvatar image={m.profiles?.avatar_url} name={m.profiles?.full_name || "?"} />
+                <AppAvatar image={m.profiles?.avatar_url} name={m.profiles?.full_name || '?'} />
                 <div>
                   <p className="font-medium">{m.profiles?.full_name}</p>
                   <p className="text-xs text-muted-foreground">
-                    Since {m.joinedat ? formatDate(m.joinedat, null, {
-                      day: '2-digit',
-                      month: 'short',
-                      year: 'numeric'
-                    }) : null}
+                    Since{' '}
+                    {m.joinedat
+                      ? formatDate(m.joinedat, null, {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric',
+                        })
+                      : null}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Select
-                  value={m.role_id}
-                  onValueChange={(val) => handleRoleChange(m.id, val)}
-                >
+                <Select value={m.role_id} onValueChange={(val) => handleRoleChange(m.id, val)}>
                   <SelectTrigger className="w-[140px]">
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
@@ -226,11 +217,7 @@ export default function ManageMembersPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  onClick={() => setRemoveTarget(m)}
-                >
+                <Button variant="destructive" size="icon" onClick={() => setRemoveTarget(m)}>
                   <UserMinus className="w-4 h-4" />
                 </Button>
               </div>
@@ -247,5 +234,5 @@ export default function ManageMembersPage() {
         onCancel={() => setRemoveTarget(null)}
       />
     </div>
-  );
+  )
 }

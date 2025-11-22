@@ -1,106 +1,97 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { useAuth } from "@/lib/supabase/auth";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Edit3, ShieldCheck, Trash2, Plus } from "lucide-react";
-import Reveal from "@/components/animations/Reveal";
-import LoadingOverlay from "@/components/loading-overlay";
-import RoleForm from "./components/roles-form";
-import { GroupRole } from "@/types/group";
-import BackButton from "@/components/back-button";
+import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
+import { useAuth } from '@/lib/supabase/auth'
+import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
+import { Edit3, ShieldCheck, Trash2, Plus } from 'lucide-react'
+import Reveal from '@/components/animations/Reveal'
+import LoadingOverlay from '@/components/loading-overlay'
+import RoleForm from './components/roles-form'
+import { GroupRole } from '@/types/group.type'
+import BackButton from '@/components/back-button'
 
-const DEFAULT_CODES = ["owner", "admin", "member"];
+const DEFAULT_CODES = ['owner', 'admin', 'member']
 
 export default function GroupRolesPage() {
-  const { supabase } = useAuth();
-  const { groupId } = useParams();
-  const [roles, setRoles] = useState<GroupRole[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editingRoleId, setEditingRoleId] = useState<string | null>(null);
-  const [adding, setAdding] = useState(false);
+  const { supabase } = useAuth()
+  const { groupId } = useParams()
+  const [roles, setRoles] = useState<GroupRole[]>([])
+  const [loading, setLoading] = useState(true)
+  const [editingRoleId, setEditingRoleId] = useState<string | null>(null)
+  const [adding, setAdding] = useState(false)
 
   useEffect(() => {
     const fetchRoles = async () => {
-      const { data, error } = await supabase
-        .from("group_roles")
-        .select("*")
-        .eq("group_id", groupId);
+      const { data, error } = await supabase.from('group_roles').select('*').eq('group_id', groupId)
 
       if (error) {
-        toast.error("Gagal mengambil data roles.");
-        console.error(error);
+        toast.error('Gagal mengambil data roles.')
+        console.error(error)
       } else {
-        setRoles(data);
+        setRoles(data)
       }
-      setLoading(false);
-    };
+      setLoading(false)
+    }
 
-    fetchRoles();
-  }, [groupId, supabase]);
+    fetchRoles()
+  }, [groupId, supabase])
 
   const handleSave = async (
     roleId: string,
     data: { code: string; name: string; permissions: string[] }
   ) => {
     // validasi unik code
-    if (
-      roles.some(
-        (r) => r.code === data.code && r.id !== roleId && r.group_id === groupId
-      )
-    ) {
-      toast.error("Code role sudah digunakan.");
-      return;
+    if (roles.some((r) => r.code === data.code && r.id !== roleId && r.group_id === groupId)) {
+      toast.error('Code role sudah digunakan.')
+      return
     }
 
     const { error } = await supabase
-      .from("group_roles")
+      .from('group_roles')
       .update({
         name: data.name,
         permissions: data.permissions,
       })
-      .eq("id", roleId);
+      .eq('id', roleId)
 
     if (error) {
-      toast.error("Gagal update role.");
+      toast.error('Gagal update role.')
     } else {
-      toast.success("Role berhasil diupdate.");
+      toast.success('Role berhasil diupdate.')
       setRoles((prev) =>
         prev.map((r) =>
-          r.id === roleId
-            ? { ...r, name: data.name, permissions: data.permissions }
-            : r
+          r.id === roleId ? { ...r, name: data.name, permissions: data.permissions } : r
         )
-      );
-      setEditingRoleId(null);
+      )
+      setEditingRoleId(null)
     }
-  };
+  }
 
   const handleDelete = async (roleId: string, code: string) => {
     if (DEFAULT_CODES.includes(code)) {
-      toast.error("Role default tidak bisa dihapus.");
-      return;
+      toast.error('Role default tidak bisa dihapus.')
+      return
     }
-    const { error } = await supabase.from("group_roles").delete().eq("id", roleId);
+    const { error } = await supabase.from('group_roles').delete().eq('id', roleId)
     if (error) {
-      toast.error("Gagal menghapus role.");
+      toast.error('Gagal menghapus role.')
     } else {
-      toast.success("Role berhasil dihapus.");
-      setRoles((prev) => prev.filter((r) => r.id !== roleId));
+      toast.success('Role berhasil dihapus.')
+      setRoles((prev) => prev.filter((r) => r.id !== roleId))
     }
-  };
+  }
 
   const handleAdd = async (data: { code: string; name: string; permissions: string[] }) => {
     // validasi unik code
     if (roles.some((r) => r.code === data.code && r.group_id === groupId)) {
-      toast.error("Code role sudah digunakan.");
-      return;
+      toast.error('Code role sudah digunakan.')
+      return
     }
 
     const { data: inserted, error } = await supabase
-      .from("group_roles")
+      .from('group_roles')
       .insert({
         group_id: groupId,
         code: data.code,
@@ -108,18 +99,18 @@ export default function GroupRolesPage() {
         permissions: data.permissions,
       })
       .select()
-      .single();
+      .single()
 
     if (error) {
-      toast.error("Gagal menambahkan role.");
+      toast.error('Gagal menambahkan role.')
     } else {
-      toast.success("Role berhasil ditambahkan.");
-      setRoles((prev) => [...prev, inserted]);
-      setAdding(false);
+      toast.success('Role berhasil ditambahkan.')
+      setRoles((prev) => [...prev, inserted])
+      setAdding(false)
     }
-  };
+  }
 
-  if (loading) return <LoadingOverlay />;
+  if (loading) return <LoadingOverlay />
 
   return (
     <div className="p-2 md:p-6">
@@ -146,13 +137,11 @@ export default function GroupRolesPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">
-                      {role.name}{" "}
-                      <span className="text-xs text-muted-foreground">
-                        ({role.code})
-                      </span>
+                      {role.name}{' '}
+                      <span className="text-xs text-muted-foreground">({role.code})</span>
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {role.permissions?.join(", ") || "No permissions"}
+                      {role.permissions?.join(', ') || 'No permissions'}
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -189,5 +178,5 @@ export default function GroupRolesPage() {
         )}
       </div>
     </div>
-  );
+  )
 }

@@ -10,7 +10,7 @@ import {
   CommandList,
 } from '@/components/ui/command'
 import { Button } from '@/components/ui/button'
-import { Profile } from '@/types/profile'
+import { Profile } from '@/types/profile.type'
 import Reveal from '@/components/animations/Reveal'
 import { AppAvatar } from '@/components/ui/app-avatar'
 

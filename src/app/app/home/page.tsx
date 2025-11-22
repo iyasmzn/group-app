@@ -13,6 +13,7 @@ import { EmptyGroupCard } from '@/components/app/home/EmptyGroupCard'
 import { useNotifications } from '@/context/notification/NotificationContext'
 import { useProfile } from '@/lib/hooks/useProfile'
 import { supabase } from '@/lib/supabase/client'
+import { useLastGroup } from '@/lib/hooks/useGroupData'
 
 type LastGroupState = {
   id: string
@@ -40,72 +41,8 @@ type GroupWithOptionalLastSeen = {
 
 export default function UserHomePage() {
   const { user, profile, loading } = useProfile()
+  const { lastGroup, loading: loadingGroup } = useLastGroup(user?.id)
   const router = useRouter()
-  const [lastGroup, setLastGroup] = useState<LastGroupState | null>(null)
-  const [loadingGroup, setLoadingGroup] = useState(true)
-  const { unread } = useNotifications()
-
-  useEffect(() => {
-    if (user?.id) fetchLastGroup()
-  }, [user?.id])
-
-  const fetchLastGroup = useCallback(async () => {
-    if (!user?.id) return
-    setLoadingGroup(true)
-
-    // query utama
-    const { data: groups } = await supabase
-      .from('groups')
-      .select(
-        `
-        *,
-        group_members!inner(*),
-        group_last_seen(last_seen_at, message_last_seen_at)
-      `
-      )
-      .eq('group_members.user_id', user.id)
-      .eq('group_last_seen.user_id', user.id)
-      .order('last_seen_at', { referencedTable: 'group_last_seen', ascending: false })
-      .limit(1)
-
-    let g: GroupWithOptionalLastSeen | undefined = groups?.[0]
-
-    // fallback jika tidak ada last_seen
-    if (!g || !g.group_last_seen?.length) {
-      const { data: fallbackGroups } = await supabase
-        .from('groups')
-        .select(
-          `
-          *,
-          group_members!inner(joinedat)
-        `
-        )
-        .eq('group_members.user_id', user.id)
-        .order('joinedat', { referencedTable: 'group_members', ascending: false })
-        .limit(1)
-
-      g = fallbackGroups?.[0] as GroupWithOptionalLastSeen | undefined
-    }
-
-    if (g) {
-      const lastSeenAt = g.group_last_seen?.[0]?.message_last_seen_at ?? null
-      const unreadCount = unread.chat[g.id] ?? 0
-
-      const transformed: LastGroupState = {
-        id: g.id,
-        name: g.name,
-        image_url: g.image_url,
-        last_seen_at: g.group_last_seen?.[0]?.last_seen_at ?? null,
-        message_last_seen_at: lastSeenAt,
-        unreadCount,
-        joinedate: g.group_members[0]?.joinedat ?? null,
-      }
-
-      setLastGroup(transformed)
-    }
-
-    setLoadingGroup(false)
-  }, [user?.id, unread])
 
   // helper render profile
   const renderProfile = () =>

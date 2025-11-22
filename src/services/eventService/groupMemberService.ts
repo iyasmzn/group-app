@@ -1,5 +1,5 @@
 import { crudService } from "@/services/crudService"
-import { Profile } from "@/types/profile"
+import { Profile } from "@/types/profile.type"
 
 export type GroupMember = {
   id: string

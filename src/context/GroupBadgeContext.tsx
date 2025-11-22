@@ -3,7 +3,7 @@
 import { createContext, useContext } from 'react'
 import { useNotifications } from '@/context/notification/NotificationContext'
 import { useGroupData } from '@/lib/hooks/useGroupData'
-import { GroupData } from '@/types/group'
+import { GroupData } from '@/types/group.type'
 
 type GroupBadgeContextType = {
   chat: number
