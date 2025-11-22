@@ -147,9 +147,8 @@ export default function CoopSettingsPage() {
       )}
       {/* toggle theme */}
       <Card className="rainbow-border">
-        <CardContent className="flex gap-2 flex-col items-center justify-center">
-          <ModeToggle />
-          <p> 🌞 Light / 🌚 Dark</p>
+        <CardContent className="flex gap-2 flex-col items-center justify-center relative">
+          <ModeToggle variant="switch" />
         </CardContent>
       </Card>
     </motion.div>

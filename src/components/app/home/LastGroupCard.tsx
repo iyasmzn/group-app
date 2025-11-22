@@ -3,11 +3,14 @@
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Clock, MessageCircle, MessageCircleWarning } from 'lucide-react'
+import { Clock, LucideIcon, MessageCircle, MessageCircleWarning, Store, SunDim } from 'lucide-react'
 import { ShineBorder } from '@/components/ui/shine-border'
 import CountUp from '@/components/ui/count-up'
 import { AppAvatar } from '@/components/ui/app-avatar'
 import { useNotifications } from '@/context/notification/NotificationContext'
+import { motion } from 'framer-motion'
+import { useRouter } from 'next/navigation'
+import FeatureShortcuts from '@/components/ui/feature-shortcuts'
 
 type LastGroup = {
   id: string
@@ -25,12 +28,32 @@ export function LastGroupCard({ lastGroup }: { lastGroup: LastGroup }) {
 
   const unreadCount = unread.chat[lastGroup.id] || 0
 
+  const features = [
+    {
+      id: 'chat',
+      title: 'Chat',
+      icon: MessageCircle,
+      href: `/app/groups/${lastGroup.id}/chat`,
+    },
+    {
+      id: 'koperasi',
+      title: 'Koperasi',
+      icon: Store,
+      href: `/app/groups/${lastGroup.id}/coop`,
+    },
+    {
+      id: 'coming-soon',
+      title: 'ComingSoon',
+      icon: SunDim,
+    },
+  ]
+
   return (
     <Card className="relative overflow-hidden">
       <ShineBorder shineColor={['#A07CFE', '#FE8FB5', '#FFBE7B']} />
-      <CardContent>
+      <CardContent className="flex flex-col gap-4">
         <div className="flex flex-row justify-between items-center">
-          <Link href={`groups/${lastGroup.id}`} className="flex items-center gap-2 mb-4">
+          <Link href={`groups/${lastGroup.id}`} className="flex items-center gap-2">
             <AppAvatar name={lastGroup.name} image={lastGroup.image_url ?? undefined} size="lg" />
             <div>
               <p>{lastGroup.name}</p>
@@ -90,6 +113,9 @@ export function LastGroupCard({ lastGroup }: { lastGroup: LastGroup }) {
             />
             <span className="text-xs text-muted-foreground">Unread Messages</span>
           </Link>
+        </div>
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+          <FeatureShortcuts items={features} />
         </div>
       </CardContent>
     </Card>
