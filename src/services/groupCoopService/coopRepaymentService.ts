@@ -7,6 +7,7 @@ type NewRepayment = Omit<RepaymentRow, "id" | "created_at">
 
 export const coopRepaymentService = {
   async addRepayment(data: NewRepayment) {
+    console.log('addRepayment')
     const { data: repayment, error } = await supabase
       .from('group_coop_repayments')
       .insert([data])
@@ -15,6 +16,7 @@ export const coopRepaymentService = {
 
     if (error || !repayment) return { error }
 
+    console.log('get Loan')
     const loan = await supabase
       .from('group_coop_loans')
       .select('group_id, coop_member_id')
@@ -23,6 +25,7 @@ export const coopRepaymentService = {
 
     if (loan.error || !loan.data || !loan.data.group_id) return { error: loan.error }
 
+    console.log('insert ledger')
     await coopLedgerService.addEntry({
       group_id: loan.data.group_id,
       entry_type: 'credit',
@@ -41,6 +44,6 @@ export const coopRepaymentService = {
       .from('group_coop_repayments')
       .select('*')
       .eq('loan_id', loanId)
-      .order('paid_at', { ascending: false })
+      .order('paid_at', { ascending: true })
   },
 }

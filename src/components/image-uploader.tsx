@@ -188,7 +188,7 @@ export function ImageUploader({
 
       {/* input forced camera */}
       <div className="flex gap-2 justify-end">
-        <Button variant="secondary" onClick={() => cameraInputRef.current?.click()}>
+        <Button type="button" variant="secondary" onClick={() => cameraInputRef.current?.click()}>
           <Camera className="w-4 h-4 mr-2" /> Ambil dari kamera
         </Button>
         <input
@@ -232,6 +232,7 @@ export function ImageUploader({
 
           <div className="flex gap-4 mt-4">
             <Button
+              type="button"
               onClick={() => {
                 if (previewUrl) URL.revokeObjectURL(previewUrl)
                 setCropping(false)
@@ -245,7 +246,9 @@ export function ImageUploader({
             >
               Cancel
             </Button>
-            <Button onClick={handleConfirmCrop}>Confirm</Button>
+            <Button type="button" onClick={handleConfirmCrop}>
+              Confirm
+            </Button>
           </div>
         </div>
       )}
@@ -301,7 +304,7 @@ export function ImageUploader({
       {/* Upload button */}
       {selectedFiles.length > 0 && (
         <Reveal animation="fadeInUp" distance={5} className="flex justify-center">
-          <Button onClick={handleUpload} disabled={isProcessing} className="">
+          <Button type="button" onClick={handleUpload} disabled={isProcessing} className="">
             {isProcessing && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
             Upload
           </Button>
@@ -318,6 +321,7 @@ export function ImageUploader({
 
           {enableCrop && (
             <Button
+              type="button"
               variant="ghost"
               className="w-full justify-start"
               onClick={() => {
@@ -330,6 +334,7 @@ export function ImageUploader({
           )}
 
           <Button
+            type="button"
             variant="ghost"
             className="w-full justify-start text-red-600"
             onClick={() => {
@@ -341,6 +346,7 @@ export function ImageUploader({
           </Button>
 
           <Button
+            type="button"
             variant="ghost"
             className="w-full justify-start"
             onClick={() => {

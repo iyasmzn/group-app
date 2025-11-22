@@ -10,7 +10,7 @@ import { Progress } from '@/components/ui/progress'
 import { formatCurrency, formatDate } from '@/lib/utils/format'
 import { diffDays } from '@/lib/utils/schedule'
 import Reveal from '@/components/animations/Reveal'
-import { FileX, HandCoins, Undo2, X } from 'lucide-react'
+import { FileX, HandCoins, Plus, Undo2, X } from 'lucide-react'
 import Link from 'next/link'
 import LoadingOverlay from '@/components/loading-overlay'
 
@@ -125,8 +125,14 @@ export default function LoanDetailPage() {
       {/* Repayment list */}
       <Reveal delay={0.3}>
         <Card>
-          <CardHeader>
+          <CardHeader className="flex items-center justify-between">
             <CardTitle>Repayments</CardTitle>
+            {/* Tombol tambah di header */}
+            <Link href={`/app/groups/${groupId}/coop/loans/${loanId}/repayments/form`}>
+              <Button onClick={() => console.log('open add repayment form')}>
+                <Plus /> Tambah
+              </Button>
+            </Link>
           </CardHeader>
           <CardContent>
             {loan.group_coop_repayments?.length ? (

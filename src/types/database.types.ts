@@ -284,6 +284,7 @@ export type Database = {
           note: string | null
           paid_at: string | null
           paid_by: string
+          proof_image_url: string | null
         }
         Insert: {
           amount: number
@@ -292,6 +293,7 @@ export type Database = {
           note?: string | null
           paid_at?: string | null
           paid_by: string
+          proof_image_url?: string | null
         }
         Update: {
           amount?: number
@@ -300,6 +302,7 @@ export type Database = {
           note?: string | null
           paid_at?: string | null
           paid_by?: string
+          proof_image_url?: string | null
         }
         Relationships: [
           {
