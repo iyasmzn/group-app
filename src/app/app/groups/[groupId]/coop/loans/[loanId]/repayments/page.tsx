@@ -11,6 +11,8 @@ import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Plus, Undo2 } from 'lucide-react'
+import { PreviewImageDialog } from '@/components/preview-image-dialog'
+import { getBlurThumbnailUrl } from '@/lib/cloudinary'
 
 export default function CoopRepaymentsPage() {
   const { loanId, groupId } = useParams() as { loanId: string; groupId: string }
@@ -90,11 +92,18 @@ export default function CoopRepaymentsPage() {
                   </div>
 
                   {r.proof_image_url && r.proof_image_url !== '' && (
-                    <div className="flex items-center justify-center">
-                      <img
-                        src={r.proof_image_url}
-                        alt="Bukti pembayaran"
-                        className="h-32 w-32 object-cover rounded-md border hover:scale-105 transition-transform"
+                    <div className="flex items-center justify-center relative">
+                      <PreviewImageDialog
+                        name={r.id}
+                        image={r.proof_image_url}
+                        thumb={getBlurThumbnailUrl(r.proof_image_url)}
+                        trigger={
+                          <img
+                            src={r.proof_image_url}
+                            alt="Bukti pembayaran"
+                            className="h-32 w-32 object-cover rounded-md border hover:scale-105 transition-transform"
+                          />
+                        }
                       />
                     </div>
                   )}

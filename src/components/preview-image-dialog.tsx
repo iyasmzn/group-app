@@ -1,28 +1,29 @@
-"use client"
+'use client'
 
-import Image from "next/image"
-import { Eye } from "lucide-react"
-import { cn } from "@/lib/utils"
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import Image from 'next/image'
+import { Eye } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import React from 'react'
 
 type PreviewImageProps = {
   name: string
   image: string
   thumb?: string // blur thumbnail dari Cloudinary
+  trigger?: React.ReactNode
 }
 
-export function PreviewImageDialog({ name, image, thumb }: PreviewImageProps) {
+export function PreviewImageDialog({ name, image, thumb, trigger }: PreviewImageProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className="p-2 rounded-full bg-white/20 hover:bg-white/40">
-          <Eye className="w-5 h-5 text-white" />
-        </button>
+        {trigger ? (
+          trigger
+        ) : (
+          <button className="p-2 rounded-full bg-white/20 hover:bg-white/40">
+            <Eye className="w-5 h-5 text-white" />
+          </button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogTitle>Preview Image</DialogTitle>
@@ -32,11 +33,9 @@ export function PreviewImageDialog({ name, image, thumb }: PreviewImageProps) {
           alt={name}
           width={400}
           height={400}
-          placeholder={thumb ? "blur" : "empty"}
+          placeholder={thumb ? 'blur' : 'empty'}
           blurDataURL={thumb}
-          className={cn(
-            "w-full h-auto rounded-lg object-cover transition-opacity duration-300"
-          )}
+          className={cn('w-full h-auto rounded-lg object-cover transition-opacity duration-300')}
         />
       </DialogContent>
     </Dialog>
