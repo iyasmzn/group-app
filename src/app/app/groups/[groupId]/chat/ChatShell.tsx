@@ -16,7 +16,7 @@ export function ChatShell({ children, footer }: { children: ReactNode; footer: R
         <GroupChatTopbar
           groupId={params.groupId as string}
           name={groupData?.name || 'Group'}
-          avatar={groupData?.image_url}
+          avatar={groupData?.image_url || ''}
         />
       ) : null}
       <div className="flex-1 overflow-y-auto flex items-stretch">{children}</div>
