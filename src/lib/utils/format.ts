@@ -16,10 +16,11 @@
 // | `timeZoneName` | `"short"`, `"long"`                                       | Nama zona (`GMT+7`, `WIB`)                     |
 
 export function formatDate(
-  date: string | Date,
+  date: string | Date | null,
   locale: string | null = "id-ID",
   options: Intl.DateTimeFormatOptions = { day: "2-digit", month: "short", year: "numeric" }
 ) {
+  if (!date) return
   const d = typeof date === "string" ? new Date(date) : date
   return new Intl.DateTimeFormat(locale || "id-ID", options).format(d)
 }

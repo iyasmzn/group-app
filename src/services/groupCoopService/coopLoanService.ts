@@ -56,7 +56,21 @@ export const coopLoanService = {
   async getLoanDetail(loanId: string) {
     return await supabase
       .from('group_coop_loans')
-      .select('*, group_coop_repayments(*)')
+      .select(`*, 
+        group_coop_repayments(*),
+        group_coop_members (
+          id,
+          role,
+          status,
+          joined_at,
+          profiles (
+            id,
+            full_name,
+            avatar_url,
+            email
+          )
+        )
+      `)
       .eq('id', loanId)
       .single()
   },

@@ -56,12 +56,15 @@ export function isDateInRange(date: Date, start: Date, end: Date): boolean {
 /**
  * Hitung selisih hari/minggu/bulan
  */
-export function diffDays(start: Date, end: Date): number {
+export function diffDays(start: Date | null, end: Date | null): number {
+  if (!start || !end) return 0
   return differenceInDays(end, start)
 }
-export function diffWeeks(start: Date, end: Date): number {
+export function diffWeeks(start: Date | null, end: Date | null): number {
+  if (!start || !end) return 0
   return differenceInWeeks(end, start)
 }
-export function diffMonths(start: Date, end: Date): number {
+export function diffMonths(start: Date | null, end: Date | null): number {
+  if (!start || !end) return 0
   return differenceInMonths(end, start)
 }

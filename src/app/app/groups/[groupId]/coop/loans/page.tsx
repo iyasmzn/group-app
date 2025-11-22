@@ -15,6 +15,7 @@ import { FileX, Info, Plus, Trash } from 'lucide-react'
 import { AppConfirmDialog } from '@/components/ui/app-confirm-dialog'
 import { toast } from 'sonner'
 import Reveal from '@/components/animations/Reveal'
+import { Progress } from '@/components/ui/progress'
 
 export default function CoopLoansPage() {
   const { groupId } = useParams() as { groupId: string }
@@ -88,7 +89,7 @@ function LoanCard({ loan, groupId }: { loan: any; groupId: string }) {
         <Badge
           variant={
             loan.status === 'pending'
-              ? 'secondary'
+              ? 'default'
               : loan.status === 'active'
               ? 'default'
               : 'secondary'
@@ -104,13 +105,10 @@ function LoanCard({ loan, groupId }: { loan: any; groupId: string }) {
         <p className="text-2xl font-bold text-primary">{formatCurrency(loan.principal)}</p>
 
         {/* Progress bar tenor */}
-        <div className="w-full bg-muted rounded-full h-2">
-          <div
-            className="bg-primary h-2 rounded-full transition-all"
-            style={{ width: `${progress}%` }}
-          />
+        <div className="space-y-1">
+          <Progress value={progress} />
+          <p className="text-xs text-muted-foreground">{progress.toFixed(0)}% tenor berjalan</p>
         </div>
-        <p className="text-xs text-muted-foreground">{progress.toFixed(0)}% tenor berjalan</p>
 
         {/* Detail kecil */}
         <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
