@@ -16,7 +16,6 @@ import { Button } from '@/components/ui/button'
 import { Plus, XIcon } from 'lucide-react'
 import { MemberMultiSelect } from '@/components/app/events/MemberMultiSelect'
 import { useGroupMembers } from '@/lib/hooks/useGroupMembers'
-import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import { useState } from 'react'
 import { AppAvatar } from '@/components/ui/app-avatar'
@@ -97,7 +96,7 @@ export default function CoopMembersPage() {
               {/* Pilih dari member grup */}
               <MemberMultiSelect
                 members={groupMembers.map((v) => {
-                  return { ...v, full_name: v.profiles.full_name }
+                  return { ...v, user_id: v.user_id ?? null, full_name: v.profiles?.full_name }
                 })}
                 selected={members.map((v) => v.user_id)}
                 onChange={setSelectedMembers}
