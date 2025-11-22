@@ -8,28 +8,37 @@ type NewLoan = Omit<LoanRow, "id" | "created_at" | "status">
 
 
 export const coopLoanService = {
-  async applyLoan(data: NewLoan) {
+   async applyLoan(data: NewLoan) {
     const { data: loan, error } = await supabase
-      .from('group_coop_loans')
-      .insert([data])
+      .from("group_coop_loans")
+      .insert([{ ...data, status: "pending" }])
       .select()
       .single()
 
     if (error || !loan) return { error }
+    return { loan }
+  },
 
-    const { data: memberData, error: errorMember } = await coopMemberService
-      .getCoopMemberById(data.coop_member_id)
-    if (errorMember || !memberData) return { errorMember }
+  async approveLoan(loanId: string, approvedBy: string) {
+    // update status
+    const { data: loan, error } = await supabase
+      .from("group_coop_loans")
+      .update({ status: "active" })
+      .eq("id", loanId)
+      .select('*')
+      .single()
     
-    
+    if (error || !loan) return { error }
+
+    // baru insert ledger entry
     await coopLedgerService.addEntry({
-      group_id: data.group_id,
-      amount: data.principal,
-      entry_type: 'debit',
-      created_by: memberData.user_id,
+      group_id: loan.group_id,
+      amount: loan.principal,
+      entry_type: "debit",
+      created_by: approvedBy,
       reference_id: loan.id,
-      reference_type: 'loan',
-      description: 'Loan Disbursement',
+      reference_type: "loan",
+      description: "Loan Disbursement",
     })
 
     return { loan }

@@ -4,40 +4,46 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card'
 import { motion } from 'framer-motion'
-import { useCoopLoans, useDeleteLoan } from '@/lib/hooks/groupCoop'
+import { useApproveLoan, useCoopLoans, useDeleteLoan } from '@/lib/hooks/groupCoop'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { AppAvatar } from '@/components/ui/app-avatar'
 import { formatCurrency, formatDate } from '@/lib/utils/format'
 import { diffDays } from '@/lib/utils/schedule'
 import LoadingOverlay from '@/components/loading-overlay'
-import { FileX, Info, Plus, Trash } from 'lucide-react'
+import { CheckCircle, FileX, Info, Plus, Trash } from 'lucide-react'
 import { AppConfirmDialog } from '@/components/ui/app-confirm-dialog'
 import { toast } from 'sonner'
 import Reveal from '@/components/animations/Reveal'
 import { Progress } from '@/components/ui/progress'
+import { useAuth } from '@/context/AuthContext'
 
 export default function CoopLoansPage() {
   const { groupId } = useParams() as { groupId: string }
   const { data: loans, isLoading } = useCoopLoans(groupId)
+  const { user } = useAuth()
 
-  if (isLoading) {
+  if (isLoading || !user) {
     return <LoadingOverlay absolute />
   }
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">💰 Pinjaman Koperasi</h1>
-        <Link href={`/app/groups/${groupId}/coop/loans/apply`}>
-          <Button>
-            <Plus /> Tambah
+        <h1 className="text-xl md:text-2xl font-bold">💰 Pinjaman Koperasi</h1>
+        <Link
+          href={`/app/groups/${groupId}/coop/loans/apply`}
+          className="fixed md:relative bottom-21 md:bottom-0 right-4 md:right-4"
+        >
+          <Button className="rounded-full h-13 w-13 md:h-auto md:w-auto">
+            <Plus className="text-3xl" />
+            <span className="hidden md:inline-block">Tambah</span>
           </Button>
         </Link>
       </div>
 
       {loans?.data?.length ? (
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {loans.data.map((loan: any) => (
             <motion.div
               key={loan.id}
@@ -45,7 +51,7 @@ export default function CoopLoansPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <LoanCard loan={loan} groupId={groupId} />
+              <LoanCard loan={loan} groupId={groupId} userId={user.id} />
             </motion.div>
           ))}
         </div>
@@ -56,17 +62,30 @@ export default function CoopLoansPage() {
   )
 }
 
-function LoanCard({ loan, groupId }: { loan: any; groupId: string }) {
+function LoanCard({ loan, groupId, userId }: { loan: any; groupId: string; userId: string }) {
   // Hitung progress tenor
   const totalDays = diffDays(new Date(loan.due_date), new Date(loan.start_date))
   const elapsedDays = diffDays(new Date(), new Date(loan.start_date))
   const progress = Math.min(Math.max((elapsedDays / totalDays) * 100, 0), 100)
 
+  const approveLoan = useApproveLoan()
   const deleteLoan = useDeleteLoan(groupId)
 
+  const handleApprove = async (loan: any, userId: string) => {
+    const { error } = await approveLoan.mutateAsync({ loanId: loan.id, approvedBy: userId })
+    if (error) {
+      toast.error(error.message)
+    } else {
+      toast.success('Berhasil approve loan.')
+    }
+  }
   const handleDelete = async (loan: any) => {
-    await deleteLoan.mutateAsync(loan.id)
-    toast.success('Berhasil menghapus loan.')
+    const { error } = await deleteLoan.mutateAsync(loan.id)
+    if (error) {
+      toast.error(error.message)
+    } else {
+      toast.success('Berhasil menghapus loan.')
+    }
   }
 
   return (
@@ -91,7 +110,7 @@ function LoanCard({ loan, groupId }: { loan: any; groupId: string }) {
             loan.status === 'pending'
               ? 'default'
               : loan.status === 'active'
-              ? 'default'
+              ? 'success'
               : 'secondary'
           }
           className="text-xs animate-pulse"
@@ -142,6 +161,22 @@ function LoanCard({ loan, groupId }: { loan: any; groupId: string }) {
         </Link>
         {loan.status == 'pending' && (
           <>
+            {/* approve */}
+            <AppConfirmDialog
+              trigger={
+                <Button variant="success-outline" size="sm" className="flex-1">
+                  <CheckCircle /> Setujui
+                </Button>
+              }
+              title="Setujui Pengajuan?"
+              description="Apakah kamu yakin ingin menyetujui pengajuan ini? Tindakan ini tidak bisa dibatalkan."
+              confirmText="Ya, Setujui"
+              cancelText="Batal"
+              onConfirm={() => {
+                handleApprove(loan, userId)
+              }}
+            />
+            {/* delete */}
             <AppConfirmDialog
               trigger={
                 <Button variant="destructive" size="sm">

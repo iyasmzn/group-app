@@ -10,7 +10,7 @@ import { Progress } from '@/components/ui/progress'
 import { formatCurrency, formatDate } from '@/lib/utils/format'
 import { diffDays } from '@/lib/utils/schedule'
 import Reveal from '@/components/animations/Reveal'
-import { FileX, Undo2 } from 'lucide-react'
+import { FileX, HandCoins, Undo2, X } from 'lucide-react'
 import Link from 'next/link'
 import LoadingOverlay from '@/components/loading-overlay'
 
@@ -32,29 +32,50 @@ export default function LoanDetailPage() {
   const progress = Math.min(Math.max((elapsedDays / totalDays) * 100, 0), 100)
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-6">
+    <div className="max-w-2xl mx-auto py-4 md:p-6 space-y-6">
       <Reveal>
         <Card>
           <CardHeader className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Link href={`/app/groups/${groupId}/coop/loans`}>
-                <Button variant={'outline'}>
-                  <Undo2 />
-                </Button>
-              </Link>
-              <AppAvatar
-                name={loan.group_coop_members?.profiles?.full_name || 'O'}
-                image={loan.group_coop_members?.profiles?.avatar_url}
-                size="sm"
-              />
-              <div>
-                <p className="font-medium">{loan.group_coop_members?.profiles?.full_name}</p>
-                <p className="text-sm text-muted-foreground">
-                  {loan.group_coop_members?.role} • {loan.group_coop_members?.status}
-                </p>
+              <HandCoins />
+              <p>Detail Loan</p>
+            </div>
+            <Link href={`/app/groups/${groupId}/coop/loans`}>
+              <Button variant={'outline'}>
+                <X />
+              </Button>
+            </Link>
+          </CardHeader>
+        </Card>
+      </Reveal>
+      <Reveal>
+        <Card>
+          <CardHeader className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3">
+                <AppAvatar
+                  name={loan.group_coop_members?.profiles?.full_name || 'O'}
+                  image={loan.group_coop_members?.profiles?.avatar_url}
+                  size="sm"
+                />
+                <div>
+                  <p className="font-medium">{loan.group_coop_members?.profiles?.full_name}</p>
+                  <p className="text-sm text-muted-foreground">{loan.group_coop_members?.role}</p>
+                </div>
               </div>
             </div>
-            <Badge>{loan.status}</Badge>
+            <Badge
+              className="animate-pulse"
+              variant={
+                loan.status == 'pending'
+                  ? 'default'
+                  : loan.status == 'active'
+                  ? 'success'
+                  : 'secondary'
+              }
+            >
+              {loan.status}
+            </Badge>
           </CardHeader>
 
           <CardContent className="space-y-4">

@@ -166,31 +166,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "group_coop_ledger_created_by_fkey1"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "group_coop_members"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "group_coop_ledger_group_id_fkey"
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "groups"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "group_coop_ledger_reference_id_fkey"
-            columns: ["reference_id"]
-            isOneToOne: false
-            referencedRelation: "group_coop_loans"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "group_coop_ledger_reference_id_fkey1"
-            columns: ["reference_id"]
-            isOneToOne: false
-            referencedRelation: "group_coop_repayments"
             referencedColumns: ["id"]
           },
         ]

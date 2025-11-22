@@ -10,6 +10,7 @@ import { Settings2 } from 'lucide-react'
 import { formatScheduleDate } from '@/lib/utils/schedule'
 import { AppAvatar } from '@/components/ui/app-avatar'
 import { formatCurrency } from '@/lib/utils/format'
+import Reveal from '@/components/animations/Reveal'
 
 export default function CoopPage() {
   const params = useParams()
@@ -41,8 +42,8 @@ export default function CoopPage() {
         transition={{ duration: 0.4 }}
         className="flex items-center justify-between"
       >
-        <h1 className="text-2xl font-bold">📊 Dashboard Koperasi</h1>
-        <Link href={`/app/groups/${groupId}/coop/settings`}>
+        <h1 className="text-xl md:text-2xl font-bold">📊 Dashboard Koperasi</h1>
+        <Link href={`/app/groups/${groupId}/coop/settings`} className="hidden md:inline-block">
           <Button variant="outline">
             <Settings2 />
             Kelola Pengaturan
@@ -52,42 +53,48 @@ export default function CoopPage() {
 
       {/* Status Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <motion.div whileHover={{ scale: 1.02 }}>
-          <Card>
-            <CardHeader>
-              <CardTitle>Total Pinjaman</CardTitle>
-            </CardHeader>
-            <CardContent className="text-2xl font-semibold">
-              {formatCurrency(summary?.total_loans ?? 0)}
-            </CardContent>
-          </Card>
-        </motion.div>
+        <Reveal distance={20}>
+          <motion.div whileHover={{ scale: 1.02 }}>
+            <Card>
+              <CardHeader>
+                <CardTitle>Total Pinjaman</CardTitle>
+              </CardHeader>
+              <CardContent className="text-2xl font-semibold">
+                {formatCurrency(summary?.total_loans ?? 0)}
+              </CardContent>
+            </Card>
+          </motion.div>
+        </Reveal>
 
-        <motion.div whileHover={{ scale: 1.02 }}>
-          <Card>
-            <CardHeader>
-              <CardTitle>Total Pembayaran</CardTitle>
-            </CardHeader>
-            <CardContent className="text-2xl font-semibold">
-              {formatCurrency(summary?.total_repayments ?? 0)}
-            </CardContent>
-          </Card>
-        </motion.div>
+        <Reveal distance={20} delay={0.2}>
+          <motion.div whileHover={{ scale: 1.02 }}>
+            <Card>
+              <CardHeader>
+                <CardTitle>Total Pembayaran</CardTitle>
+              </CardHeader>
+              <CardContent className="text-2xl font-semibold">
+                {formatCurrency(summary?.total_repayments ?? 0)}
+              </CardContent>
+            </Card>
+          </motion.div>
+        </Reveal>
 
-        <motion.div whileHover={{ scale: 1.02 }}>
-          <Card>
-            <CardHeader>
-              <CardTitle>Sisa Tunggakan</CardTitle>
-            </CardHeader>
-            <CardContent className="text-2xl font-semibold text-red-500">
-              {formatCurrency(summary?.outstanding_balance ?? 0)}
-            </CardContent>
-          </Card>
-        </motion.div>
+        <Reveal distance={20} delay={0.4}>
+          <motion.div whileHover={{ scale: 1.02 }}>
+            <Card>
+              <CardHeader>
+                <CardTitle>Sisa Tunggakan</CardTitle>
+              </CardHeader>
+              <CardContent className="text-2xl font-semibold text-red-500">
+                {formatCurrency(summary?.outstanding_balance ?? 0)}
+              </CardContent>
+            </Card>
+          </motion.div>
+        </Reveal>
       </div>
 
       {/* Recent Transactions */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
         <Card>
           <CardHeader>
             <CardTitle>Transaksi Terbaru</CardTitle>

@@ -34,16 +34,36 @@ export function AuthProvider({
 
   useEffect(() => {
     // initial session
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(async ({ data }) => {
       setSession(data.session)
+
+      // isi user cepat dari session (fallback)
       setUser(data.session?.user ?? null)
+
+      // verifikasi user ke server
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser()
+      if (!error) setUser(user ?? null)
+
       setLoading(false)
     })
 
     // subscribe to auth changes
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session)
+
+      // isi user cepat dari session (fallback)
       setUser(session?.user ?? null)
+
+      // verifikasi user ke server
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser()
+      if (!error) setUser(user ?? null)
+
       setLoading(false)
     })
 

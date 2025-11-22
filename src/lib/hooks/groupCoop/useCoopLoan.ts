@@ -40,7 +40,6 @@ export function useApplyLoan() {
           return { ...old, data: [temp, ...old.data] };
         }
 
-        // kalau cache belum ada
         return { data: [temp] };
       });
 
@@ -55,7 +54,56 @@ export function useApplyLoan() {
 
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ["coopLoans", res.loan?.group_id] });
-      queryClient.invalidateQueries({ queryKey: ["coopLedger", res.loan?.group_id] });
+    },
+  });
+}
+
+export function useApproveLoan() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ loanId, approvedBy }: { loanId: string; approvedBy: string }) =>
+      coopLoanService.approveLoan(loanId, approvedBy),
+
+    onMutate: async ({ loanId, approvedBy }) => {
+      const groupId = queryClient
+        .getQueryData<any>(["coopLoans"])
+        ?.data?.find((l: any) => l.id === loanId)?.group_id;
+
+      if (groupId) {
+        await queryClient.cancelQueries({ queryKey: ["coopLoans", groupId] });
+
+        const previous = queryClient.getQueryData(["coopLoans", groupId]);
+
+        queryClient.setQueryData(["coopLoans", groupId], (old: any) => {
+          if (!old || !Array.isArray(old.data)) return old;
+          return {
+            ...old,
+            data: old.data.map((loan: any) =>
+              loan.id === loanId
+                ? { ...loan, status: "active", approved_by: approvedBy }
+                : loan
+            ),
+          };
+        });
+
+        return { previous, groupId };
+      }
+      return {};
+    },
+
+    onError: (_err, _vars, context) => {
+      if (context?.previous && context.groupId) {
+        queryClient.setQueryData(["coopLoans", context.groupId], context.previous);
+      }
+    },
+
+    onSuccess: (res) => {
+      const groupId = res.loan?.group_id;
+      if (groupId) {
+        queryClient.invalidateQueries({ queryKey: ["coopLoans", groupId] });
+        queryClient.invalidateQueries({ queryKey: ["coopLedger", groupId] });
+      }
     },
   });
 }
