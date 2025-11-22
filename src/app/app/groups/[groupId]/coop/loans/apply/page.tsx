@@ -18,6 +18,7 @@ import { AppAvatar } from '@/components/ui/app-avatar'
 import { Undo2 } from 'lucide-react'
 import Link from 'next/link'
 import Reveal from '@/components/animations/Reveal'
+import { Textarea } from '@/components/ui/textarea'
 
 export default function ApplyLoanForm() {
   const { groupId } = useParams() as { groupId: string }
@@ -33,9 +34,18 @@ export default function ApplyLoanForm() {
     note: '',
   })
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
-    const { name, value } = e.target
-    setForm({ ...form, [name]: name === 'note' ? value : Number(value) })
+  // format currency untuk tampilan
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      maximumFractionDigits: 0,
+    }).format(value)
+
+  function handlePrincipalChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const raw = e.target.value.replace(/\D/g, '') // ambil hanya angka
+    const intVal = raw ? parseInt(raw, 10) : 0
+    setForm({ ...form, principal: intVal })
   }
 
   async function handleSubmit() {
@@ -81,14 +91,15 @@ export default function ApplyLoanForm() {
             </Select>
           </div>
 
+          {/* Principal dengan format currency */}
           <div className="space-y-2">
             <Label htmlFor="principal">Jumlah Pinjaman</Label>
             <Input
               id="principal"
               name="principal"
-              type="number"
-              value={form.principal}
-              onChange={handleChange}
+              type="text"
+              value={form.principal ? formatCurrency(form.principal) : ''}
+              onChange={handlePrincipalChange}
             />
           </div>
 
@@ -99,7 +110,7 @@ export default function ApplyLoanForm() {
               name="term_months"
               type="number"
               value={form.term_months}
-              onChange={handleChange}
+              onChange={(e) => setForm({ ...form, term_months: Number(e.target.value) })}
             />
           </div>
 
@@ -110,13 +121,21 @@ export default function ApplyLoanForm() {
               name="interest_rate"
               type="number"
               value={form.interest_rate}
-              onChange={handleChange}
+              onChange={(e) => setForm({ ...form, interest_rate: Number(e.target.value) })}
             />
           </div>
 
+          {/* Catatan */}
           <div className="space-y-2">
             <Label htmlFor="note">Catatan</Label>
-            <Input id="note" name="note" type="text" value={form.note} onChange={handleChange} />
+            <Textarea
+              id="note"
+              name="note"
+              value={form.note}
+              onChange={(e) => setForm({ ...form, note: e.target.value })}
+              placeholder="Catatan pinjaman..."
+              className="min-h-[120px]"
+            />
           </div>
 
           <Button onClick={handleSubmit} disabled={applyLoan.isPending} className="w-full">
