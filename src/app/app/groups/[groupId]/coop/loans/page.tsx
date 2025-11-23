@@ -11,7 +11,7 @@ import { AppAvatar } from '@/components/ui/app-avatar'
 import { formatCurrency, formatDate } from '@/lib/utils/format'
 import { diffDays } from '@/lib/utils/schedule'
 import LoadingOverlay from '@/components/loading-overlay'
-import { CheckCircle, FileX, Info, Plus, Trash } from 'lucide-react'
+import { CheckCircle, CreditCard, FileX, Info, Plus, Trash } from 'lucide-react'
 import { AppConfirmDialog } from '@/components/ui/app-confirm-dialog'
 import { toast } from 'sonner'
 import Reveal from '@/components/animations/Reveal'
@@ -159,6 +159,16 @@ function LoanCard({ loan, groupId, userId }: { loan: any; groupId: string; userI
             <Info /> Detail
           </Button>
         </Link>
+        {loan.status == 'active' && (
+          <Link
+            href={`/app/groups/${groupId}/coop/loans/${loan.id}/repayments/form`}
+            className="flex-1"
+          >
+            <Button variant="primary-outline" size="sm" className="w-full">
+              <CreditCard /> Bayar
+            </Button>
+          </Link>
+        )}
         {loan.status == 'pending' && (
           <>
             {/* approve */}
