@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Plus, Undo2 } from 'lucide-react'
 import { PreviewImageDialog } from '@/components/preview-image-dialog'
 import { getBlurThumbnailUrl } from '@/lib/cloudinary'
-import { formatDateSimple, longDate } from '@/lib/utils/format'
+import { longDate } from '@/lib/utils/format'
 
 export default function CoopRepaymentsPage() {
   const { loanId, groupId } = useParams() as { loanId: string; groupId: string }
