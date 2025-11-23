@@ -10,9 +10,10 @@ import { Progress } from '@/components/ui/progress'
 import { formatCurrency, formatDate } from '@/lib/utils/format'
 import { diffDays } from '@/lib/utils/schedule'
 import Reveal from '@/components/animations/Reveal'
-import { Eye, FileX, HandCoins, History, Plus, X } from 'lucide-react'
+import { CheckCircle, Eye, FileX, HandCoins, History, Plus, X } from 'lucide-react'
 import Link from 'next/link'
 import LoadingOverlay from '@/components/loading-overlay'
+import { AppConfirmDialog } from '@/components/ui/app-confirm-dialog'
 
 export default function LoanDetailPage() {
   const { loanId, groupId } = useParams() as { loanId: string; groupId: string }
@@ -110,13 +111,22 @@ export default function LoanDetailPage() {
 
           <CardFooter className="flex gap-2 justify-end">
             {loan.status !== 'completed' && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => updateStatus.mutate({ loanId: loan.id, status: 'completed' })}
-              >
-                Tandai Selesai
-              </Button>
+              <>
+                <AppConfirmDialog
+                  trigger={
+                    <Button variant="outline" size="sm" className="flex-1">
+                      <CheckCircle /> Tandai Selesai
+                    </Button>
+                  }
+                  title="Tandai Selesai?"
+                  description="Apakah kamu yakin ingin menyelesaikan peminjaman ini? Tindakan ini tidak bisa dibatalkan."
+                  confirmText="Ya, Setujui"
+                  cancelText="Batal"
+                  onConfirm={() => {
+                    updateStatus.mutate({ loanId: loan.id, status: 'completed' })
+                  }}
+                />
+              </>
             )}
           </CardFooter>
         </Card>
