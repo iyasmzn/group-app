@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, DragEvent, useCallback, useRef } from 'react'
+import { useState, DragEvent, useCallback, useRef, ReactNode, useEffect } from 'react'
 import Cropper, { Area } from 'react-easy-crop'
 import { Button } from '@/components/ui/button'
 import { Upload, Loader2, X, Edit2, Eye, Camera } from 'lucide-react'
@@ -8,11 +8,26 @@ import { toast } from 'sonner'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog'
 import Reveal from './animations/Reveal'
 
+export interface PreviewItem {
+  file: File
+  index: number
+  remove: () => void
+  crop: () => void
+}
+
+export interface CustomControls {
+  handleUpload: () => Promise<void>
+  isProcessing: boolean
+  uploadProgress: number
+}
+
 export interface ImageUploaderProps {
   multiple?: boolean
   enableCrop?: boolean
   aspect?: number
-  onUpload: (files: File[]) => Promise<void>
+  onUpload: (files: File[], onProgress?: (progress: number) => void) => Promise<void>
+  customPreview?: (items: PreviewItem[]) => void
+  customControls?: (controls: CustomControls) => void
 }
 
 export function ImageUploader({
@@ -20,6 +35,8 @@ export function ImageUploader({
   enableCrop = false,
   aspect = 1,
   onUpload,
+  customPreview,
+  customControls,
 }: ImageUploaderProps) {
   const [originalFiles, setOriginalFiles] = useState<File[]>([])
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
@@ -32,6 +49,7 @@ export function ImageUploader({
   const [cropping, setCropping] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState<number>(0)
 
   // Mobile bottom sheet state
   const [actionIndex, setActionIndex] = useState<number | null>(null)
@@ -142,25 +160,57 @@ export function ImageUploader({
   const handleUpload = async () => {
     if (!selectedFiles.length) return
     setIsProcessing(true)
+    setUploadProgress(0)
+
     try {
-      await onUpload(selectedFiles)
-      toast.success('Upload success ✅')
+      await onUpload(selectedFiles, setUploadProgress)
+      toast.success('Upload success')
       setOriginalFiles([])
       setSelectedFiles([])
     } catch (err) {
-      console.error(err)
-      toast.error('Upload failed ❌')
+      toast.error('Upload failed')
     }
     setIsProcessing(false)
   }
+
+  useEffect(() => {
+    if (customPreview) {
+      customPreview(
+        selectedFiles.map((file, index) => ({
+          file,
+          index,
+          remove: () => handleRemove(index),
+          crop: () => startCrop(index),
+        }))
+      )
+    }
+  }, [selectedFiles])
+
+  useEffect(() => {
+    if (customControls) {
+      customControls({
+        handleUpload,
+        isProcessing,
+        uploadProgress,
+      })
+    }
+  }, [selectedFiles, isProcessing, uploadProgress])
 
   return (
     <div className="space-y-3">
       {/* Dropzone */}
       <div
-        className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
-          isDragging ? 'border-primary bg-primary/10' : 'border-muted-foreground/30'
-        }`}
+        className={`
+          relative flex flex-col items-center justify-center
+          border-2 border-dashed rounded-xl px-6 py-10
+          transition-all cursor-pointer
+          ${
+            isDragging
+              ? 'border-primary bg-primary/5 scale-[1.02] shadow-lg'
+              : 'border-muted-foreground/30 bg-muted/30'
+          }
+          hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm
+        `}
         onDragOver={(e) => {
           e.preventDefault()
           setIsDragging(true)
@@ -176,13 +226,19 @@ export function ImageUploader({
           id="image-input"
           onChange={handleFileSelect}
         />
-        <label htmlFor="image-input" className="flex flex-col items-center gap-2">
-          <Upload className="w-6 h-6 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">
+        <label
+          htmlFor="image-input"
+          className="flex flex-col items-center gap-3 text-sm text-muted-foreground"
+        >
+          <div className="p-3 rounded-full bg-muted shadow-inner">
+            <Upload className="w-7 h-7 text-primary" />
+          </div>
+          <span className="text-sm font-medium text-center">
             {multiple
-              ? 'Drag & drop images here or click to select'
-              : 'Drag & drop an image here or click to select'}
+              ? 'Drag & drop images here or click to browse'
+              : 'Drag & drop an image or click to select'}
           </span>
+          <span className="text-xs text-muted-foreground/60">PNG, JPG up to 5MB</span>
         </label>
       </div>
 
@@ -254,55 +310,75 @@ export function ImageUploader({
       )}
 
       {/* Preview thumbnails */}
-      {selectedFiles.length > 0 && (
-        <div className={`${multiple ? 'grid grid-cols-3 gap-3' : 'flex justify-center'}`}>
-          {selectedFiles.map((file, idx) => (
-            <Reveal key={idx + 'thumbnail' + URL.createObjectURL(file)} animation="fadeIn">
-              <div
-                key={idx}
-                className="relative group cursor-pointer"
-                onClick={() => {
-                  // Mobile: open bottom sheet
-                  if (window.innerWidth < 768) {
-                    setActionIndex(idx)
-                    setShowActions(true)
-                  } else {
-                    // Desktop: go straight to crop
-                    startCrop(idx)
-                  }
-                }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={URL.createObjectURL(file)}
-                  alt={file.name}
-                  className="w-24 h-24 object-cover rounded border"
-                />
-                {/* Desktop hover overlay */}
-                {enableCrop && (
-                  <div className="hidden md:flex absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 items-center justify-center text-white text-xs transition-opacity">
-                    <Edit2 className="w-4 h-4 mr-1" /> Crop
-                  </div>
-                )}
-                {/* Desktop remove button */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleRemove(idx)
+      <div
+        className={`${
+          multiple ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4' : 'flex justify-center'
+        }`}
+      >
+        {!customPreview &&
+          selectedFiles.map((file, idx) => {
+            return (
+              <Reveal key={idx + file.name} animation="fadeIn">
+                <div
+                  className="relative group rounded-lg overflow-hidden shadow-md hover:shadow-lg transition cursor-pointer"
+                  onClick={() => {
+                    if (window.innerWidth < 768) {
+                      setActionIndex(idx)
+                      setShowActions(true)
+                    } else {
+                      startCrop(idx)
+                    }
                   }}
-                  className="hidden md:block absolute top-1 right-1 bg-black/60 rounded-full p-1 text-white opacity-0 group-hover:opacity-100 transition-opacity"
                 >
-                  <X className="w-3 h-3" />
-                </button>
-              </div>
-            </Reveal>
-          ))}
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt={file.name}
+                    className="w-full h-32 object-cover rounded-md"
+                  />
+
+                  {/* Overlay options */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition">
+                    {enableCrop && (
+                      <button
+                        type="button"
+                        className="p-2 bg-white/80 rounded-full shadow-md"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          startCrop(idx)
+                        }}
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="p-2 bg-white/80 rounded-full shadow-md"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleRemove(idx)
+                      }}
+                    >
+                      <X className="w-4 h-4 text-red-500" />
+                    </button>
+                  </div>
+                </div>
+              </Reveal>
+            )
+          })}
+      </div>
+
+      {/* Progress upload */}
+      {isProcessing && (
+        <div className="w-full bg-muted rounded-lg h-2 mt-2 overflow-hidden">
+          <div className="bg-primary h-2 transition-all" style={{ width: `${uploadProgress}%` }} />
         </div>
+      )}
+      {isProcessing && (
+        <p className="text-xs text-muted-foreground text-center">Uploading... {uploadProgress}%</p>
       )}
 
       {/* Upload button */}
-      {selectedFiles.length > 0 && (
+      {!customControls && selectedFiles.length > 0 && (
         <Reveal animation="fadeInUp" distance={5} className="flex justify-center">
           <Button type="button" onClick={handleUpload} disabled={isProcessing} className="">
             {isProcessing && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}

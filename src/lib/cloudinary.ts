@@ -1,4 +1,13 @@
-export async function uploadToCloudinary(file: File): Promise<{ secure_url: string; public_id: string } | null> {
+type UploadResult = { secure_url: string; public_id: string } | null
+
+type UploadOptions = {
+  onProgress?: (progress: number) => void // 0 - 100
+}
+
+export async function uploadToCloudinary(
+  file: File,
+  options?: UploadOptions
+): Promise<UploadResult> {
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
   const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
 
@@ -7,29 +16,44 @@ export async function uploadToCloudinary(file: File): Promise<{ secure_url: stri
     return null
   }
 
-  const formData = new FormData()
-  formData.append("file", file)
-  formData.append("upload_preset", uploadPreset)
+  return new Promise((resolve, reject) => {
+    const formData = new FormData()
+    formData.append("file", file)
+    formData.append("upload_preset", uploadPreset)
 
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/upload`, {
-    method: "POST",
-    body: formData,
+    const xhr = new XMLHttpRequest()
+    xhr.open("POST", `https://api.cloudinary.com/v1_1/${cloudName}/upload`)
+
+    // Progress handler
+    if (options?.onProgress) {
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const progress = Math.round((event.loaded / event.total) * 100)
+          options.onProgress?.(progress)
+        }
+      }
+    }
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const data = JSON.parse(xhr.responseText)
+          resolve({ secure_url: data.secure_url, public_id: data.public_id })
+        } catch (err) {
+          reject("Invalid JSON response")
+        }
+      } else {
+        reject("Upload failed: " + xhr.statusText)
+      }
+    }
+
+    xhr.onerror = () => reject("Network error during upload")
+    xhr.send(formData)
   })
-
-  if (!res.ok) {
-    console.error("Cloudinary upload failed")
-    return null
-  }
-
-  const data = await res.json()
-  return { secure_url: data.secure_url, public_id: data.public_id }
 }
 
 export function getBlurThumbnailUrl(url: string, size = 20) {
   if (!url) return ""
-
-  // Cloudinary URL biasanya: https://res.cloudinary.com/<cloud_name>/image/upload/v12345/filename.jpg
-  // Kita sisipkan transformasi setelah "upload/"
   return url.replace(
     "/upload/",
     `/upload/w_${size},q_auto:low,e_blur:200/`

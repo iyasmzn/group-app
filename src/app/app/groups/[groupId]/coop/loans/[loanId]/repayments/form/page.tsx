@@ -1,7 +1,7 @@
 'use client'
 
 import Reveal from '@/components/animations/Reveal'
-import { ImageUploader } from '@/components/image-uploader'
+import { CustomControls, ImageUploader, PreviewItem } from '@/components/image-uploader'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -9,8 +9,8 @@ import { Label } from '@/components/ui/label'
 import { ShineBorder } from '@/components/ui/shine-border'
 import { Textarea } from '@/components/ui/textarea'
 import { useAuth } from '@/context/AuthContext'
-import { uploadToCloudinary } from '@/lib/cloudinary'
 import { useAddRepayment } from '@/lib/hooks/groupCoop'
+import { useImageUpload } from '@/lib/hooks/useImageUpload'
 import { formatCurrency } from '@/lib/utils/format'
 import { Database } from '@/types/database.types'
 import { Undo2 } from 'lucide-react'
@@ -50,6 +50,8 @@ export function RepaymentForm({
 }) {
   const addRepayment = useAddRepayment()
   const router = useRouter()
+  const { upload } = useImageUpload()
+  const [uploadControls, setUploadControls] = useState<CustomControls | null>(null)
 
   const backUrl = `/app/groups/${groupId}/coop/loans/${loanId}/repayments`
 
@@ -61,6 +63,8 @@ export function RepaymentForm({
     paid_by: currentUserId,
     proof_image_url: '',
   })
+
+  const [previewItems, setPreviewItems] = useState<PreviewItem[]>([])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -111,7 +115,9 @@ export function RepaymentForm({
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Amount */}
             <div className="space-y-1">
-              <Label htmlFor="amount">Jumlah</Label>
+              <Label htmlFor="amount" className="mb-2">
+                Jumlah
+              </Label>
               <Input
                 id="amount"
                 type="text"
@@ -124,7 +130,9 @@ export function RepaymentForm({
 
             {/* Date */}
             <div className="space-y-1">
-              <Label htmlFor="paid_at">Tanggal Bayar</Label>
+              <Label htmlFor="paid_at" className="mb-2">
+                Tanggal Bayar
+              </Label>
               <Input
                 id="paid_at"
                 type="date"
@@ -142,7 +150,9 @@ export function RepaymentForm({
 
             {/* Note */}
             <div className="space-y-1">
-              <Label htmlFor="note">Catatan</Label>
+              <Label htmlFor="note" className="mb-2">
+                Catatan
+              </Label>
               <Textarea
                 id="note"
                 name="note"
@@ -153,35 +163,82 @@ export function RepaymentForm({
             </div>
 
             {/* Proof Image */}
-            <div className="space-y-1">
-              <Label>Bukti Pembayaran</Label>
-              <ImageUploader
-                multiple={false}
-                enableCrop={true}
-                aspect={1}
-                onUpload={async (files) => {
-                  const file = files[0]
-                  try {
-                    const result = await uploadToCloudinary(file)
-                    setForm((prev) => ({
-                      ...prev,
-                      proof_image_url: result?.secure_url || '',
-                    }))
-                  } catch (err) {
-                    toast.error('Upload gagal:' + err)
-                  }
-                }}
-              />
-              {form.proof_image_url && (
-                <div className="mt-2 flex items-center gap-2">
-                  <img
-                    src={form.proof_image_url}
-                    alt="Bukti pembayaran"
-                    className="h-24 w-24 object-cover rounded-md border"
-                  />
-                  <p className="text-xs text-green-600">Bukti terupload ✔</p>
-                </div>
-              )}
+            <div className="space-y-1 flex flex-row gap-2 items-start">
+              <div className="flex-1">
+                <Label className="mb-2">Bukti Pembayaran</Label>
+                <ImageUploader
+                  multiple={false}
+                  enableCrop={true}
+                  aspect={1}
+                  customControls={setUploadControls}
+                  customPreview={setPreviewItems}
+                  onUpload={async (files) => {
+                    const file = files[0]
+                    const result = await upload(file)
+                    if (result?.secure_url) {
+                      setForm((prev) => ({
+                        ...prev,
+                        proof_image_url: result.secure_url,
+                      }))
+                    }
+                  }}
+                />
+              </div>
+              {previewItems.length || form.proof_image_url ? (
+                <>
+                  <div>
+                    <Label>Preview</Label>
+                    {previewItems.map(({ file, index, remove, crop }) => (
+                      <div
+                        key={index}
+                        className="relative w-28 h-28 border rounded overflow-hidden"
+                      >
+                        <img
+                          src={URL.createObjectURL(file)}
+                          className="object-cover w-full h-full"
+                        />
+                        <button onClick={crop} className="absolute bottom-1 left-1">
+                          Crop
+                        </button>
+                        <button onClick={remove} className="absolute bottom-1 right-1">
+                          Hapus
+                        </button>
+                      </div>
+                    ))}
+                    {form.proof_image_url ? (
+                      <div className="mt-2 flex items-center flex-col gap-2">
+                        <img
+                          src={form.proof_image_url}
+                          alt="Bukti pembayaran"
+                          className="h-24 w-24 object-cover rounded-md border"
+                        />
+                        <p className="text-xs text-green-600 text-center"> ✔ Bukti terupload</p>
+                      </div>
+                    ) : null}
+                    {/* Custom Upload Button di luar */}
+                    {uploadControls && previewItems.length > 0 && (
+                      <div className="mt-3 flex flex-col items-center gap-2">
+                        <Button
+                          onClick={uploadControls.handleUpload}
+                          disabled={uploadControls.isProcessing}
+                        >
+                          {uploadControls.isProcessing ? 'Uploading...' : 'Upload Bukti'}
+                        </Button>
+
+                        {/* progress bar */}
+                        {uploadControls.isProcessing && (
+                          <div className="w-full bg-gray-200 rounded h-2">
+                            <div
+                              className="bg-blue-500 h-2 rounded"
+                              style={{ width: `${uploadControls.uploadProgress}%` }}
+                            ></div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : null}
             </div>
 
             {/* Submit */}
