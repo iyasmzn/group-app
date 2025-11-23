@@ -42,6 +42,43 @@ export function longDateTime(
   }).format(d)
 }
 
+/**
+ * Format tanggal sederhana berbasis token
+ * Contoh:
+ * formatDateSimple(new Date(), 'dd MMM yyyy', 'id-ID')
+ */
+export function formatDateSimple(
+  date: string | Date,
+  format: string = 'dd MMM yyyy',
+  locale: string = 'id-ID'
+) {
+  const d = typeof date === 'string' ? new Date(date) : date
+
+  const day = d.getDate()
+  const month = d.getMonth() + 1
+  const year = d.getFullYear()
+
+  const monthShort = new Intl.DateTimeFormat(locale, { month: 'short' }).format(d)
+  const monthLong = new Intl.DateTimeFormat(locale, { month: 'long' }).format(d)
+
+  const tokens: Record<string, string> = {
+    d: String(day),
+    dd: String(day).padStart(2, '0'),
+    M: String(month),
+    MM: String(month).padStart(2, '0'),
+    MMM: monthShort,
+    MMMM: monthLong,
+    yy: String(year).slice(-2),
+    yyyy: String(year),
+  }
+
+  return format.replace(
+    /MMMM|MMM|MM|M|yyyy|yy|dd|d/g,
+    matched => tokens[matched]
+  )
+}
+
+
 export function longDate(
   date: string | Date,
   locale: string = "id-ID"

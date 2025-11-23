@@ -3,8 +3,6 @@
 import { useParams } from 'next/navigation'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { motion } from 'framer-motion'
-import { format } from 'date-fns'
-import { id } from 'date-fns/locale'
 import { useCoopRepayments } from '@/lib/hooks/groupCoop'
 import LoadingOverlay from '@/components/loading-overlay'
 import { Badge } from '@/components/ui/badge'
@@ -13,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Plus, Undo2 } from 'lucide-react'
 import { PreviewImageDialog } from '@/components/preview-image-dialog'
 import { getBlurThumbnailUrl } from '@/lib/cloudinary'
+import { formatDateSimple, longDate } from '@/lib/utils/format'
 
 export default function CoopRepaymentsPage() {
   const { loanId, groupId } = useParams() as { loanId: string; groupId: string }
@@ -73,20 +72,17 @@ export default function CoopRepaymentsPage() {
                 </CardHeader>
                 <CardContent className="grid grid-cols-2 gap-4 text-sm">
                   <div className="space-y-2">
-                    <p>
-                      <span className="font-medium">Jumlah:</span>{' '}
+                    <p className="">{r.paid_at ? longDate(new Date(r.paid_at)) : '-'}</p>
+                    <p className="font-bold text-primary">
                       {new Intl.NumberFormat('id-ID', {
                         style: 'currency',
                         currency: 'IDR',
                       }).format(r.amount)}
                     </p>
-                    <p>
-                      <span className="font-medium">Tanggal:</span>{' '}
-                      {r.paid_at ? format(new Date(r.paid_at), 'dd MMM yyyy', { locale: id }) : '-'}
-                    </p>
                     {r.note && r.note.trim() !== '' && (
                       <p>
-                        <span className="font-medium">Catatan:</span> {r.note}
+                        <small>Note:</small>
+                        <br />"{r.note}"
                       </p>
                     )}
                   </div>
