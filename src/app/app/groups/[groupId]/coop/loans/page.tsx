@@ -33,7 +33,7 @@ export default function CoopLoansPage() {
         <h1 className="text-xl md:text-2xl font-bold">💰 Pinjaman Koperasi</h1>
         <Link
           href={`/app/groups/${groupId}/coop/loans/apply`}
-          className="fixed md:relative bottom-21 md:bottom-0 right-4 md:right-4"
+          className="fixed md:relative bottom-21 md:bottom-0 right-5 md:right-0 z-10"
         >
           <Button className="rounded-full h-13 w-13 md:h-auto md:w-auto">
             <Plus className="text-3xl" />

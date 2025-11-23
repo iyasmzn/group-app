@@ -35,7 +35,7 @@ export default function CoopRepaymentsPage() {
         </div>
         <Link
           href={`/app/groups/${groupId}/coop/loans/${loanId}/repayments/form`}
-          className="fixed md:relative bottom-21 md:bottom-0 right-4 md:right-4"
+          className="fixed md:relative bottom-5 md:bottom-0 right-5 md:right-0 z-10"
         >
           <Button className="rounded-full h-13 w-13 md:h-auto md:w-auto">
             <Plus />
